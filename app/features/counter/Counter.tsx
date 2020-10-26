@@ -1,14 +1,8 @@
+/* eslint-disable */
 import React from 'react';
 import { Link } from 'dva/router';
 import styles from './style.css';
 import routes from '../../constants/routes.json';
-// import {
-//   increment,
-//   decrement,
-//   incrementIfOdd,
-//   incrementAsync,
-//   selectCount,
-// } from './counterSlice';
 
 export default function Counter() {
   return (
@@ -24,8 +18,7 @@ export default function Counter() {
         <button
           className={styles.btn}
           data-tclass="btn"
-          type="button"
-        >
+          type="button">
           <i className="fa fa-plus" />
         </button>
         <button
@@ -53,3 +46,4 @@ export default function Counter() {
     </div>
   );
 }
+/* eslint-enable */

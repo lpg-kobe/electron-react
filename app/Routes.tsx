@@ -11,7 +11,7 @@ import CounterPage from './containers/CounterPage';
 //   </React.Suspense>
 // );
 
-export default function Routes({ history }) {
+export default function Routes({ history }) {// eslint-disable-line
   return (
     <Router history={history}>
       <Layout>

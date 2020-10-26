@@ -1,3 +1,4 @@
+/* eslint-disable */
 import immutable from 'immutable'
 
 export default {
@@ -24,3 +25,4 @@ export default {
     },
   },
 }
+/* eslint-enable */
