@@ -1,11 +1,13 @@
-import React, { ReactNode } from 'react';
+import React from 'react';
 import { Router, Route, Switch } from 'dva/router';
 import CommonLayout from './components/layout';
 import routes from './route.config';
 
 type RouteType = {
-  component: string | ReactNode;
+  component: ReturnType<typeof console.log>;
   children: string[];
+  path: string;
+  exact: boolean;
 };
 
 /**
@@ -13,7 +15,7 @@ type RouteType = {
  * @param {Object} route config of route
  * @param {Object} app dva app
  */
-const createRoute = (route: RouteType, app: Record<string, unknown>) => {
+const createRoute = (route: RouteType, app) => {
   const { component, children, path, exact } = route;
   const Component = component(app);
   return (
