@@ -72,13 +72,13 @@ const createWindow = async () => {
     webPreferences:
       (process.env.NODE_ENV === 'development' ||
         process.env.E2E_BUILD === 'true') &&
-        process.env.ERB_SECURE !== 'true'
+      process.env.ERB_SECURE !== 'true'
         ? {
-          nodeIntegration: true,
-        }
+            nodeIntegration: true,
+          }
         : {
-          preload: path.join(__dirname, 'dist/renderer.prod.js'),
-        },
+            preload: path.join(__dirname, 'dist/renderer.prod.js'),
+          },
   });
 
   mainWindow.loadURL(`file://${__dirname}/app.html`);

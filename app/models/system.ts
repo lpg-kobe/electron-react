@@ -4,13 +4,13 @@ import immutable from 'immutable'
 export default {
   namespace: 'system',
   state: immutable.fromJS({
-
+    system: {}
   }),
   subscriptions: {
     setup() { }
   },
   effects: {
-    *fetch({ payload }, { call, put }) {// eslint-disable-line
+    *fetch({ payload }, { call, put }: any) {// eslint-disable-line
       yield call()
       yield put({
         type: 'save',
@@ -20,7 +20,7 @@ export default {
   },
 
   reducers: {
-    save(state, { payload }) {// eslint-disable-line
+    save(state: any, { payload }) {// eslint-disable-line
       return state.merge(payload)
     },
   },

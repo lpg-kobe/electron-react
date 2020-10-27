@@ -1,25 +1,46 @@
-/* eslint react/jsx-props-no-spreading: off */
-import React from 'react';
-import { Switch, Router, Route } from 'dva/router';
-import routes from './constants/routes.json';
-import Layout from './containers/App';
-import HomePage from './containers/HomePage';
-import CounterPage from './containers/CounterPage';
-// const CounterPage = (props: Record<string, any>) => (
-//   <React.Suspense fallback={<h1>Loading...</h1>}>
-//     <LazyCounterPage {...props} />
-//   </React.Suspense>
-// );
+import React, { ReactNode } from 'react';
+import { Router, Route, Switch } from 'dva/router';
+import CommonLayout from './components/layout';
+import routes from './route.config';
 
-export default function Routes({ history }) {// eslint-disable-line
+type RouteType = {
+  component: string | ReactNode;
+  children: string[];
+};
+
+/**
+ * @desc main function to create router
+ * @param {Object} route config of route
+ * @param {Object} app dva app
+ */
+const createRoute = (route: RouteType, app: Record<string, unknown>) => {
+  const { component, children, path, exact } = route;
+  const Component = component(app);
+  return (
+    <Route
+      key={Math.random().toString(36).substring(6)}
+      path={path}
+      exact={typeof exact === 'undefined' ? true : exact}
+      component={Component}
+    >
+      {children &&
+        children.map((ele) => {
+          return createRoute(ele, app);
+        })}
+    </Route>
+  );
+};
+
+function RouterConfig({ history, app }: Record<string, unknown>) {
   return (
     <Router history={history}>
-      <Layout>
-        <Switch>
-          <Route path={routes.COUNTER} component={CounterPage} />
-          <Route path={routes.HOME} component={HomePage} />
-        </Switch>
-      </Layout>
+      <Switch>
+        <CommonLayout>
+          <Switch>{routes.map((route) => createRoute(route, app))}</Switch>
+        </CommonLayout>
+      </Switch>
     </Router>
   );
 }
+
+export default RouterConfig;

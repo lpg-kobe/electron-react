@@ -2,8 +2,8 @@
 
 const developmentEnvironments = ['development', 'test'];
 
-// const developmentPlugins = [require('react-hot-loader/babel')];
-const developmentPlugins = [require('babel-plugin-dva-hmr')];
+const developmentPlugins = [require('react-hot-loader/babel')];
+// const developmentPlugins = [require('babel-plugin-dva-hmr')]
 
 const productionPlugins = [
   require('babel-plugin-dev-expression'),
