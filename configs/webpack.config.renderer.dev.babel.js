@@ -64,20 +64,6 @@ export default merge(baseConfig, {
   module: {
     rules: [
       {
-        test: /\.global\.css$/,
-        use: [
-          {
-            loader: 'style-loader',
-          },
-          {
-            loader: 'css-loader',
-            options: {
-              sourceMap: true,
-            },
-          },
-        ],
-      },
-      {
         test: /^((?!\.global).)*\.css$/,
         use: [
           {
@@ -95,9 +81,9 @@ export default merge(baseConfig, {
           },
         ],
       },
-      // SASS support - compile all .global.scss files and pipe it to style.css
+      // less support - compile all .global.less files and pipe it to style.css
       {
-        test: /\.global\.(scss|sass)$/,
+        test: /\.global\.less$/,
         use: [
           {
             loader: 'style-loader',
@@ -109,13 +95,13 @@ export default merge(baseConfig, {
             },
           },
           {
-            loader: 'sass-loader',
+            loader: 'less-loader',
           },
         ],
       },
-      // SASS support - compile all other .scss files and pipe it to style.css
+      // less support - compile all other .less files and pipe it to style.css
       {
-        test: /^((?!\.global).)*\.(scss|sass)$/,
+        test: /^((?!\.global).)*\.(less)$/,
         use: [
           {
             loader: 'style-loader',
@@ -132,9 +118,6 @@ export default merge(baseConfig, {
               sourceMap: true,
               importLoaders: 1,
             },
-          },
-          {
-            loader: 'sass-loader',
           },
         ],
       },

@@ -76,7 +76,21 @@
         }
       ]
     },
+    "mac": {
+      "extraFiles": [
+        {
+          "from": "node_modules/trtc-electron-sdk/build/Release",
+          "to": "./Resources"
+        }
+      ]
+    },
     "win": {
+      "extraFiles": [
+        {
+          "from": "node_modules/trtc-electron-sdk/build/Release",
+          "to": "."
+        }
+      ],
       "target": [
         "nsis",
         "msi"
@@ -251,6 +265,7 @@
     "jest": "^26.1.0",
     "lint-staged": "^10.2.11",
     "mini-css-extract-plugin": "^0.9.0",
+    "native-ext-loader": "^2.3.0",
     "node-sass": "^4.14.1",
     "opencollective-postinstall": "^2.0.3",
     "optimize-css-assets-webpack-plugin": "^5.0.3",
@@ -287,6 +302,8 @@
     "electron-updater": "^4.3.4",
     "history": "^4.7.2",
     "immutable": "^4.0.0-rc.12",
+    "less": "^3.12.2",
+    "less-loader": "^7.0.2",
     "react": "^16.13.1",
     "react-dom": "^16.12.0",
     "react-hot-loader": "^4.12.21",
@@ -295,7 +312,8 @@
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
     "regenerator-runtime": "^0.13.5",
-    "source-map-support": "^0.5.19"
+    "source-map-support": "^0.5.19",
+    "trtc-electron-sdk": "^7.8.342"
   },
   "devEngines": {
     "node": ">=7.x",
