@@ -1,27 +1,23 @@
-// import React, { Fragment } from 'react';
-// import { render } from 'react-dom';
-// import { AppContainer as ReactHotAppContainer } from 'react-hot-loader';
-// import { history, configuredStore } from './store';
-import dva from 'dva'
-import './app.global.css';
+/**
+ * @desc main entry of app, use dva
+ * @author pika
+ */
+import dva from 'dva';
+import './global.less';
 
-// const store = configuredStore();
+import * as trtc_namespace from 'trtc-electron-sdk';
 
-// const AppContainer = process.env.PLAIN_HMR ? Fragment : ReactHotAppContainer;
+const TRTCCloud = require('trtc-electron-sdk');
+
+const rtcCloud: trtc_namespace.TRTCCloud = new TRTCCloud();
+// 获取 SDK 版本号
+rtcCloud.getSDKVersion();
 
 document.addEventListener('DOMContentLoaded', () => {
-  const dvaOpts = {}
-  const app = dva(dvaOpts)
-  app.router(require('./Routes').default)
-  // app.use()
-  // app.model(require('@/models/system').default)
-  app.start('#root')
-  // eslint-disable-next-line global-require
-  // const Root = require('./containers/Root').default;
-  // render(
-  //   <AppContainer>
-  //     <Root store={store} history={history} />
-  //   </AppContainer>,
-  //   document.getElementById('root')
-  // );
+    const dvaOpts = {};
+    const app = dva(dvaOpts);
+    app.router(require('./routes').default);
+    // app.use()
+    app.model(require('./models/system').default);
+    app.start('#root');
 });
