@@ -2,9 +2,9 @@
  * Base webpack config used across other specific configs
  */
 
-import path from 'path'
-import webpack from 'webpack'
-import { dependencies as externals } from '../app/package.json'
+import path from 'path';
+import webpack from 'webpack';
+import { dependencies as externals } from '../app/package.json';
 
 export default {
   externals: [...Object.keys(externals || {})],
@@ -17,28 +17,29 @@ export default {
         use: {
           loader: 'babel-loader',
           options: {
-            cacheDirectory: true
-          }
-        }
+            cacheDirectory: true,
+          },
+        },
       },
       {
         test: /\.node$/,
         loader: 'native-ext-loader',
         options: {
           emit: false,
+          // find trtc-sdk file before package
           rewritePath:
             process.env.NODE_ENV === 'production'
               ? './'
-              : 'node_modules/trtc-electron-sdk/build/Release/'
-        }
-      }
-    ]
+              : 'node_modules/trtc-electron-sdk/build/Release/',
+        },
+      },
+    ],
   },
 
   output: {
     path: path.join(__dirname, '..', 'app'),
     // https://github.com/webpack/webpack/issues/1114
-    libraryTarget: 'commonjs2'
+    libraryTarget: 'commonjs2',
   },
 
   /**
@@ -46,14 +47,14 @@ export default {
    */
   resolve: {
     extensions: ['.js', '.jsx', '.json', '.ts', '.tsx'],
-    modules: [path.join(__dirname, '..', 'app'), 'node_modules']
+    modules: [path.join(__dirname, '..', 'app'), 'node_modules'],
   },
 
   plugins: [
     new webpack.EnvironmentPlugin({
-      NODE_ENV: 'production'
+      NODE_ENV: 'production',
     }),
 
-    new webpack.NamedModulesPlugin()
-  ]
-}
+    new webpack.NamedModulesPlugin(),
+  ],
+};

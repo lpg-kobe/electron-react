@@ -48,6 +48,7 @@ export default merge(baseConfig, {
   target: 'electron-renderer',
 
   entry: [
+    // this can config only in development during electron, base in version 80 of chrome
     'core-js',
     'regenerator-runtime/runtime',
     ...(process.env.PLAIN_HMR ? [] : ['react-hot-loader/patch']),
@@ -67,10 +68,10 @@ export default merge(baseConfig, {
         test: /^((?!\.global).)*\.css$/,
         use: [
           {
-            loader: 'style-loader',
+            loader: require.resolve('style-loader'),
           },
           {
-            loader: 'css-loader',
+            loader: require.resolve('css-loader'),
             options: {
               modules: {
                 localIdentName: '[name]__[local]__[hash:base64:5]',
@@ -86,16 +87,17 @@ export default merge(baseConfig, {
         test: /\.global\.less$/,
         use: [
           {
-            loader: 'style-loader',
+            loader: require.resolve('style-loader'),
           },
           {
-            loader: 'css-loader',
+            loader: require.resolve('css-loader'),
             options: {
               sourceMap: true,
             },
           },
           {
-            loader: 'less-loader',
+            loader: require.resolve('less-loader'),
+            options: { lessOptions: { javascriptEnabled: true } },
           },
         ],
       },
@@ -104,13 +106,13 @@ export default merge(baseConfig, {
         test: /^((?!\.global).)*\.(less)$/,
         use: [
           {
-            loader: 'style-loader',
+            loader: require.resolve('style-loader'),
           },
           {
             loader: '@teamsupercell/typings-for-css-modules-loader',
           },
           {
-            loader: 'css-loader',
+            loader: require.resolve('css-loader'),
             options: {
               modules: {
                 localIdentName: '[name]__[local]__[hash:base64:5]',
@@ -118,6 +120,10 @@ export default merge(baseConfig, {
               sourceMap: true,
               importLoaders: 1,
             },
+          },
+          {
+            loader: require.resolve('less-loader'),
+            options: { lessOptions: { javascriptEnabled: true } },
           },
         ],
       },
