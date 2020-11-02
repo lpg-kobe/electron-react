@@ -10,6 +10,7 @@ type HandlerType = {
 
 type ErrorType = {
   response?: any;
+  message?: any;
 };
 
 function parseJSON(response: any): any {
@@ -21,7 +22,6 @@ function checkStatus(response: any): any {
     return response;
   }
 
-  // @ts-ignore
   const error: ErrorType = new Error(response.statusText);
   error.response = response;
   throw error;
@@ -67,6 +67,7 @@ export default function request(
   if (settings.method.toUpperCase() !== 'GET') {
     settings['Cache-Control'] = 'no-cache';
   }
+  // @ts-ignore
   return fetch(fixUrl, settings)
     .then(checkStatus)
     .then(parseJSON)

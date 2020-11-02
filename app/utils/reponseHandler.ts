@@ -5,9 +5,10 @@
 import { message } from 'antd';
 
 type ReactType = {
-  login?: any;
-  operate?: any;
-  upload?: any;
+  login(): void;
+  operate(): void;
+  upload(): void;
+  [key: string]: any;
 };
 
 type handleType = {
@@ -38,9 +39,7 @@ export function handleSuccess(handler: handleType): any {
         });
       },
     };
-    // @ts-ignore
-    const result: any = keyReact[key];
-    result && typeof value === 'function' ? value() : result?.();
+    keyReact[key] && typeof value === 'function' ? value() : keyReact[key]?.();
   });
 }
 
@@ -68,9 +67,9 @@ export function handleError(handler: handleType): any {
           });
         },
       };
-      // @ts-ignore
-      const result: any = keyReact[key];
-      result && typeof value === 'function' ? value() : result?.();
+      keyReact[key] && typeof value === 'function'
+        ? value()
+        : keyReact[key]?.();
     });
   } else {
     message.error('未知异常');

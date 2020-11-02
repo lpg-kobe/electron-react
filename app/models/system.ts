@@ -3,14 +3,12 @@
  */
 import immutable from 'immutable';
 // @ts-ignore
-import TRTCCloud from 'trtc-electron-sdk';
+import TRTCElectronVideoCast from '@/sdk/trtc-electron-videocast';
 
 export default {
   namespace: 'system',
   state: immutable.fromJS({
-    system: {
-      TRTCCloud,
-    },
+    TRTCCloud: TRTCElectronVideoCast,
   }),
   subscriptions: {
     setup() {},

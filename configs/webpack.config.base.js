@@ -3,8 +3,16 @@
  */
 
 import path from 'path';
+import fs from 'fs';
 import webpack from 'webpack';
 import { dependencies as externals } from '../app/package.json';
+import { readFile2Json } from './tool';
+
+const appRoot = path.join(__dirname, '..', 'app');
+const { defineKey } =
+  process.env.NODE_ENV === 'production'
+    ? readFile2Json(path.join(appRoot, './.env.prod'))
+    : readFile2Json(path.join(appRoot, './.env.dev'));
 
 export default {
   externals: [...Object.keys(externals || {})],
@@ -37,7 +45,7 @@ export default {
   },
 
   output: {
-    path: path.join(__dirname, '..', 'app'),
+    path: appRoot,
     // https://github.com/webpack/webpack/issues/1114
     libraryTarget: 'commonjs2',
   },
@@ -47,13 +55,18 @@ export default {
    */
   resolve: {
     extensions: ['.js', '.jsx', '.json', '.ts', '.tsx'],
-    modules: [path.join(__dirname, '..', 'app'), 'node_modules'],
+    modules: [appRoot, 'node_modules'],
+    alias: {
+      '@': appRoot,
+    },
   },
 
   plugins: [
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'production',
     }),
+
+    new webpack.DefinePlugin(defineKey),
 
     new webpack.NamedModulesPlugin(),
   ],
