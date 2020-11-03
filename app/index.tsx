@@ -5,6 +5,7 @@
 import dva from 'dva';
 import 'antd/dist/antd.less';
 import './assets/style/global.less';
+import { ipcRenderer } from 'electron'
 
 const routes = require('./routes').default;
 const systemModal = require('./models/system').default;
@@ -16,4 +17,5 @@ document.addEventListener('DOMContentLoaded', () => {
   // app.use()
   app.model(systemModal);
   app.start('#root');
+  ipcRenderer.send('main:ready')
 });

@@ -4,7 +4,7 @@ import CommonLayout from './components/layout';
 import routes from './route.config';
 
 type RouteType = {
-  component: ReturnType<typeof console.log>;
+  component: any;
   children: string[];
   path: string;
   exact: boolean;
@@ -15,7 +15,7 @@ type RouteType = {
  * @param {Object} route config of route
  * @param {Object} app dva app
  */
-const createRoute = (route: RouteType, app) => {
+const createRoute = (route: RouteType, app: any) => {
   const { component, children, path, exact } = route;
   const Component = component(app);
   return (
@@ -26,19 +26,19 @@ const createRoute = (route: RouteType, app) => {
       component={Component}
     >
       {children &&
-        children.map((ele) => {
+        children.map((ele: any) => {
           return createRoute(ele, app);
         })}
     </Route>
   );
 };
 
-function RouterConfig({ history, app }: Record<string, unknown>) {
+function RouterConfig({ history, app }: any) {
   return (
     <Router history={history}>
       <Switch>
         <CommonLayout>
-          <Switch>{routes.map((route) => createRoute(route, app))}</Switch>
+          <Switch>{routes.map((route: any) => createRoute(route, app))}</Switch>
         </CommonLayout>
       </Switch>
     </Router>
