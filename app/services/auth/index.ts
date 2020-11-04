@@ -2,13 +2,19 @@
  * @desc api services of auth
  */
 
-const request = require('@/utils/request')
+import request from '../../utils/request';
+
 type ParamType = {
-    [key: string]: any
-}
+  [key: string]: any;
+};
+
 export function login({ params, ...handler }: ParamType): any {
-    return request('/login/memberlogin', {
-        mathod: 'post',
-        body: JSON.stringify(params)
-    }, handler)
+  return request(
+    '/login/memberlogin',
+    {
+      method: 'post',
+      body: JSON.stringify(params),
+    },
+    handler
+  );
 }

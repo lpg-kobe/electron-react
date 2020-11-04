@@ -3,63 +3,63 @@
  * @description user auth model, config user login status or permission
  */
 
-import immutable from 'immutable'
+import immutable from 'immutable';
 // @ts-ignore
-import { login } from '@/services/auth'
+import { login } from '@/services/auth';
 // @ts-ignore
 import { getUserSession, removeUserSession } from '@/utils/session';
 
 type ActionType = {
-    [key: string]: any
-}
+  [key: string]: any;
+};
 
 type StateType = {
-    [key: string]: any
-}
+  [key: string]: any;
+};
 
 type YieldType = {
-    [key: string]: any
-}
+  [key: string]: any;
+};
 
 type LocationType = {
-    pathname: string
-}
+  pathname: string;
+};
 
 type SetUpType = {
-    history: any,
-    dispatch: any
-}
+  history: any;
+  dispatch: any;
+};
 
 export default {
-    namespace: 'auth',
+  namespace: 'auth',
 
-    state: immutable.fromJS({
-        userInfo: getUserSession()
-    }),
+  state: immutable.fromJS({
+    userInfo: getUserSession(),
+  }),
 
-    subscriptions: {
-        setup({ history, dispatch }: SetUpType) {
-            return history.listen(({ pathname }: LocationType) => {
-                console.log(dispatch, pathname)
-            })
-        }
+  subscriptions: {
+    setup({ history, dispatch }: SetUpType) {
+      return history.listen(({ pathname }: LocationType) => {
+        console.log(dispatch, pathname);
+      });
+    },
+  },
+
+  effects: {
+    *login({ payload }: ActionType, { call }: YieldType) {
+      const { data } = yield call(login, payload);
+      console.log(data);
     },
 
-    effects: {
-        *login({ payload }: ActionType, { call }: YieldType) {
-            const { data } = yield call(login, payload)
-            console.log(data)
-        },
-
-        *logout() {
-            removeUserSession()
-            window.location.replace('/login')
-        },
+    *logout() {
+      removeUserSession();
+      window.location.replace('/login');
     },
+  },
 
-    reducers: {
-        save(state: StateType, { payload }: ActionType) {
-            return state.merge(payload)
-        },
+  reducers: {
+    save(state: StateType, { payload }: ActionType) {
+      return state.merge(payload);
     },
-}
+  },
+};

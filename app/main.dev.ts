@@ -25,28 +25,28 @@ export default class AppUpdater {
 }
 
 type DefaultConfigParam = {
-  show?: boolean,
-  width?: number,
-  height?: number,
-  webPreferences?: any
-}
+  show?: boolean;
+  width?: number;
+  height?: number;
+  webPreferences?: any;
+};
 
 let mainWindow: any;
 let launchWindow: any;
-let defaultWindowConfig: DefaultConfigParam = {
+const defaultWindowConfig: DefaultConfigParam = {
   width: 1024,
   height: 728,
   webPreferences:
     (process.env.NODE_ENV === 'development' ||
       process.env.E2E_BUILD === 'true') &&
-      process.env.ERB_SECURE !== 'true'
+    process.env.ERB_SECURE !== 'true'
       ? {
-        nodeIntegration: true,
-      }
+          nodeIntegration: true,
+        }
       : {
-        preload: path.join(__dirname, 'dist/renderer.prod.js'),
-      }
-}
+          preload: path.join(__dirname, 'dist/renderer.prod.js'),
+        },
+};
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -89,7 +89,7 @@ const createWindow = async () => {
   mainWindow = new BrowserWindow({
     ...defaultWindowConfig,
     icon: getAssetPath('icon.png'),
-    show: false
+    show: false,
   });
 
   launchWindow = new BrowserWindow({
@@ -97,29 +97,29 @@ const createWindow = async () => {
     skipTaskbar: true,
     transparent: true,
     width: 512,
-    height: 364
-  })
+    height: 364,
+  });
 
-  launchWindow.loadURL(`file://${__dirname}/middleware/launch/index.html`)
+  launchWindow.loadURL(`file://${__dirname}/middleware/launch/index.html`);
 
   // 监听启动窗口关闭
   launchWindow.on('close', () => {
-    launchWindow = null
-  })
+    launchWindow = null;
+  });
 
   // 监听启动页开始
   ipcMain.on('launch:ready', () => {
-    launchWindow.show()
-  })
+    launchWindow.show();
+  });
 
   // 监听页面加载完毕
   ipcMain.on('main:ready', () => {
     if (!launchWindow) {
-      return
+      return;
     }
-    launchWindow.close()
-    mainWindow.show()
-  })
+    launchWindow.close();
+    mainWindow.show();
+  });
 
   mainWindow.loadURL(`file://${__dirname}/app.html`);
 

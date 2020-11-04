@@ -36,6 +36,24 @@ export default merge(baseConfig, {
 
   module: {
     rules: [
+      // Extract all .global.css to style.css as is
+      {
+        test: /\.global\.css$/,
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader,
+            options: {
+              publicPath: './',
+            },
+          },
+          {
+            loader: 'css-loader',
+            options: {
+              sourceMap: true,
+            },
+          },
+        ],
+      },
       // Pipe other styles through css modules and append to style.css
       {
         test: /^((?!\.global).)*\.css$/,
@@ -46,9 +64,9 @@ export default merge(baseConfig, {
           {
             loader: 'css-loader',
             options: {
-              modules: {
-                localIdentName: '[name]__[local]__[hash:base64:5]',
-              },
+              // modules: {
+              //   localIdentName: '[name]__[local]__[hash:base64:5]',
+              // },
               sourceMap: true,
             },
           },
@@ -84,9 +102,9 @@ export default merge(baseConfig, {
           {
             loader: 'css-loader',
             options: {
-              modules: {
-                localIdentName: '[name]__[local]__[hash:base64:5]',
-              },
+              // modules: {
+              //   localIdentName: '[name]__[local]__[hash:base64:5]',
+              // },
               importLoaders: 1,
               sourceMap: true,
             },

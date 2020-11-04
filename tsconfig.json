@@ -3,7 +3,10 @@
     "target": "ES2018",
     "noEmitOnError": true,
     "module": "CommonJS",
-    "lib": ["dom", "esnext"],
+    "lib": [
+      "dom",
+      "esnext"
+    ],
     "declaration": true,
     "declarationMap": true,
     "noEmit": true,
@@ -29,7 +32,11 @@
     "app/main.prod.js",
     "app/renderer.prod.js",
     "app/dist",
-    "configs/*",
+    "configs/**/*",
+    "*.sass.d.ts",
+    "*.scss.d.ts",
+    "*.less.d.ts",
+    "*.css.d.ts",
     "dll"
   ]
 }

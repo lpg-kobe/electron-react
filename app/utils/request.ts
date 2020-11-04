@@ -1,5 +1,9 @@
-const fetch = require('dva/fetch')
-import { handleSuccess, handleError } from './reponseHandler';
+/**
+ * @desc common request of fetch
+ * @author pika
+ */
+const fetch = require('dva/fetch');
+const { handleSuccess, handleError } = require('./reponseHandler');
 
 const expireValveDuration = 10e3; // 接口过期处理后多少秒内保持静默，默认10秒
 let expireValveOn = false; // 接口过期处理开关

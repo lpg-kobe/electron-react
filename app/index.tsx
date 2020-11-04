@@ -2,10 +2,10 @@
  * @desc main entry of app, use dva
  * @author pika
  */
+
 import dva from 'dva';
 import './assets/style/global.less';
-import 'antd/dist/antd.less';
-import { ipcRenderer } from 'electron'
+import { ipcRenderer } from 'electron';
 
 const routes = require('./routes').default;
 const systemModal = require('./models/system').default;
@@ -19,5 +19,5 @@ document.addEventListener('DOMContentLoaded', () => {
   app.model(systemModal);
   app.model(authModal);
   app.start('#root');
-  ipcRenderer.send('main:ready')
+  ipcRenderer.send('main:ready');
 });

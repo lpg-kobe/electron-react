@@ -1,10 +1,12 @@
 @charset 'utf-8';
 @import './normalize.css';
+@import './mixin.css';
+@import 'antd/dist/antd.less';
 
 body,
 html {
-  height: 100vh;
-  background: #CCCBCA;
+  height     : 100vh;
+  background : #CCCBCA;
   font-family: Arial, Helvetica, Helvetica Neue, serif;
 }
 
@@ -17,8 +19,8 @@ i {
 }
 
 img {
-  max-width: 100%;
-  object-fit: cover;
+  max-width     : 100%;
+  object-fit    : cover;
   vertical-align: middle;
 }
 
@@ -42,9 +44,9 @@ h5 {
 }
 
 .clearfix::after {
-  content: ".";
-  display: block;
-  height: 0;
-  clear: both;
+  content   : ".";
+  display   : block;
+  height    : 0;
+  clear     : both;
   visibility: hidden;
 }
