@@ -26,15 +26,14 @@ export default class AppUpdater {
 
 type DefaultConfigParam = {
   show?: boolean,
-  width: number,
-  height: number,
-  webPreferences: any
+  width?: number,
+  height?: number,
+  webPreferences?: any
 }
 
 let mainWindow: any;
 let launchWindow: any;
 let defaultWindowConfig: DefaultConfigParam = {
-  show: false,
   width: 1024,
   height: 728,
   webPreferences:
@@ -89,13 +88,16 @@ const createWindow = async () => {
 
   mainWindow = new BrowserWindow({
     ...defaultWindowConfig,
-    icon: getAssetPath('icon.png')
+    icon: getAssetPath('icon.png'),
+    show: false
   });
 
   launchWindow = new BrowserWindow({
     ...defaultWindowConfig,
     skipTaskbar: true,
-    transparent: true
+    transparent: true,
+    width: 512,
+    height: 364
   })
 
   launchWindow.loadURL(`file://${__dirname}/middleware/launch/index.html`)
@@ -112,6 +114,9 @@ const createWindow = async () => {
 
   // 监听页面加载完毕
   ipcMain.on('main:ready', () => {
+    if (!launchWindow) {
+      return
+    }
     launchWindow.close()
     mainWindow.show()
   })

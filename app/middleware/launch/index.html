@@ -11,8 +11,8 @@
     <div>launch page...............</div>
 </body>
 <script>
-    const { ipcRender } = require('electron')
-    ipcRender.send('launch:ready')
+    const { ipcRenderer } = require('electron')
+    ipcRenderer.send('launch:ready')
 </script>
 
 </html>

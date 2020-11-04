@@ -20,8 +20,19 @@ export default [
       }),
   },
   {
-    path: '/counter',
-    pathname: 'Counter',
+    path: '/login',
+    pathname: 'Login',
+    component: (app: any) =>
+      dynamic({
+        // @ts-ignore
+        app,
+        component: () => import('./views/auth/login'),
+        models: () => [],
+      }),
+  },
+  {
+    path: '/list/:id',
+    pathname: 'Video List',
     component: (app: any) =>
       dynamic({
         // @ts-ignore

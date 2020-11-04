@@ -1,0 +1,9 @@
+.login-container {
+  display: flex;
+}
+.login-container .panel-l {
+  display: block;
+}
+.login-container .panel-r {
+  display: block;
+}

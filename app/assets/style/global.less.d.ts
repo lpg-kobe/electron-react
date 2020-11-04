@@ -1,5 +1,8 @@
 declare namespace GlobalLessNamespace {
   export interface IGlobalLess {
+    clearfix: string;
+    fl: string;
+    fr: string;
     root: string;
   }
 }

@@ -1,4 +1,4 @@
-import fetch from 'dva/fetch';
+const fetch = require('dva/fetch')
 import { handleSuccess, handleError } from './reponseHandler';
 
 const expireValveDuration = 10e3; // 接口过期处理后多少秒内保持静默，默认10秒
@@ -67,7 +67,6 @@ export default function request(
   if (settings.method.toUpperCase() !== 'GET') {
     settings['Cache-Control'] = 'no-cache';
   }
-  // @ts-ignore
   return fetch(fixUrl, settings)
     .then(checkStatus)
     .then(parseJSON)
