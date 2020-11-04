@@ -26,11 +26,7 @@ export default merge(baseConfig, {
       ? 'electron-renderer'
       : 'electron-preload',
 
-  entry: [
-    'core-js',
-    'regenerator-runtime/runtime',
-    path.join(__dirname, '..', 'app/index.tsx'),
-  ],
+  entry: [path.join(__dirname, '..', 'app/index.tsx')],
 
   output: {
     path: path.join(__dirname, '..', 'app/dist'),
@@ -73,7 +69,8 @@ export default merge(baseConfig, {
             },
           },
           {
-            loader: 'less-loader',
+            loader: require.resolve('less-loader'),
+            options: { lessOptions: { javascriptEnabled: true } },
           },
         ],
       },
@@ -95,7 +92,8 @@ export default merge(baseConfig, {
             },
           },
           {
-            loader: 'less-loader',
+            loader: require.resolve('less-loader'),
+            options: { lessOptions: { javascriptEnabled: true } },
           },
         ],
       },

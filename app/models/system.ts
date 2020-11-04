@@ -1,28 +1,31 @@
-/* eslint-disable */
-import immutable from 'immutable'
+/**
+ * @desc system modal during app, base in react-redux and redux-saga
+ */
+import immutable from 'immutable';
+// @ts-ignore
+import TRTCElectronVideoCast from '@/sdk/trtc-electron-videocast';
 
 export default {
   namespace: 'system',
   state: immutable.fromJS({
-    system: {}
+    TRTCCloud: TRTCElectronVideoCast,
   }),
   subscriptions: {
-    setup() { }
+    setup() {},
   },
   effects: {
-    *fetch({ payload }, { call, put }: any) {// eslint-disable-line
-      yield call()
+    *fetch({ payload }: any, { call, put }: any) {
+      yield call();
       yield put({
         type: 'save',
-        payload: {}
+        payload,
       });
-    }
+    },
   },
 
   reducers: {
-    save(state: any, { payload }) {// eslint-disable-line
-      return state.merge(payload)
+    save(state: any, { payload }: any) {
+      return state.merge(payload);
     },
   },
-}
-/* eslint-enable */
+};

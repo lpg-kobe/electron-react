@@ -1,12 +1,23 @@
 import React from 'react';
-import { Link } from 'dva/router';
+import { connect } from 'dva';
+// @ts-ignore
+import { SDK_APP_ID } from '@/constants';
 import styles from './style.less';
+import { withRouter } from 'dva/router'
 
-export default function HomePage() {
+type Props = {
+  [key: string]: any;
+};
+
+function HomePage(props: Props) {
+  const { history } = props
+  history.push('/login')
   return (
     <div className={styles.container} data-tid="container">
-      <h2>Home</h2>
-      <Link to="/counter">to Counter</Link>
+      {props.children}
     </div>
   );
 }
+export default withRouter(connect(({ system }: any) => ({
+  system: system.toJS(),
+}))(HomePage));

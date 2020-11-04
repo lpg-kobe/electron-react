@@ -11,10 +11,10 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import path from 'path';
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
-import MenuBuilder from './menu';
+// import MenuBuilder from './menu';
 
 export default class AppUpdater {
   constructor() {
@@ -24,7 +24,29 @@ export default class AppUpdater {
   }
 }
 
-let mainWindow: BrowserWindow | null = null;
+type DefaultConfigParam = {
+  show?: boolean,
+  width?: number,
+  height?: number,
+  webPreferences?: any
+}
+
+let mainWindow: any;
+let launchWindow: any;
+let defaultWindowConfig: DefaultConfigParam = {
+  width: 1024,
+  height: 728,
+  webPreferences:
+    (process.env.NODE_ENV === 'development' ||
+      process.env.E2E_BUILD === 'true') &&
+      process.env.ERB_SECURE !== 'true'
+      ? {
+        nodeIntegration: true,
+      }
+      : {
+        preload: path.join(__dirname, 'dist/renderer.prod.js'),
+      }
+}
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -65,21 +87,39 @@ const createWindow = async () => {
   };
 
   mainWindow = new BrowserWindow({
-    show: false,
-    width: 1024,
-    height: 728,
+    ...defaultWindowConfig,
     icon: getAssetPath('icon.png'),
-    webPreferences:
-      (process.env.NODE_ENV === 'development' ||
-        process.env.E2E_BUILD === 'true') &&
-      process.env.ERB_SECURE !== 'true'
-        ? {
-            nodeIntegration: true,
-          }
-        : {
-            preload: path.join(__dirname, 'dist/renderer.prod.js'),
-          },
+    show: false
   });
+
+  launchWindow = new BrowserWindow({
+    ...defaultWindowConfig,
+    skipTaskbar: true,
+    transparent: true,
+    width: 512,
+    height: 364
+  })
+
+  launchWindow.loadURL(`file://${__dirname}/middleware/launch/index.html`)
+
+  // 监听启动窗口关闭
+  launchWindow.on('close', () => {
+    launchWindow = null
+  })
+
+  // 监听启动页开始
+  ipcMain.on('launch:ready', () => {
+    launchWindow.show()
+  })
+
+  // 监听页面加载完毕
+  ipcMain.on('main:ready', () => {
+    if (!launchWindow) {
+      return
+    }
+    launchWindow.close()
+    mainWindow.show()
+  })
 
   mainWindow.loadURL(`file://${__dirname}/app.html`);
 
@@ -101,8 +141,8 @@ const createWindow = async () => {
     mainWindow = null;
   });
 
-  const menuBuilder = new MenuBuilder(mainWindow);
-  menuBuilder.buildMenu();
+  // const menuBuilder = new MenuBuilder(mainWindow);
+  // menuBuilder.buildMenu();
 
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
