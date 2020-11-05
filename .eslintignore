@@ -39,6 +39,10 @@ app/renderer.prod.js
 app/renderer.prod.js.map
 app/style.css
 app/style.css.map
+app/**/*.css.d.ts
+app/**/*.sass.d.ts
+app/**/*.scss.d.ts
+app/**/*.less.d.ts
 dist
 dll
 main.js
@@ -54,3 +58,4 @@ package.json
 *.css.d.ts
 *.sass.d.ts
 *.scss.d.ts
+*.less.d.ts

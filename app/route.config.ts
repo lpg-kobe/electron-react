@@ -14,9 +14,8 @@ export default [
         // @ts-ignore
         app,
         component: () => import('./views/home/index'),
-        models: () => [
-          // import('./models/home/model'),
-        ],
+        // @ts-ignore
+        models: () => [import('./models/home')],
       }),
   },
   {
@@ -26,21 +25,22 @@ export default [
       dynamic({
         // @ts-ignore
         app,
+        // @ts-ignore
         component: () => import('./views/auth/login'),
         models: () => [],
       }),
   },
   {
     path: '/list/:id',
-    pathname: 'Video List',
+    pathname: 'room-info',
     component: (app: any) =>
       dynamic({
         // @ts-ignore
         app,
-        component: () => import('./views/counter/index'),
-        models: () => [
-          // import('./models/league/model'),
-        ],
+        // @ts-ignore
+        component: () => import('./views/room/index'),
+        // @ts-ignore
+        models: () => [import('./models/room')],
       }),
   },
 ];

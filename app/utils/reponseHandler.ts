@@ -26,6 +26,12 @@ export function handleSuccess(handler: handleType): any {
           duration: 0.5,
         });
       },
+      sms: () => {
+        message.success({
+          content: '验证码已发送',
+          duration: 0.5,
+        });
+      },
       operate: () => {
         message.success({
           content: '操作成功',

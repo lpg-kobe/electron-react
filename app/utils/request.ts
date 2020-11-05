@@ -1,9 +1,13 @@
+import { message } from 'antd';
+
 /**
  * @desc common request of fetch
  * @author pika
  */
 const fetch = require('dva/fetch');
+const { API_HOST } = require('@/constants');
 const { handleSuccess, handleError } = require('./reponseHandler');
+const { removeUserSession } = require('./session');
 
 const expireValveDuration = 10e3; // 接口过期处理后多少秒内保持静默，默认10秒
 let expireValveOn = false; // 接口过期处理开关
@@ -66,7 +70,9 @@ export default function request(
     headers,
   };
   // 修复url中多余的斜杠
-  const fixUrl = url.replace(/\/\//g, '/').replace(/:\/([^/])/, '://$1');
+  const fixUrl = (API_HOST + url)
+    .replace(/\/\//g, '/')
+    .replace(/:\/([^/])/, '://$1');
   // 非GET方式不允许缓存
   if (settings.method.toUpperCase() !== 'GET') {
     settings['Cache-Control'] = 'no-cache';
@@ -75,18 +81,25 @@ export default function request(
     .then(checkStatus)
     .then(parseJSON)
     .then((data: any) => {
-      if (data.code === 4001 && !expireValveOn) {
+      if (data.code === -10 || (data.code === -20 && !expireValveOn)) {
         // 会话已失效
         expireValveOn = true;
-        window.location.hash = '#/logout';
+        removeUserSession();
+        window.location.hash = '#/login';
         setTimeout(() => (expireValveOn = false), expireValveDuration);
+      } else if (data.code !== 0) {
+        message.error(data.message);
+        return {
+          status: false,
+          data,
+        };
       }
 
       if (handler.onSuccess) {
         handleSuccess(handler);
       }
 
-      return { data };
+      return { status: true, data };
     })
     .catch((err: any) => {
       handleError(handler);

@@ -246,12 +246,12 @@ export default merge(baseConfig, {
   },
 
   devServer: {
-    proxy: [
-      {
-        context: ['/login', '/api'],
-        target: 'http://newlive.ofweek.com/api/web/',
-      },
-    ],
+    // proxy: [
+    //   {
+    //     context: ['/login', '/api'],
+    //     target: 'http://newlive.ofweek.com/api/web/',
+    //   },
+    // ],
     port,
     publicPath,
     compress: true,

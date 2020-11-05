@@ -1,4 +1,4 @@
 declare const styles: {
-  readonly 'commom-header': string;
+  readonly 'common-header': string;
 };
 export = styles;

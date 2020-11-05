@@ -5,9 +5,14 @@
 
 import immutable from 'immutable';
 // @ts-ignore
-import { login } from '@/services/auth';
+import { login, sendSms, smsLogin } from '@/services/auth';
 // @ts-ignore
-import { getUserSession, removeUserSession } from '@/utils/session';
+import {
+  saveUserSession,
+  getUserSession,
+  removeUserSession,
+  // @ts-ignore
+} from '@/utils/session';
 
 type ActionType = {
   [key: string]: any;
@@ -21,34 +26,56 @@ type YieldType = {
   [key: string]: any;
 };
 
-type LocationType = {
-  pathname: string;
-};
+// type LocationType = {
+//     pathname: string;
+// };
 
-type SetUpType = {
-  history: any;
-  dispatch: any;
+// type SetUpType = {
+//     history: any;
+//     dispatch: any;
+// };
+
+const initialState = {
+  userInfo: getUserSession(),
 };
 
 export default {
   namespace: 'auth',
 
-  state: immutable.fromJS({
-    userInfo: getUserSession(),
-  }),
+  state: immutable.fromJS(initialState),
 
   subscriptions: {
-    setup({ history, dispatch }: SetUpType) {
-      return history.listen(({ pathname }: LocationType) => {
-        console.log(dispatch, pathname);
-      });
-    },
+    // setup({ history, dispatch }: SetUpType) {
+    //     return history.listen(({ pathname }: LocationType) => {
+    //     });
+    // },
   },
 
   effects: {
+    // 账号密码登录
     *login({ payload }: ActionType, { call }: YieldType) {
-      const { data } = yield call(login, payload);
-      console.log(data);
+      const {
+        status,
+        data: { data },
+      } = yield call(login, payload);
+      if (status) {
+        saveUserSession(data);
+      }
+    },
+
+    // 验证码登录
+    *smsLogin({ payload }: ActionType, { call }: YieldType) {
+      const {
+        status,
+        data: { data },
+      } = yield call(smsLogin, payload);
+      if (status) {
+        saveUserSession(data);
+      }
+    },
+
+    *sendSms({ payload }: ActionType, { call }: YieldType) {
+      yield call(sendSms, payload);
     },
 
     *logout() {

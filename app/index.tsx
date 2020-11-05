@@ -4,7 +4,7 @@
  */
 
 import dva from 'dva';
-import './assets/style/global.less';
+import './components/assets/style/global.less';
 import { ipcRenderer } from 'electron';
 
 const routes = require('./routes').default;
