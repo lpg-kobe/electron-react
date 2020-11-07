@@ -37,6 +37,7 @@ type SetUpType = {
 const initialState = {
     // 直播列表
     list: [],
+    // 直播分页
     pagination: {},
 };
 export default {
@@ -48,8 +49,16 @@ export default {
         },
     },
     effects: {
-        *getList({ payload }: ActionType, { call }: YieldType) {
-            yield call(getList, payload);
+        *getList({ payload }: ActionType, { call, put }: YieldType) {
+            const { status, data: { data } } = yield call(getList, payload);
+            if (status) {
+                yield put({
+                    type: 'save',
+                    payload: {
+                        list: data
+                    }
+                })
+            }
         },
     },
     subscriptions: {

@@ -1,0 +1,66 @@
+@charset 'utf-8';
+@import './normalize.css';
+@import './mixin.css';
+@import 'antd/dist/antd.less';
+
+body,
+html {
+  height: 100vh;
+  background: #CCCBCA;
+  font-family: Arial, Helvetica, Helvetica Neue, serif;
+}
+
+#root {
+  height: 100%;
+}
+
+i {
+  font-style: normal;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+img {
+  max-width: 100%;
+  object-fit: cover;
+  vertical-align: middle;
+}
+
+p,
+label,
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-weight: normal;
+  line-height: 1;
+}
+
+.fl {
+  float: left;
+}
+
+.fr {
+  float: right;
+}
+
+.clearfix::after {
+  content: ".";
+  display: block;
+  height: 0;
+  clear: both;
+  visibility: hidden;
+}
+
+.icon-min-win {
+  width: 16px;
+  height: 2px;
+  background: url(~assets/img/login/i-min-win.webp) no-repeat center;
+}
+
+.icon-close-win {
+  width: 14px;
+  height: 14px;
+  background: url(~assets/img/login/i-close-win.webp) no-repeat center;
+}

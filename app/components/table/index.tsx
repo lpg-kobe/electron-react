@@ -28,9 +28,9 @@ function ATable(props: PropsType) {
     // 指定rowKey,domDiff用到
     // @ts-ignore
     rowKey = rowKey ||
-      function (row: any) {
-        return row.id;
-      },
+    function (row: any) {
+      return row.id;
+    },
     // 是否配置搜索菜单
     searchForm,
     // 是否显示序号
@@ -159,8 +159,8 @@ function ATable(props: PropsType) {
       const FormItem = Form.Item;
       return (
         <Form {...options} className="ant-row table-search-form">
-          {items.map((ele: any) => (
-            <Col span={24 / items.length} {...ele.options.colOpts}>
+          {items.map((ele: any, index: number) => (
+            <Col key={index} span={24 / items.length} {...ele.options.colOpts}>
               <FormItem {...ele.options}>{ele.component}</FormItem>
             </Col>
           ))}
@@ -180,14 +180,27 @@ function ATable(props: PropsType) {
     return item.component;
   }
 
+  /**
+   * @desc filter iligal react props,which can cause error on development
+   * @param {Object} props props attribute of component
+   */
+  function filterProps(filterKeys: Array<string>, props: PropsType) {
+    const filterObj = Object.create(null)
+    Object.entries(props).forEach(([key, value]) => {
+      !filterKeys.includes(key) && (filterObj[key] = value)
+    })
+    return filterObj
+  }
+
   return (
     <section>
       {searchForm && (
         <div className="table-search-box">
           <Row>
             {searchForm.items &&
-              searchForm.items.map((item: any) => (
+              searchForm.items.map((item: any, index: number) => (
                 <Col
+                  key={index}
                   span={24 / searchForm.items.length}
                   {...item.options.colOpts}
                 >
@@ -196,23 +209,26 @@ function ATable(props: PropsType) {
               ))}
           </Row>
         </div>
-      )}
-      {props.children}
-      {tableList ? (
-        <List
-          grid={{ gutter: 16, column: 4 }}
-          {...props}
-          pagination={newPagination}
-        />
-      ) : (
-        <Table
-          {...props}
-          columns={newColumns}
-          dataSource={newDataSources}
-          pagination={newPagination}
-        />
-      )}
-    </section>
+      )
+      }
+      { props.children}
+      {
+        tableList ? (
+          <List
+            grid={{ gutter: 16, column: 4 }}
+            {...filterProps(['tableList', 'searchForm', 'dispatch'], props)}
+            pagination={newPagination}
+          />
+        ) : (
+            <Table
+              {...filterProps(['tableList', 'searchForm', 'dispatch'], props)}
+              columns={newColumns}
+              dataSource={newDataSources}
+              pagination={newPagination}
+            />
+          )
+      }
+    </section >
   );
 }
 export default connect(({ system }: any) => ({

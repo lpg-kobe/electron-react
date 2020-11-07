@@ -1,4 +1,6 @@
 import { message } from 'antd';
+// @ts-ignore
+import { MAIN_EVENT, rendererSend } from '@/utils/ipc'
 
 /**
  * @desc common request of fetch
@@ -81,11 +83,12 @@ export default function request(
     .then(checkStatus)
     .then(parseJSON)
     .then((data: any) => {
-      if (data.code === -10 || (data.code === -20 && !expireValveOn)) {
+      if ((data.code === -10 || data.code === -20 || data.code === -22) && !expireValveOn) {
         // 会话已失效
+        message.error('登录已过期，请重新登录')
         expireValveOn = true;
         removeUserSession();
-        window.location.hash = '#/login';
+        rendererSend(MAIN_EVENT.MAIN_CLOSE_TOLOG)
         setTimeout(() => (expireValveOn = false), expireValveDuration);
       } else if (data.code !== 0) {
         message.error(data.message);
@@ -95,7 +98,7 @@ export default function request(
         };
       }
 
-      if (handler.onSuccess) {
+      if (handler && handler.onSuccess) {
         handleSuccess(handler);
       }
 

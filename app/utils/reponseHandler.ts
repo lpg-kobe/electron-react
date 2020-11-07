@@ -51,7 +51,7 @@ export function handleSuccess(handler: handleType): any {
 
 // handle width ajax error
 export function handleError(handler: handleType): any {
-  if (handler.onError) {
+  if (handler && handler.onError) {
     Object.entries(handler.onError).forEach(([key, value]) => {
       const keyReact: ReactType = {
         login: () => {

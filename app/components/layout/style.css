@@ -7,3 +7,9 @@
   height: 24px;
   line-height: 24px;
 }
+.title-bar-container {
+  cursor: pointer;
+}
+.title-bar-container i {
+  cursor: pointer;
+}

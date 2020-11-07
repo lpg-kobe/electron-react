@@ -4,8 +4,9 @@
  */
 
 import dva from 'dva';
-import './components/assets/style/global.less';
-import { ipcRenderer } from 'electron';
+import '@/assets/style/global.less';
+// @ts-ignore
+import { rendererSend, MAIN_EVENT } from '@/utils/ipc';
 
 const routes = require('./routes').default;
 const systemModal = require('./models/system').default;
@@ -19,5 +20,5 @@ document.addEventListener('DOMContentLoaded', () => {
   app.model(systemModal);
   app.model(authModal);
   app.start('#root');
-  ipcRenderer.send('main:ready');
+  rendererSend(MAIN_EVENT.MAIN_LOAD_READY)
 });

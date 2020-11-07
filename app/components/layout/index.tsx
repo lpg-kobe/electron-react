@@ -1,6 +1,8 @@
 import React, { ReactNode, Fragment } from 'react';
 import { connect } from 'dva';
+import { ConfigProvider } from 'antd'
 import { AppContainer as ReactHotAppContainer } from 'react-hot-loader';
+import zhCN from 'antd/lib/locale/zh_CN';
 
 type PropsType = {
   children: ReactNode;
@@ -16,7 +18,9 @@ function Layout(props: PropsType) {
   const { children } = props;
   return (
     <AppContainer>
-      <>{children}</>
+      <ConfigProvider locale={zhCN}>
+        {children}
+      </ConfigProvider>
     </AppContainer>
   );
 }

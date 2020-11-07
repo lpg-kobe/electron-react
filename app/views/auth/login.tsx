@@ -4,10 +4,14 @@ import { connect } from 'dva';
 import { withRouter } from 'dva/router';
 // @ts-ignore
 import AForm from '@/components/form';
-import { Form, Input, Button, Radio, Row, Col, message } from 'antd';
+// @ts-ignore
+import TitleBar from '@/components/layout/titleBar';
+import { Form, Input, Button, Row, Col, message } from 'antd';
 // @ts-ignore
 import { setStore, getStore } from '@/utils/tool';
-import styles from './style.less';
+// @ts-ignore
+import { setWindowSize } from '@/utils/ipc';
+import './style.less';
 
 type PropsType = {
   [key: string]: any;
@@ -38,10 +42,10 @@ function Login(props: PropsType) {
           initialValue: 'account',
         },
         component: (
-          <Radio.Group onChange={handleLoginChange}>
-            <Radio.Button value="account">账号登录</Radio.Button>
-            <Radio.Button value="sms">验证码登录</Radio.Button>
-          </Radio.Group>
+          <div className="login-tab">
+            <a className={smsLogin ? '' : 'active'} data-type="account" onClick={handleLoginChange}>账号登录</a>
+            <a className={smsLogin ? 'active' : ''} data-type="sms" onClick={handleLoginChange}>手机登录</a>
+          </div >
         ),
       },
       {
@@ -50,7 +54,7 @@ function Login(props: PropsType) {
           rules: [
             {
               required: true,
-              message: '手机号不能为空',
+              message: '请输入手机号',
             },
             {
               pattern: /^1\d{10,11}/,
@@ -60,7 +64,7 @@ function Login(props: PropsType) {
         },
         component: (
           <Input
-            placeholder="请输入手机号"
+            placeholder="手机号"
             maxLength={11}
             onChange={handlePhoneChange}
           />
@@ -73,7 +77,7 @@ function Login(props: PropsType) {
             ? [
               {
                 required: true,
-                message: '验证码不能为空',
+                message: '请输入验证码',
               },
               {
                 pattern: /\d/,
@@ -83,19 +87,19 @@ function Login(props: PropsType) {
             : [
               {
                 required: true,
-                message: '密码不能为空',
+                message: '请输入密码',
               },
             ],
         },
         component: smsLogin ?
           <Row>
             <Col span={12}>
-              <Input placeholder="请输入验证码" maxLength={6} onChange={({ target: { value } }) => formatNumber('sms', value)} />
+              <Input placeholder="验证码" maxLength={6} onChange={({ target: { value } }) => formatNumber('sms', value)} />
             </Col>
             <Col span={12}>
               <Button onClick={handleSendSms} disabled={smsBtnDisable}>{smsText}</Button>
             </Col>
-          </Row> : <Input placeholder="请输入密码" type="password" maxLength={20} />
+          </Row> : <Input placeholder="密码" type="password" maxLength={20} />
       },
       {
         options: {},
@@ -124,11 +128,11 @@ function Login(props: PropsType) {
   }
 
   // handle login type change
-  function handleLoginChange({ target: { value } }: any) {
+  function handleLoginChange({ target: { dataset: { type } } }: any) {
     form.setFieldsValue({
       phone: '',
     });
-    setSmsLogin(value === 'sms');
+    setSmsLogin(type === 'sms');
   }
 
   // handle submit form
@@ -145,7 +149,7 @@ function Login(props: PropsType) {
         onSuccess: {
           login: () => {
             message.success('登录成功');
-            window.location.hash = '#/';
+            setWindowSize()
           },
         },
       },
@@ -216,13 +220,19 @@ function Login(props: PropsType) {
     }
   }
   return (
-    <main className="login-container flex">
-      <div className="panel-l">企业便捷的直播平台</div>
-      <div className={styles['panel-r']}>
-        <div className="panel-tag" />
-        <div className="panel-login">
-          <AForm {...formOptions} />
+    <main className="login-page-container flex">
+      <div className="panel-l">
+        <div className="login-desc">
+          <div className="notice">
+            <i className="icon-camera"></i>
+            <h3>企业便捷的直播平台</h3>
+          </div>
+          <label className="version">V1.0</label>
         </div>
+      </div>
+      <div className="panel-r">
+        <TitleBar />
+        <AForm {...formOptions} />
       </div>
     </main>
   );

@@ -11,8 +11,9 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import path from 'path';
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow } from 'electron';
 import { autoUpdater } from 'electron-updater';
+import { MAIN_EVENT, RENDERER_EVENT, mainListen } from './utils/ipc';
 import log from 'electron-log';
 // import MenuBuilder from './menu';
 
@@ -29,23 +30,39 @@ type DefaultConfigParam = {
   width?: number;
   height?: number;
   webPreferences?: any;
+  maximizable?: boolean,
+  minimizable?: boolean,
+  resizable?: boolean, // 是否支持调整大小
+  titleBarStyle?: any,// 隐藏标题栏窗口
+  transparent?: boolean,// 透明窗口?
+  frame?: boolean, // 带边框窗口?
+  icon?: string, // 窗口icon
+  skipTaskbar?: boolean // 窗口icon
 };
 
-let mainWindow: any;
-let launchWindow: any;
+let mainWindow: any; // 主窗口
+let launchWindow: any; // 启动缓冲窗口 
+let totalWindow: any = Object.create(null);// 开启的窗口
 const defaultWindowConfig: DefaultConfigParam = {
-  width: 1024,
-  height: 728,
+  show: true,
+  maximizable: true,
+  minimizable: true,
+  resizable: false,
+  titleBarStyle: 'hidden',
+  transparent: true,
+  frame: false,
+  width: 1124,
+  height: 754,
   webPreferences:
     (process.env.NODE_ENV === 'development' ||
       process.env.E2E_BUILD === 'true') &&
-    process.env.ERB_SECURE !== 'true'
+      process.env.ERB_SECURE !== 'true'
       ? {
-          nodeIntegration: true,
-        }
+        nodeIntegration: true,
+      }
       : {
-          preload: path.join(__dirname, 'dist/renderer.prod.js'),
-        },
+        preload: path.join(__dirname, 'dist/renderer.prod.js'),
+      },
 };
 
 if (process.env.NODE_ENV === 'production') {
@@ -60,6 +77,9 @@ if (
   require('electron-debug')();
 }
 
+/**
+ * @desc install extens for react before start app
+ */
 const installExtensions = async () => {
   const installer = require('electron-devtools-installer');
   const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
@@ -86,40 +106,64 @@ const createWindow = async () => {
     return path.join(RESOURCES_PATH, ...paths);
   };
 
+  // create main window
   mainWindow = new BrowserWindow({
     ...defaultWindowConfig,
     icon: getAssetPath('icon.png'),
     show: false,
   });
+  totalWindow['mainWindow'] = mainWindow
 
+  // create launch window
   launchWindow = new BrowserWindow({
     ...defaultWindowConfig,
     skipTaskbar: true,
-    transparent: true,
-    width: 512,
-    height: 364,
+    width: 700,
+    height: 450,
   });
+  totalWindow['launchWindow'] = launchWindow
 
   launchWindow.loadURL(`file://${__dirname}/middleware/launch/index.html`);
 
   // 监听启动窗口关闭
   launchWindow.on('close', () => {
     launchWindow = null;
+    delete totalWindow['launchWindow']
+  });
+
+  // 监听主窗口关闭
+  mainWindow.on('closed', () => {
+    mainWindow = null;
+    delete totalWindow['mainWindow']
   });
 
   // 监听启动页开始
-  ipcMain.on('launch:ready', () => {
+  mainListen(RENDERER_EVENT.RENDERER_LAUNCH_READY, () => {
     launchWindow.show();
-  });
+  })
 
-  // 监听页面加载完毕
-  ipcMain.on('main:ready', () => {
+  // 监听启动页面加载完毕
+  mainListen(MAIN_EVENT.MAIN_LOAD_READY, () => {
     if (!launchWindow) {
       return;
     }
     launchWindow.close();
     mainWindow.show();
-  });
+  })
+
+  // 监听关闭所有窗口并打开登录页面
+  mainListen(MAIN_EVENT.MAIN_CLOSE_TOLOG, () => {
+    // close all window only not mainWindow before add loginWindow to totalWindow
+    Object.entries(totalWindow).forEach(([key, value]: any) => {
+      if (key === 'mainWindow') {
+        // load login page here,or replace hashState of currentPage? @todo
+        value.setSize(740, 406, true)
+        value.loadURL(`file://${__dirname}/app.html#/login`)
+      } else {
+        value.close()
+      }
+    })
+  })
 
   mainWindow.loadURL(`file://${__dirname}/app.html`);
 
@@ -135,10 +179,6 @@ const createWindow = async () => {
       mainWindow.show();
       mainWindow.focus();
     }
-  });
-
-  mainWindow.on('closed', () => {
-    mainWindow = null;
   });
 
   // const menuBuilder = new MenuBuilder(mainWindow);

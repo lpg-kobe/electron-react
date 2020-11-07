@@ -12,10 +12,9 @@ type ParamType = {
 };
 
 // 获取直播列表
-export function getList({ params, ...handler }: ParamType): any {
+export function getList(params: ParamType): any {
   return request(
-    `/login/memberlogin?${qs.stringify(params)}`,
-    { method: 'post' },
-    handler
+    `/room/app/getroomindex?${qs.stringify(params)}`,
+    { method: 'get' }
   );
 }
