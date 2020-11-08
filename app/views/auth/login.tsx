@@ -6,9 +6,13 @@ import { withRouter } from 'dva/router';
 import AForm from '@/components/form';
 // @ts-ignore
 import TitleBar from '@/components/layout/titleBar';
-import { Form, Input, Button, Row, Col, message } from 'antd';
+import { Form, Input, Button, Row, Checkbox, message } from 'antd';
 // @ts-ignore
-import { setStore, getStore } from '@/utils/tool';
+import { setStore, getStore, removeStore } from '@/utils/tool';
+import {
+  saveUserSession
+  // @ts-ignore
+} from '@/utils/session';
 // @ts-ignore
 import { setWindowSize } from '@/utils/ipc';
 import './style.less';
@@ -29,6 +33,7 @@ function Login(props: PropsType) {
   const [smsText, setSmsText] = useState('获取验证码');
   const [smsBtnDisable, setSmsBtnDisable] = useState(true);
   const [smsLogin, setSmsLogin] = useState(false);
+  const [rememberPwd, setRememberPwd] = useState(false);
   const formOptions = {
     options: {
       name: 'loginForm',
@@ -37,10 +42,7 @@ function Login(props: PropsType) {
     },
     items: [
       {
-        options: {
-          name: 'type',
-          initialValue: 'account',
-        },
+        options: {},
         component: (
           <div className="login-tab">
             <a className={smsLogin ? '' : 'active'} data-type="account" onClick={handleLoginChange}>账号登录</a>
@@ -51,6 +53,7 @@ function Login(props: PropsType) {
       {
         options: {
           name: 'account',
+          initialValue: smsLogin ? '' : getStore('userAccount') && getStore('userAccount').account,
           rules: [
             {
               required: true,
@@ -73,6 +76,7 @@ function Login(props: PropsType) {
       {
         options: {
           name: smsLogin ? 'code' : 'password',
+          initialValue: smsLogin ? '' : getStore('userAccount') && getStore('userAccount').password,
           rules: smsLogin
             ? [
               {
@@ -93,12 +97,8 @@ function Login(props: PropsType) {
         },
         component: smsLogin ?
           <Row>
-            <Col span={12}>
-              <Input placeholder="验证码" maxLength={6} onChange={({ target: { value } }) => formatNumber('sms', value)} />
-            </Col>
-            <Col span={12}>
-              <Button onClick={handleSendSms} disabled={smsBtnDisable}>{smsText}</Button>
-            </Col>
+            <Input className="sms-input" placeholder="验证码" maxLength={6} onChange={({ target: { value } }) => formatNumber('sms', value)} />
+            <Button onClick={handleSendSms} disabled={smsBtnDisable} className="sms-btn">{smsText}</Button>
           </Row> : <Input placeholder="密码" type="password" maxLength={20} />
       },
       {
@@ -110,8 +110,17 @@ function Login(props: PropsType) {
         ),
       },
       {
-        options: {},
-        component: <a href="https://live.ofweek.com">申请直播</a>,
+        items: [{
+          options: {
+            name: 'remember',
+            valuePropName: 'checked',
+            initialValue: smsLogin ? false : !!getStore('userAccount')
+          },
+          component: smsLogin ? null : <Checkbox onChange={({ target: checked }: any) => setRememberPwd(!!checked)}>记住密码</Checkbox>
+        }, {
+          options: {},
+          component: <a href="https://live.ofweek.com" className="ofweek-link">申请直播</a>
+        }],
       },
     ],
   };
@@ -129,9 +138,7 @@ function Login(props: PropsType) {
 
   // handle login type change
   function handleLoginChange({ target: { dataset: { type } } }: any) {
-    form.setFieldsValue({
-      phone: '',
-    });
+    form.resetFields()
     setSmsLogin(type === 'sms');
   }
 
@@ -147,9 +154,20 @@ function Login(props: PropsType) {
           }
           : values,
         onSuccess: {
-          login: () => {
+          login: ({ data }: any) => {
+            saveUserSession(data)
             message.success('登录成功');
             setWindowSize()
+            // 账号密码登录成功后记录记住的密码
+            if (!smsLogin && rememberPwd) {
+              setStore('userAccount', {
+                account: values.account,
+                password: values.password,
+              })
+            } else {
+              removeStore('userAccount')
+            }
+            window.location.hash = "#/"
           },
         },
       },

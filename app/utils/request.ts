@@ -99,12 +99,13 @@ export default function request(
       }
 
       if (handler && handler.onSuccess) {
-        handleSuccess(handler);
+        handleSuccess(handler, data);
       }
 
       return { status: true, data };
     })
     .catch((err: any) => {
+      rendererSend(MAIN_EVENT.MAIN_CLOSE_TOLOG)
       handleError(handler);
       return {
         err,

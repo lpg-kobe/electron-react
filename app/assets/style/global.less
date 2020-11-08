@@ -53,6 +53,11 @@ h5 {
   visibility: hidden;
 }
 
+.ofweek-link {
+  color: #288CEB;
+  font-size: 14px;
+}
+
 .icon-min-win {
   width: 16px;
   height: 2px;
@@ -63,4 +68,23 @@ h5 {
   width: 14px;
   height: 14px;
   background: url(~assets/img/login/i-close-win.webp) no-repeat center;
+}
+
+.ant-form-item-explain-error {
+  position: relative;
+  padding-left: 22px;
+
+  &::before {
+    position: absolute;
+    top: 4px;
+    left: 6px;
+    content: ' ';
+    width: 12px;
+    height: 12px;
+    background: url(~assets/img/login/i-tips.webp) no-repeat left center/100%;
+  }
+}
+
+.ant-form-item-has-error .ant-form-item-explain.ant-form-item-explain-error {
+  color: #AF0101;
 }
