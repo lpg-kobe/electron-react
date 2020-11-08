@@ -1,94 +1,192 @@
 .login-page-container {
-    -webkit-user-select: none;
-    background: #fff;
+  -webkit-user-select: none;
+  background: #fff;
 
-    .panel-l {
-        position: relative;
-        flex-basis: 352px;
-        width: 352px;
-        height: 406px;
-        object-fit: cover;
-        background: url(~assets/img/login/bg-login.webp) no-repeat left/cover #000;
+  .panel-l {
+    -webkit-app-region: drag;
+    position: relative;
+    flex-basis: 352px;
+    width: 352px;
+    height: 406px;
+    background: url(~assets/img/login/bg-login.webp) no-repeat left/cover #000;
 
-        .login-desc {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: absolute;
+    .login-desc {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: absolute;
+      width: 100%;
+      bottom: 0;
+      left: 0;
+
+      .notice {
+        margin: 0 0 0 35px;
+      }
+
+      .icon-camera {
+        width: 38px;
+        height: 38px;
+        border-radius: 4px;
+        background: url(~assets/img/login/i-camera.webp) no-repeat center/100%;
+      }
+
+      h3 {
+        font-family: Source Han Sans CN;
+        color: #fff;
+        margin: 14px 0 38px 0;
+        font-size: 14px;
+      }
+    }
+
+    .version {
+      margin: 0 15px -70px 0;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.3);
+    }
+  }
+
+  .panel-r {
+    -webkit-app-region: no-drag;
+    flex: 1;
+
+    .ant-form {
+      padding: 0 40px;
+
+      .ant-form-item {
+        color: #999;
+      }
+
+      .ant-input {
+        color: #999;
+        padding: 9px 20px;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+      }
+
+      .sms-input {
+        padding-right: 126px;
+      }
+
+      .sms-btn {
+        position: absolute;
+        right: 0;
+        height: 42px;
+        background: transparent;
+        border: none;
+        font-size: 14px;
+        color: #288EEA;
+
+        &:disabled {
+          color: rgba(0, 0, 0, 0.25);
+          background: transparent;
+        }
+      }
+
+      .ant-form-item-control-input {
+        min-height: 42px;
+      }
+
+      .ant-form-item-explain {
+        position: absolute;
+        left: 0;
+        bottom: -20px;
+        padding-left: 22px;
+        min-height: 20px;
+        line-height: 20px;
+      }
+
+      .ant-row {
+        &:nth-child(1) {
+          .ant-form-item {
+            margin-bottom: 35px;
+          }
+        }
+
+        &:nth-child(2) {
+          .ant-form-item {
+            margin-bottom: 20px;
+          }
+        }
+
+        &:nth-child(3) {
+          .ant-form-item {
+            margin-bottom: 30px;
+          }
+        }
+
+        &:nth-child(4) {
+          .ant-btn-primary {
+            font-size: 16px;
+            height: 42px;
             width: 100%;
-            bottom: 0;
-            left: 0;
+            background: linear-gradient(0deg, #2C84EE, #2691E9);
+            border-radius: 4px;
+          }
 
-            .notice {
-                margin: 0 0 0 35px;
-            }
-
-            .icon-camera {
-                width: 38px;
-                height: 38px;
-                border-radius: 4px;
-                background: url(~assets/img/login/i-camera.webp) no-repeat center/100%;
-            }
-
-            h3 {
-                font-family: Source Han Sans CN;
-                color: #fff;
-                margin: 14px 0 38px 0;
-                font-size: 14px;
-            }
+          .ant-form-item {
+            margin-bottom: 22px;
+            width: 100%;
+            background: linear-gradient(0deg, #2C84EE, #2691E9);
+            border-radius: 4px;
+          }
         }
 
-        .version {
-            margin: 0 15px -70px 0;
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.3);
+        &:nth-child(5) {
+          .ofweek-link {
+            float: right;
+          }
+
+          .ant-checkbox-wrapper {
+            color: #282828;
+          }
+
+          .ant-form-item {
+            margin-bottom: 0;
+          }
+
+          .ant-form-item-control-input {
+            min-height: unset;
+          }
         }
+      }
     }
 
-    .panel-r {
-        -webkit-app-region: no-drag;
-        flex: 1;
+    .title-bar-container {
+      padding: 8px 12px 0 0;
+      box-sizing: border-box;
 
-        .ant-form {
-            padding: 0 40px;
+      .bar-r {
+        text-align: right;
+      }
+
+      i {
+        &:first-child {
+          background-size: 16px 2px;
         }
 
-        .title-bar-container {
-            padding: 8px 12px 0 0;
-            box-sizing: border-box;
-
-            .bar-r {
-                text-align: right;
-            }
-
-            i {
-                &:first-child {
-                    background-size: 16px 2px;
-                }
-
-                width: 30px;
-                height: 30px;
-                background-size: 14px 14px;
-            }
-        }
-
-        .login-tab {
-            border-bottom: 1px solid #E0E0E0;
-
-            a {
-                display: inline-block;
-                width: 50%;
-                height: 64px;
-                line-height: 64px;
-                text-align: center;
-                font-size: 16px;
-                color: #999;
-
-                &.active {
-                    color: #282828;
-                    border-bottom: 2px solid #282828;
-                }
-            }
-        }
+        width : 30px;
+        height : 30px;
+        background-size: 14px 14px;
+      }
     }
+
+    .login-tab {
+      border-bottom: 1px solid #E0E0E0;
+
+      a {
+        display: inline-block;
+        width: 50%;
+        height: 64px;
+        line-height: 64px;
+        text-align: center;
+        font-size: 16px;
+        color: #999;
+
+        &.active {
+          color: #282828;
+          border-bottom: 2px solid #282828;
+        }
+      }
+    }
+  }
 }

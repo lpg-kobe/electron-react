@@ -6,9 +6,7 @@
 import immutable from 'immutable';
 // @ts-ignore
 import { login, sendSms, smsLogin } from '@/services/auth';
-// @ts-ignore
 import {
-  saveUserSession,
   getUserSession,
   removeUserSession,
   // @ts-ignore
@@ -54,24 +52,12 @@ export default {
   effects: {
     // 账号密码登录
     *login({ payload }: ActionType, { call }: YieldType) {
-      const {
-        status,
-        data: { data },
-      } = yield call(login, payload);
-      if (status) {
-        saveUserSession(data);
-      }
+      yield call(login, payload);
     },
 
     // 验证码登录
     *smsLogin({ payload }: ActionType, { call }: YieldType) {
-      const {
-        status,
-        data: { data },
-      } = yield call(smsLogin, payload);
-      if (status) {
-        saveUserSession(data);
-      }
+      yield call(smsLogin, payload);
     },
 
     *sendSms({ payload }: ActionType, { call }: YieldType) {

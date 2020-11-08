@@ -16,8 +16,12 @@ type handleType = {
   onError?: any;
 };
 
-// handle width ajax success
-export function handleSuccess(handler: handleType): any {
+/**
+ * @desc handle width ajax success
+ * @param {Object} handler handler after request
+ * @param {Object} data callback data of request
+ */
+export function handleSuccess(handler: handleType, data?: any): any {
   Object.entries(handler.onSuccess).forEach(([key, value]) => {
     const keyReact: ReactType = {
       login: () => {
@@ -45,7 +49,7 @@ export function handleSuccess(handler: handleType): any {
         });
       },
     };
-    keyReact[key] && typeof value === 'function' ? value() : keyReact[key]?.();
+    keyReact[key] && typeof value === 'function' ? value(data) : keyReact[key]?.();
   });
 }
 

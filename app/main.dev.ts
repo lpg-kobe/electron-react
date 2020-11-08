@@ -51,8 +51,8 @@ const defaultWindowConfig: DefaultConfigParam = {
   titleBarStyle: 'hidden',
   transparent: true,
   frame: false,
-  width: 1124,
-  height: 754,
+  width: 740,
+  height: 406,
   webPreferences:
     (process.env.NODE_ENV === 'development' ||
       process.env.E2E_BUILD === 'true') &&
@@ -165,7 +165,7 @@ const createWindow = async () => {
     })
   })
 
-  mainWindow.loadURL(`file://${__dirname}/app.html`);
+  mainWindow.loadURL(`file://${__dirname}/app.html#/login`);
 
   // @TODO: Use 'ready-to-show' event
   //        https://github.com/electron/electron/blob/master/docs/api/browser-window.md#using-ready-to-show-event
