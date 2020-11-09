@@ -1,11 +1,70 @@
 #common-header {
+    -webkit-app-region: drag;
+    padding: 0;
     display: flex;
     justify-content: space-between;
-    align-items: center;
     width: 100%;
-    background: #eee;
-    height: 24px;
-    line-height: 24px;
+    background: #fff;
+    height: 46px;
+    box-shadow: 0px 1px 0px 0px #DDDDDD;
+
+    .header-l {
+        -webkit-app-region: no-drag;
+        display: flex;
+
+        .logo {
+            width: 86px;
+            height: 26px;
+            margin: 10px 6px 10px 32px;
+            background: url(~assets/img/logo.webp) no-repeat center/100%;
+        }
+
+        >span {
+            color: #AF0101;
+            font-weight: 600;
+            font-family: Source Han Sans CN;
+            font-size: 23px;
+            margin: 15px 0 0 0;
+        }
+    }
+
+    .header-r {
+        -webkit-app-region: no-drag;
+        display: flex;
+        align-items: center;
+
+        .title-bar-container {
+            display: flex;
+            align-items: center;
+            height: 100%;
+
+            .bar-r {
+                display: flex;
+                align-items: center;
+            }
+
+            .icon-close-win {
+                margin: 0 42px 0 16px;
+            }
+        }
+
+        .user-bar {
+            display: flex;
+            align-items: center;
+
+            >img {
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+            }
+
+            >span {
+                font-size: 14px;
+                color: #282828;
+                margin: 0 42px 0 10px;
+            }
+        }
+    }
 }
 
 .title-bar-container {

@@ -37,6 +37,7 @@ function Login(props: PropsType) {
   const formOptions = {
     options: {
       name: 'loginForm',
+      preserve: false,
       form,
       onFinish: handleSubmit,
     },
@@ -52,7 +53,7 @@ function Login(props: PropsType) {
       },
       {
         options: {
-          name: 'account',
+          name: smsLogin ? 'phone' : 'account',
           initialValue: smsLogin ? '' : getStore('userAccount') && getStore('userAccount').account,
           rules: [
             {
@@ -65,11 +66,13 @@ function Login(props: PropsType) {
             },
           ],
         },
-        component: (
-          <Input
-            placeholder="手机号"
-            maxLength={11}
-            onChange={handlePhoneChange}
+        component: (smsLogin ? <Input
+          placeholder="手机号"
+          maxLength={11}
+          onChange={handlePhoneChange}
+        /> : <Input
+            placeholder="账号"
+            maxLength={20}
           />
         ),
       },
@@ -136,10 +139,16 @@ function Login(props: PropsType) {
     });
   }
 
+  // validate phone or not
+  function isValidatePhone(phone?: any) {
+    const reg = new RegExp(/^1\d{10,11}/)
+    return reg.test(phone)
+  }
+
   // handle login type change
   function handleLoginChange({ target: { dataset: { type } } }: any) {
-    form.resetFields()
-    setSmsLogin(type === 'sms');
+    const smsType = type === 'sms'
+    setSmsLogin(smsType);
   }
 
   // handle submit form
@@ -149,7 +158,7 @@ function Login(props: PropsType) {
       payload: {
         params: smsLogin
           ? {
-            mobile: values.account,
+            mobile: values.phone,
             code: values.code,
           }
           : values,
@@ -176,7 +185,7 @@ function Login(props: PropsType) {
 
   // send sms
   function handleSendSms() {
-    const mobile = form.getFieldValue('account');
+    const mobile = form.getFieldValue('phone');
     dispatch({
       type: 'auth/sendSms',
       payload: {
@@ -231,10 +240,9 @@ function Login(props: PropsType) {
   // handle phone change
   function handlePhoneChange({ target: { value } }: any) {
     formatNumber('phone', value);
-    const reg = new RegExp(/^1\d{10,11}/);
     // 验证码倒计时不做处理
     if (!getStore('smsSendTime')) {
-      setSmsBtnDisable(!reg.test(value));
+      setSmsBtnDisable(!isValidatePhone(value));
     }
   }
   return (

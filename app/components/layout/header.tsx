@@ -10,11 +10,19 @@ import './style.less';
 const CommonHeader = (props: any) => {
   const { auth: { userInfo } } = props;
   const { Header } = Layout;
-  return <>{userInfo ? <><TitleBar /><Header id="common-header">
-    <div className="header-l">logo</div>
+  return <>{userInfo ? <><Header id="common-header">
+    <div className="header-l">
+      <i className="logo"></i>
+      <span>直播</span>
+    </div>
     <div className="header-r">
-      欢迎您
-        {userInfo.completeInfoDto.nick}
+      <div className="user-bar">
+        <img src={userInfo.completeInfoDto.avatar} alt="头像" />
+        <span>
+          {userInfo.completeInfoDto.nick}
+        </span>
+      </div>
+      <TitleBar />
     </div>
   </Header></> : null
   }</>

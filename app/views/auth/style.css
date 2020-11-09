@@ -3,12 +3,12 @@
   background: #fff;
 }
 .login-page-container .panel-l {
+  -webkit-app-region: drag;
   position: relative;
   flex-basis: 352px;
   width: 352px;
   height: 406px;
-  object-fit: cover;
-  background: url(~assets/img/login/bg-login.webp) no-repeat left / cover #000;
+  background: url(~assets/img/login/bg-login.webp) no-repeat left / cover;
 }
 .login-page-container .panel-l .login-desc {
   display: flex;
@@ -45,6 +45,76 @@
 }
 .login-page-container .panel-r .ant-form {
   padding: 0 40px;
+}
+.login-page-container .panel-r .ant-form .ant-form-item {
+  color: #999;
+}
+.login-page-container .panel-r .ant-form .ant-input {
+  color: #999;
+  padding: 9px 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+}
+.login-page-container .panel-r .ant-form .sms-input {
+  padding-right: 126px;
+}
+.login-page-container .panel-r .ant-form .sms-btn {
+  position: absolute;
+  right: 0;
+  height: 42px;
+  background: transparent;
+  border: none;
+  font-size: 14px;
+  color: #288EEA;
+}
+.login-page-container .panel-r .ant-form .sms-btn:disabled {
+  color: rgba(0, 0, 0, 0.25);
+  background: transparent;
+}
+.login-page-container .panel-r .ant-form .ant-form-item-control-input {
+  min-height: 42px;
+}
+.login-page-container .panel-r .ant-form .ant-form-item-explain {
+  position: absolute;
+  left: 0;
+  bottom: -20px;
+  padding-left: 22px;
+  min-height: 20px;
+  line-height: 20px;
+}
+.login-page-container .panel-r .ant-form .ant-row:nth-child(1) .ant-form-item {
+  margin-bottom: 35px;
+}
+.login-page-container .panel-r .ant-form .ant-row:nth-child(2) .ant-form-item {
+  margin-bottom: 20px;
+}
+.login-page-container .panel-r .ant-form .ant-row:nth-child(3) .ant-form-item {
+  margin-bottom: 30px;
+}
+.login-page-container .panel-r .ant-form .ant-row:nth-child(4) .ant-btn-primary {
+  font-size: 16px;
+  height: 42px;
+  width: 100%;
+  background: linear-gradient(0deg, #2C84EE, #2691E9);
+  border-radius: 4px;
+}
+.login-page-container .panel-r .ant-form .ant-row:nth-child(4) .ant-form-item {
+  margin-bottom: 22px;
+  width: 100%;
+  background: linear-gradient(0deg, #2C84EE, #2691E9);
+  border-radius: 4px;
+}
+.login-page-container .panel-r .ant-form .ant-row:nth-child(5) .ofweek-link {
+  float: right;
+}
+.login-page-container .panel-r .ant-form .ant-row:nth-child(5) .ant-checkbox-wrapper {
+  color: #282828;
+}
+.login-page-container .panel-r .ant-form .ant-row:nth-child(5) .ant-form-item {
+  margin-bottom: 0;
+}
+.login-page-container .panel-r .ant-form .ant-row:nth-child(5) .ant-form-item-control-input {
+  min-height: unset;
 }
 .login-page-container .panel-r .title-bar-container {
   padding: 8px 12px 0 0;

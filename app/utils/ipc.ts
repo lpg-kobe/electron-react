@@ -219,6 +219,7 @@ class Windows {
         mainListen(MAIN_EVENT.MAIN_CLOSE_TOLOG, () => {
             // close all window only not mainWindow before add loginWindow to totalWindow
             Object.entries(this.totalWindow).forEach(([key, value]: any) => {
+                debugger
                 if (key === 'mainWindow') {
                     // load login page here,or replace hashState of currentPage? @todo
                     value.setSize(740, 406, true)
@@ -229,7 +230,7 @@ class Windows {
             })
         })
 
-        this.mainWindow.loadURL(`file://${__dirname}/app.html`);
+        this.mainWindow.loadURL(`file://${__dirname}/app.html#/login`);
 
         // @TODO: Use 'ready-to-show' event
         //        https://github.com/electron/electron/blob/master/docs/api/browser-window.md#using-ready-to-show-event

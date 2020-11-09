@@ -6,7 +6,8 @@
 body,
 html {
   height: 100vh;
-  background: #CCCBCA;
+  background: #F0F0F0 !important;
+  background-color: #F0F0F0 !important;
   font-family: Arial, Helvetica, Helvetica Neue, serif;
 }
 
@@ -27,6 +28,8 @@ img {
 }
 
 p,
+a,
+span,
 label,
 h1,
 h2,
@@ -35,6 +38,8 @@ h4,
 h5 {
   font-weight: normal;
   line-height: 1;
+  margin: 0;
+  padding: 0;
 }
 
 .fl {
@@ -61,13 +66,27 @@ h5 {
 .icon-min-win {
   width: 16px;
   height: 2px;
-  background: url(~assets/img/login/i-min-win.webp) no-repeat center;
+  background: url(~assets/img/login/i-min-win.webp) no-repeat center/100%;
 }
 
 .icon-close-win {
   width: 14px;
   height: 14px;
-  background: url(~assets/img/login/i-close-win.webp) no-repeat center;
+  background: url(~assets/img/login/i-close-win.webp) no-repeat center/100%;
+}
+
+.main-container {
+  padding: 22px 42px 0 32px;
+}
+
+.ant-form {
+  .ant-form-item {
+    margin-bottom: 0;
+  }
+
+  .ant-input::placeholder {
+    color: #999;
+  }
 }
 
 .ant-form-item-explain-error {

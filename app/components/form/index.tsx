@@ -19,7 +19,7 @@ function AForm(props: PropsType) {
       {items &&
         items.map((item: any, num: number) =>
           item.items ?
-            <Row>
+            <Row key={num}>
               {item.items.map((ele: any, index: number, arr: []) => (
                 <Col key={index} span={24 / arr.length}>
                   <FormItem {...ele.options}>{ele.component}</FormItem>

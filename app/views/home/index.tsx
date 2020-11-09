@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'dva';
 // @ts-ignore
 import { SDK_APP_ID, API_HOST } from '@/constants';
@@ -8,9 +8,19 @@ import CommonHeader from '@/components/layout/header';
 import ATable from '@/components/table';
 import { withRouter } from 'dva/router';
 import { List, Form, Input, Select, Button } from 'antd';
+import { SearchOutlined } from '@ant-design/icons'
 import './style.less';
+import { remote } from 'electron'
+
 
 function HomePage(props: any) {
+  useEffect(() => {
+    console.log(remote.getCurrentWindow().getSize())
+    remote.getCurrentWindow().setSize(740, 406, true)
+    return () => {
+
+    };
+  }, []);
   const {
     auth: { userInfo },
     home: { list, pagination },
@@ -36,7 +46,7 @@ function HomePage(props: any) {
                 options: {
                   initialValue: ''
                 },
-                component: <Select placeholder="选择直播状态查询">
+                component: <Select placeholder="请选择">
                   <Option value="">全部</Option>
                   <Option value="0">预告</Option>
                   <Option value="1">直播</Option>
@@ -44,10 +54,10 @@ function HomePage(props: any) {
                 </Select>
               }, {
                 options: {},
-                component: <Input placeholder="输入直播标题查询" />
-              }, {
-                options: {},
-                component: <Button onClick={handleSubmit}>查询</Button>
+                component: <div className="search-input">
+                  <Input placeholder="输入搜索的内容" />
+                  <Button onClick={handleSubmit} className="search-btn" shape="round" icon={<SearchOutlined />}></Button>
+                </div>
               }]
             }
           }
@@ -80,10 +90,8 @@ function HomePage(props: any) {
   return (
     <>
       <CommonHeader />
-      <main className="home-page-container" data-tid="home-page-container">
-        <section>
-          <ATable {...tableOptions} />
-        </section>
+      <main className="home-page-container clearfix main-container" data-tid="home-page-container">
+        <ATable {...tableOptions} />
       </main>
     </>
   );

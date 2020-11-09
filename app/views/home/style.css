@@ -1,9 +1,113 @@
-.container {
-  position: absolute;
-  top: 30%;
-  left: 10px;
-  text-align: center;
+.home-page-container .ant-btn:empty {
+  display: inline-block;
+  width: auto;
+  visibility: unset;
+  content: unset;
 }
-.container a {
-  font-size: 1.4rem;
+.home-page-container .ant-form-item-control-input {
+  min-height: 40px;
+  line-height: 40px;
+}
+.home-page-container .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+  width: 100px;
+  padding: 0 22px;
+  height: 40px;
+  line-height: 40px;
+  border-radius: 20px;
+  background: #F7F7F7;
+  border: 1px solid #DDDDDD;
+}
+.home-page-container .ant-select-single:not(.ant-select-customize-input) .ant-select-selector .ant-select-selection-search-input {
+  height: 40px;
+  line-height: 40px;
+}
+.home-page-container .ant-select-arrow {
+  top: 18px;
+  right: 22px;
+  width: 13px;
+  height: 8px;
+}
+.home-page-container .ant-select-arrow::after {
+  content: ' ';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  background: url(~assets/img/home/i-dropdown.webp) no-repeat center / 100%;
+}
+.home-page-container .ant-select-arrow span {
+  display: none;
+}
+.home-page-container .ant-select-single .ant-select-selector .ant-select-selection-item,
+.home-page-container .ant-select-single .ant-select-selector .ant-select-selection-placeholder {
+  line-height: 40px;
+  padding: 0;
+  color: #282828;
+}
+.home-page-container .ant-input {
+  padding: 8px 70px 8px 22px;
+  border-radius: 20px;
+  background: #F7F7F7;
+  border: 1px solid #DDDDDD;
+}
+.home-page-container .ant-list {
+  margin-top: 10px;
+}
+.home-page-container p,
+.home-page-container a,
+.home-page-container span,
+.home-page-container label,
+.home-page-container h1,
+.home-page-container h2,
+.home-page-container h3,
+.home-page-container h4,
+.home-page-container h5 {
+  font-weight: normal;
+  line-height: 1;
+  margin: 0;
+  padding: 0;
+}
+.home-page-container .table-search-box {
+  padding-right: 68px;
+}
+.home-page-container .table-search-box > .ant-row {
+  align-items: center;
+}
+.home-page-container .table-search-box > .ant-row h2 {
+  font-size: 18px;
+  color: #282828;
+  padding-left: 27px;
+  position: relative;
+}
+.home-page-container .table-search-box > .ant-row h2::before {
+  position: absolute;
+  left: 0;
+  top: 0;
+  content: ' ';
+  width: 18px;
+  height: 18px;
+  background: url(~assets/img/home/i-list.webp) no-repeat center / 100%;
+}
+.home-page-container .table-search-box .ant-form {
+  justify-content: flex-end;
+}
+.home-page-container .table-search-box .ant-form > .ant-col {
+  flex: unset;
+}
+.home-page-container .table-search-box .search-input {
+  width: 300px;
+  position: relative;
+  margin: 0 0 0 20px;
+}
+.home-page-container .table-search-box .search-input .search-btn {
+  padding: 0;
+  margin: 0;
+  box-shadow: unset;
+  position: absolute;
+  right: 0;
+  top: 0;
+  border-radius: 20px;
+  width: 68px;
+  height: 40px;
 }

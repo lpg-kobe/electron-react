@@ -1,12 +1,13 @@
 /**
  * @desc 公用标题栏组件
  */
-import React from 'react'
+import React, { ReactNode } from 'react'
 import './style.less'
 // @ts-ignore
 import { isWindowMax, maxWindow, unMaxWindow, minWindow, closeWindow } from '@/utils/ipc'
 
 type PropsTypes = {
+    children?: ReactNode,
     btns?: Array<any>// 要展示的菜单操作按钮
 }
 type OperateTypes = {
@@ -38,10 +39,12 @@ export default function TitleBar(props: PropsTypes) {
             type: 'min'
         }, {
             type: 'close'
-        }]
+        }],
     } = props
     return <div className="title-bar-container">
-        <div className="bar-l"></div>
+        <div className="bar-l">
+            {props.children}
+        </div>
         <div className="bar-r">
             {
                 btns && btns.map((btn: any, index: number) => <i key={index} className={`icon-${btn.type}-win`} onClick={() => handleBtnClick(btn)} />)

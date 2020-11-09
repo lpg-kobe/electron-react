@@ -5,13 +5,6 @@
 import immutable from 'immutable';
 // @ts-ignore
 import { getList } from '@/services/home';
-// @ts-ignore
-import {
-    saveUserSession,
-    getUserSession,
-    removeUserSession,
-    // @ts-ignore
-} from '@/utils/session';
 
 type ActionType = {
     [key: string]: any;
