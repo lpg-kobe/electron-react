@@ -17,7 +17,7 @@ const CommonHeader = (props: any) => {
     </div>
     <div className="header-r">
       <div className="user-bar">
-        <img src={userInfo.completeInfoDto.avatar} alt="头像" />
+        <img src={userInfo.logoUrl} alt="头像" />
         <span>
           {userInfo.completeInfoDto.nick}
         </span>

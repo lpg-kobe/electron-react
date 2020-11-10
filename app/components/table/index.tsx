@@ -59,6 +59,8 @@ function ATable(props: PropsType) {
   const tableData = curTable.data || [];
   const tablePagination = curTable.pagination || {};
   const defaultPagination = {
+    hideOnSinglePage: true,
+    position: ['bottomCenter'],
     current: 1,
     pageSize: 10,
     total: 0,

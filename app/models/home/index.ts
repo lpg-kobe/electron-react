@@ -31,7 +31,10 @@ const initialState = {
     // 直播列表
     list: [],
     // 直播分页
-    pagination: {},
+    pagination: {
+        current: 1,
+        pageSize: 10
+    },
 };
 export default {
     namespace: 'home',
@@ -42,13 +45,19 @@ export default {
         },
     },
     effects: {
-        *getList({ payload }: ActionType, { call, put }: YieldType) {
-            const { status, data: { data } } = yield call(getList, payload);
+        *getList({ payload }: ActionType, { call, put, select }: YieldType) {
+            const { status, data: { data: { total, items } } } = yield call(getList, payload);
+            const pagination = yield select((state: any) => state.home.pagination)
             if (status) {
                 yield put({
                     type: 'save',
                     payload: {
-                        list: data
+                        list: items,
+                        pagination: {
+                            ...pagination,
+                            total,
+                            current: payload.pagenum
+                        }
                     }
                 })
             }
@@ -60,7 +69,10 @@ export default {
                 if (pathname === '/') {
                     dispatch({
                         type: 'getList',
-                        payload: {},
+                        payload: {
+                            pagenum: 1,
+                            pagesize: 10
+                        },
                     });
                 }
             });

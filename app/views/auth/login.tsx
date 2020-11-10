@@ -28,7 +28,7 @@ type FormType = {
 function Login(props: PropsType) {
   const smsTotal: number = 60;
   let smsInterVal: any = null;
-  const { dispatch } = props;
+  const { dispatch, history } = props;
   const [form]: [FormType] = Form.useForm();
   const [smsText, setSmsText] = useState('获取验证码');
   const [smsBtnDisable, setSmsBtnDisable] = useState(true);
@@ -40,6 +40,11 @@ function Login(props: PropsType) {
       preserve: false,
       form,
       onFinish: handleSubmit,
+      initialValues: getStore('userAccount') ? {
+        remember: true,
+        account: getStore('userAccount').account,
+        password: getStore('userAccount').password
+      } : {}
     },
     items: [
       {
@@ -54,7 +59,6 @@ function Login(props: PropsType) {
       {
         options: {
           name: smsLogin ? 'phone' : 'account',
-          initialValue: smsLogin ? '' : getStore('userAccount') && getStore('userAccount').account,
           rules: [
             {
               required: true,
@@ -79,7 +83,6 @@ function Login(props: PropsType) {
       {
         options: {
           name: smsLogin ? 'code' : 'password',
-          initialValue: smsLogin ? '' : getStore('userAccount') && getStore('userAccount').password,
           rules: smsLogin
             ? [
               {
@@ -116,8 +119,7 @@ function Login(props: PropsType) {
         items: [{
           options: {
             name: 'remember',
-            valuePropName: 'checked',
-            initialValue: smsLogin ? false : !!getStore('userAccount')
+            valuePropName: 'checked'
           },
           component: smsLogin ? null : <Checkbox onChange={({ target: checked }: any) => setRememberPwd(!!checked)}>记住密码</Checkbox>
         }, {
@@ -164,8 +166,8 @@ function Login(props: PropsType) {
           : values,
         onSuccess: {
           login: ({ data }: any) => {
-            saveUserSession(data)
             message.success('登录成功');
+            saveUserSession(data)
             setWindowSize()
             // 账号密码登录成功后记录记住的密码
             if (!smsLogin && rememberPwd) {
@@ -176,7 +178,7 @@ function Login(props: PropsType) {
             } else {
               removeStore('userAccount')
             }
-            window.location.hash = "#/"
+            history.push('/')
           },
         },
       },

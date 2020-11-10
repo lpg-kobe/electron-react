@@ -5,29 +5,29 @@
  * https://webpack.js.org/concepts/hot-module-replacement/
  */
 
-import path from 'path';
-import fs from 'fs';
-import webpack from 'webpack';
-import chalk from 'chalk';
-import { merge } from 'webpack-merge';
-import { spawn, execSync } from 'child_process';
-import { TypedCssModulesPlugin } from 'typed-css-modules-webpack-plugin';
-import baseConfig from './webpack.config.base';
-import CheckNodeEnv from '../internals/scripts/CheckNodeEnv';
+import path from 'path'
+import fs from 'fs'
+import webpack from 'webpack'
+import chalk from 'chalk'
+import { merge } from 'webpack-merge'
+import { spawn, execSync } from 'child_process'
+import { TypedCssModulesPlugin } from 'typed-css-modules-webpack-plugin'
+import baseConfig from './webpack.config.base'
+import CheckNodeEnv from '../internals/scripts/CheckNodeEnv'
 
 // When an ESLint server is running, we can't set the NODE_ENV so we'll check if it's
 // at the dev webpack config is not accidentally run in a production environment
 if (process.env.NODE_ENV === 'production') {
-  CheckNodeEnv('development');
+  CheckNodeEnv('development')
 }
 
-const port = process.env.PORT || 1212;
-const publicPath = `http://localhost:${port}/dist`;
-const dll = path.join(__dirname, '..', 'dll');
-const manifest = path.resolve(dll, 'renderer.json');
+const port = process.env.PORT || 1212
+const publicPath = `http://localhost:${port}/dist`
+const dll = path.join(__dirname, '..', 'dll')
+const manifest = path.resolve(dll, 'renderer.json')
 const requiredByDLLConfig = module.parent.filename.includes(
   'webpack.config.renderer.dev.dll'
-);
+)
 
 /**
  * Warn if the DLL is not built
@@ -37,8 +37,8 @@ if (!requiredByDLLConfig && !(fs.existsSync(dll) && fs.existsSync(manifest))) {
     chalk.black.bgYellow.bold(
       'The DLL files are missing. Sit back while we build them for you with "yarn build-dll"'
     )
-  );
-  execSync('yarn build-dll');
+  )
+  execSync('yarn build-dll')
 }
 
 export default merge(baseConfig, {
@@ -55,12 +55,12 @@ export default merge(baseConfig, {
     ...(process.env.PLAIN_HMR ? [] : ['react-hot-loader/patch']),
     `webpack-dev-server/client?http://localhost:${port}/`,
     'webpack/hot/only-dev-server',
-    require.resolve('../app/index.tsx'),
+    require.resolve('../app/index.tsx')
   ],
 
   output: {
     publicPath: `http://localhost:${port}/dist/`,
-    filename: 'renderer.dev.js',
+    filename: 'renderer.dev.js'
   },
 
   module: {
@@ -69,21 +69,21 @@ export default merge(baseConfig, {
         test: /\.global\.css$/,
         use: [
           {
-            loader: 'style-loader',
+            loader: 'style-loader'
           },
           {
             loader: 'css-loader',
             options: {
-              sourceMap: true,
-            },
-          },
-        ],
+              sourceMap: true
+            }
+          }
+        ]
       },
       {
         test: /^((?!\.global).)*\.css$/,
         use: [
           {
-            loader: 'style-loader',
+            loader: 'style-loader'
           },
           {
             loader: 'css-loader',
@@ -92,52 +92,58 @@ export default merge(baseConfig, {
               //   localIdentName: '[name]__[local]__[hash:base64:5]'
               // },
               sourceMap: true,
-              importLoaders: 1,
-            },
-          },
-        ],
+              importLoaders: 1
+            }
+          }
+        ]
       },
       // Less support - compile all .global.less files and pipe it to style.css
       {
         test: /\.global\.less$/,
         use: [
           {
-            loader: 'style-loader',
+            loader: require.resolve('style-loader')
           },
           {
-            loader: 'css-loader',
+            loader: require.resolve('css-loader'),
             options: {
-              sourceMap: true,
-            },
+              sourceMap: true
+            }
+          },
+          {
+            loader: require.resolve('postcss-loader')
           },
           {
             loader: require.resolve('less-loader'),
-            options: { lessOptions: { javascriptEnabled: true } },
-          },
-        ],
+            options: { lessOptions: { javascriptEnabled: true } }
+          }
+        ]
       },
       // Less support - compile all other .less files and pipe it to style.css
       {
         test: /^((?!\.global).)*\.less$/,
         use: [
           {
-            loader: 'style-loader',
+            loader: require.resolve('style-loader')
           },
           {
-            loader: 'css-loader',
+            loader: require.resolve('css-loader'),
             options: {
               // modules: {
               //   localIdentName: '[name]__[local]__[hash:base64:5]'
               // },
               sourceMap: true,
-              importLoaders: 1,
-            },
+              importLoaders: 1
+            }
+          },
+          {
+            loader: require.resolve('postcss-loader')
           },
           {
             loader: require.resolve('less-loader'),
-            options: { lessOptions: { javascriptEnabled: true } },
-          },
-        ],
+            options: { lessOptions: { javascriptEnabled: true } }
+          }
+        ]
       },
       // WOFF Font
       {
@@ -146,9 +152,9 @@ export default merge(baseConfig, {
           loader: 'url-loader',
           options: {
             limit: 10000,
-            mimetype: 'application/font-woff',
-          },
-        },
+            mimetype: 'application/font-woff'
+          }
+        }
       },
       // WOFF2 Font
       {
@@ -157,9 +163,9 @@ export default merge(baseConfig, {
           loader: 'url-loader',
           options: {
             limit: 10000,
-            mimetype: 'application/font-woff',
-          },
-        },
+            mimetype: 'application/font-woff'
+          }
+        }
       },
       // TTF Font
       {
@@ -168,14 +174,14 @@ export default merge(baseConfig, {
           loader: 'url-loader',
           options: {
             limit: 10000,
-            mimetype: 'application/octet-stream',
-          },
-        },
+            mimetype: 'application/octet-stream'
+          }
+        }
       },
       // EOT Font
       {
         test: /\.eot(\?v=\d+\.\d+\.\d+)?$/,
-        use: 'file-loader',
+        use: 'file-loader'
       },
       // SVG Font
       {
@@ -184,21 +190,21 @@ export default merge(baseConfig, {
           loader: 'url-loader',
           options: {
             limit: 10000,
-            mimetype: 'image/svg+xml',
-          },
-        },
+            mimetype: 'image/svg+xml'
+          }
+        }
       },
       // Common Image Formats
       {
         test: /\.(?:ico|gif|png|jpg|jpeg|webp)$/,
-        use: 'url-loader',
-      },
-    ],
+        use: 'url-loader'
+      }
+    ]
   },
   resolve: {
     alias: {
-      'react-dom': '@hot-loader/react-dom',
-    },
+      'react-dom': '@hot-loader/react-dom'
+    }
   },
   plugins: [
     requiredByDLLConfig
@@ -206,15 +212,15 @@ export default merge(baseConfig, {
       : new webpack.DllReferencePlugin({
           context: path.join(__dirname, '..', 'dll'),
           manifest: require(manifest),
-          sourceType: 'var',
+          sourceType: 'var'
         }),
 
     new webpack.HotModuleReplacementPlugin({
-      multiStep: true,
+      multiStep: true
     }),
 
     new TypedCssModulesPlugin({
-      globPattern: 'app/**/*.{css,scss,sass,less}',
+      globPattern: 'app/**/*.{css,scss,sass,less}'
     }),
 
     new webpack.NoEmitOnErrorsPlugin(),
@@ -232,17 +238,17 @@ export default merge(baseConfig, {
      * 'staging', for example, by changing the ENV variables in the npm scripts
      */
     new webpack.EnvironmentPlugin({
-      NODE_ENV: 'development',
+      NODE_ENV: 'development'
     }),
 
     new webpack.LoaderOptionsPlugin({
-      debug: true,
-    }),
+      debug: true
+    })
   ],
 
   node: {
     __dirname: false,
-    __filename: false,
+    __filename: false
   },
 
   devServer: {
@@ -265,24 +271,24 @@ export default merge(baseConfig, {
     watchOptions: {
       aggregateTimeout: 300,
       ignored: /node_modules/,
-      poll: 100,
+      poll: 100
     },
     historyApiFallback: {
       verbose: true,
-      disableDotRule: false,
+      disableDotRule: false
     },
     // create main process before webpack render page
-    before() {
+    before () {
       if (process.env.START_HOT) {
-        console.log('Starting Main Process...');
+        console.log('Starting Main Process...')
         spawn('npm', ['run', 'start-main-dev'], {
           shell: true,
           env: process.env,
-          stdio: 'inherit',
+          stdio: 'inherit'
         })
-          .on('close', (code) => process.exit(code))
-          .on('error', (spawnError) => console.error(spawnError));
+          .on('close', code => process.exit(code))
+          .on('error', spawnError => console.error(spawnError))
       }
-    },
-  },
-});
+    }
+  }
+})

@@ -3,10 +3,9 @@
  * @author pika
  */
 
-import { ipcRenderer, ipcMain, remote, app, BrowserWindow } from 'electron'
-import { autoUpdater } from 'electron-updater';
+import { ipcRenderer, ipcMain, remote, BrowserWindow } from 'electron'
+import { AppUpdater } from '../main.dev'
 import path from 'path'
-import log from 'electron-log';
 
 // event name config of main process, name rule as [process_operate_status]
 export const MAIN_EVENT = {
@@ -30,11 +29,30 @@ export function rendererSend(eventName: string, config?: any) {
 }
 
 /**
+ * @desc invoke msg to main process by renderer process
+ * @param {String} eventName name of event
+ * @param {any} arguments send to main process
+ * @param {Function} cb callback after receive reponse from main process
+ */
+export function rendererInvoke(eventName: string, args?: any, cb?: any) {
+    ipcRenderer.invoke(eventName, args).then(cb)
+}
+
+/**
  * @desc send msg to renderer process by main process
  * @param event
  */
 export function mainListen(eventName: string, cb: any) {
     ipcMain.on(eventName, cb)
+}
+
+/**
+ * @desc handle msg from renderer process and async callback 
+ * @param {String} eventName name of event
+ * @param {Function} handler handler after receive msg from renderer process
+ */
+export function mainHandle(eventName: string, handler: any) {
+    ipcMain.handle(eventName, handler)
 }
 
 /**
@@ -100,25 +118,24 @@ type DefaultConfigParam = {
     transparent?: boolean,// 透明窗口?
     frame?: boolean, // 带边框窗口?
     icon?: string, // 窗口icon
+    url?: string, // 开启的窗口url
     skipTaskbar?: boolean // 窗口icon
 };
 
-class AppUpdater {
-    constructor() {
-        log.transports.file.level = 'info';
-        autoUpdater.logger = log;
-        autoUpdater.checkForUpdatesAndNotify();
-    }
-}
+/**
+ * @desc base Class to create window instance,inorder to manage all window
+ * @author pika
+ */
+export class Windows {
+    private launchWindow: any // 默认创建启动缓冲窗口
+    private mainWindowKey: any // 主窗口namespace
+    private defaultWindowConfig: DefaultConfigParam // 默认窗口配置
 
-class Windows {
-    totalWindow: any // 开启的窗口
-    mainWindow: any // 主窗口
-    launchWindow: any // 启动页窗口
-    defaultWindowConfig: DefaultConfigParam // 默认窗口配置
+    totalWindow: any // 开启的所有窗口
 
     constructor() {
         this.totalWindow = Object.create(null)
+        this.mainWindowKey = 'mainWindow'
         this.defaultWindowConfig = {
             show: true,
             maximizable: true,
@@ -127,8 +144,8 @@ class Windows {
             titleBarStyle: 'hidden',
             transparent: true,
             frame: false,
-            width: 1124,
-            height: 754,
+            width: 740,
+            height: 406,
             webPreferences:
                 (process.env.NODE_ENV === 'development' ||
                     process.env.E2E_BUILD === 'true') &&
@@ -137,10 +154,53 @@ class Windows {
                         nodeIntegration: true,
                     }
                     : {
-                        preload: path.join(__dirname, 'dist/renderer.prod.js'),
+                        preload: path.join(__dirname, '../dist/renderer.prod.js'),
                     },
         };
 
+        if (!this.launchWindow) {
+            this.launchWindow = new BrowserWindow({
+                ...this.defaultWindowConfig,
+                skipTaskbar: true,
+                width: 700,
+                height: 450,
+            });
+            this.launchWindow.loadURL(`file://${__dirname}/middleware/launch/index.html`)
+            // 监听启动窗口关闭
+            this.launchWindow.on('close', () => {
+                this.launchWindow = null;
+            });
+        } else {
+            // 监听启动缓冲页面加载完毕
+            mainHandle(MAIN_EVENT.MAIN_LOAD_READY, async () => {
+                await this.launchWindow.close();
+                return await this.totalWindow[this.mainWindowKey].show();
+            })
+        }
+
+        /****************************************************************/
+        /***************** main event handler after *********************/
+        /***************** create window instance   *********************/
+        /****************************************************************/
+
+        // 监听启动页开始
+        mainHandle(RENDERER_EVENT.RENDERER_LAUNCH_READY, async () => {
+            return await this.launchWindow.show();
+        })
+
+        // 监听关闭所有窗口并打开登录页面
+        mainHandle(MAIN_EVENT.MAIN_CLOSE_TOLOG, async () => {
+            // close all window only not mainWindow before add loginWindow to totalWindow
+            return await Object.entries(this.totalWindow).forEach(([key, value]: any) => {
+                if (key === this.mainWindowKey) {
+                    // load login page here,or replace hashState of currentPage? @todo
+                    value.setSize(740, 406, true)
+                    value.loadURL(`file://${__dirname}/app.html#/login`)
+                } else {
+                    value.close()
+                }
+            })
+        })
     }
 
     // install extens for react before start app
@@ -154,7 +214,12 @@ class Windows {
         ).catch(console.log);
     }
 
-    async createWindow() {
+    /**
+     * @desc main function to create a new window
+     * @param {String} namespace of name which window you want to create
+     * @param {Object} config config of window
+     */
+    async createWindow(namespace: string, config: DefaultConfigParam) {
         if (
             process.env.NODE_ENV === 'development' ||
             process.env.DEBUG_PROD === 'true'
@@ -162,87 +227,32 @@ class Windows {
             await this.installExtensions();
         }
 
-        const RESOURCES_PATH = app.isPackaged
-            ? path.join(process.resourcesPath, 'resources')
-            : path.join(__dirname, '../resources');
-
-        const getAssetPath = (...paths: string[]): string => {
-            return path.join(RESOURCES_PATH, ...paths);
-        };
-
-        // create main window
-        this.mainWindow = new BrowserWindow({
+        // create BrowserWindow by namespace
+        this.totalWindow[namespace] = new BrowserWindow({
             ...this.defaultWindowConfig,
-            icon: getAssetPath('icon.png'),
-            show: false,
-        });
-        this.totalWindow['mainWindow'] = this.mainWindow
-
-        // create launch window
-        this.launchWindow = new BrowserWindow({
-            ...this.defaultWindowConfig,
-            skipTaskbar: true,
-            width: 700,
-            height: 450,
-        });
-        this.totalWindow['launchWindow'] = this.launchWindow
-
-        this.launchWindow.loadURL(`file://${__dirname}/middleware/launch/index.html`);
-
-        // 监听启动窗口关闭
-        this.launchWindow.on('close', () => {
-            this.launchWindow = null;
-            delete this.totalWindow['launchWindow']
+            ...config
         });
 
-        // 监听主窗口关闭
-        this.mainWindow.on('closed', () => {
-            this.mainWindow = null;
-            delete this.totalWindow['mainWindow']
+        // listen closed event of all window after create new window
+        this.totalWindow[namespace].on('closed', () => {
+            this.totalWindow[namespace] = null;
+            delete this.totalWindow[namespace]
         });
 
-        // 监听启动页开始
-        mainListen(RENDERER_EVENT.RENDERER_LAUNCH_READY, () => {
-            this.launchWindow.show();
-        })
-
-        // 监听启动页面加载完毕
-        mainListen(MAIN_EVENT.MAIN_LOAD_READY, () => {
-            if (!this.launchWindow) {
-                return;
-            }
-            this.launchWindow.close();
-            this.mainWindow.show();
-        })
-
-        // 监听关闭所有窗口并打开登录页面
-        mainListen(MAIN_EVENT.MAIN_CLOSE_TOLOG, () => {
-            // close all window only not mainWindow before add loginWindow to totalWindow
-            Object.entries(this.totalWindow).forEach(([key, value]: any) => {
-                debugger
-                if (key === 'mainWindow') {
-                    // load login page here,or replace hashState of currentPage? @todo
-                    value.setSize(740, 406, true)
-                    value.loadURL(`file://${__dirname}/app.html#/login`)
-                } else {
-                    value.close()
-                }
-            })
-        })
-
-        this.mainWindow.loadURL(`file://${__dirname}/app.html#/login`);
+        // load url of window config
+        this.totalWindow[namespace].loadURL(config.url);
 
         // @TODO: Use 'ready-to-show' event
         //        https://github.com/electron/electron/blob/master/docs/api/browser-window.md#using-ready-to-show-event
-        this.mainWindow.webContents.on('did-finish-load', () => {
-            if (!this.mainWindow) {
-                throw new Error('"mainWindow" is not defined');
+        this.totalWindow[namespace].webContents.on('did-finish-load', () => {
+            if (!this.totalWindow[namespace]) {
+                throw new Error(`${this.totalWindow[namespace]}is not defined`);
             }
             if (process.env.START_MINIMIZED) {
-                this.mainWindow.minimize();
+                this.totalWindow[namespace].minimize();
             } else {
-                this.mainWindow.show();
-                this.mainWindow.focus();
+                this.totalWindow[namespace].show();
+                this.totalWindow[namespace].focus();
             }
         });
 
@@ -251,6 +261,7 @@ class Windows {
 
         // Remove this if your app does not use auto updates
         // eslint-disable-next-line
+        console.log('check update for app.....', AppUpdater)
         new AppUpdater();
-    }
+    };
 }

@@ -1,3 +1,6 @@
+@import '../../assets/style/mixin.less';
+
+
 .home-page-container {
 
   .ant-btn:empty {
@@ -18,8 +21,6 @@
     height: 40px;
     line-height: 40px;
     border-radius: 20px;
-    background: #F7F7F7;
-    border: 1px solid #DDDDDD;
 
     .ant-select-selection-search-input {
       height: 40px;
@@ -52,19 +53,11 @@
   .ant-select-single .ant-select-selector .ant-select-selection-placeholder {
     line-height: 40px;
     padding: 0;
-    color: #282828;
-    ;
   }
 
   .ant-input {
     padding: 8px 70px 8px 22px;
     border-radius: 20px;
-    background: #F7F7F7;
-    border: 1px solid #DDDDDD;
-  }
-
-  .ant-list {
-    margin-top: 10px;
   }
 
   p,
@@ -129,6 +122,108 @@
         border-radius: 20px;
         width: 68px;
         height: 40px;
+        line-height: 40px;
+        vertical-align: middle;
+
+        .anticon {
+          vertical-align: middle;
+        }
+      }
+    }
+  }
+
+  .ant-list {
+    margin-top: 10px;
+
+    .wrap-item {
+      cursor: pointer;
+      height: 224px;
+      position: relative;
+      padding: 10px 10px 0 10px;
+      overflow: hidden;
+      background: #fff;
+      box-shadow: 0px 5px 8px 0px rgba(194, 194, 194, 0.2);
+
+      .item-img {
+        position: relative;
+        height: 130px;
+        background: #e0e0e0;
+
+        img {
+          max-width: 100%;
+        }
+
+        .status {
+          display: inline-block;
+          position: absolute;
+          top: 7px;
+          left: 7px;
+          border-radius: 10px;
+          height: 20px;
+          line-height: 20px;
+          min-width: 50px;
+          text-align: center;
+          color: #fff;
+          font-size: 14px;
+          background: rgba(37, 107, 191, 0.8);
+          border-radius: 10px;
+        }
+      }
+
+      .item-info {
+        position: relative;
+        overflow: hidden;
+
+        h1 {
+          .limit;
+          padding: 14px 0 0 0;
+          font-size: 16px;
+          font-family: Microsoft YaHei;
+          color: #17181A;
+        }
+
+        p {
+          .limit;
+        }
+
+        .time {
+          padding: 16px 0 0 23px;
+          line-height: 1;
+          position: relative;
+          font-size: 14px;
+          font-family: Microsoft YaHei;
+          color: #808080;
+
+          &::before {
+            content: ' ';
+            position: absolute;
+            left: 0;
+            top: 16px;
+            width: 14px;
+            height: 14px;
+            background: url(~assets/img/home/i-time.webp) no-repeat center/100%;
+          }
+        }
+      }
+
+      .user-box {
+        box-sizing: border-box;
+        position: absolute;
+        right: -26px;
+        bottom: 8px;
+        width: 102px;
+        height: 28px;
+        line-height: 28px;
+        transform: rotate(-45deg);
+        text-align: center;
+        background: #F8E5E5;
+        color: #BE2121;
+        font-size: 14px;
+
+        &.anchor {
+          background: #E9F4FD;
+          color: #2D84EE;
+        }
       }
     }
   }

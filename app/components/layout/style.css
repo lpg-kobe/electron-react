@@ -40,7 +40,7 @@
   align-items: center;
 }
 #common-header .header-r .title-bar-container .icon-close-win {
-  margin: 0 42px 0 16px;
+  margin: 0 34px 0 0;
 }
 #common-header .header-r .user-bar {
   display: flex;
@@ -54,7 +54,7 @@
 #common-header .header-r .user-bar > span {
   font-size: 14px;
   color: #282828;
-  margin: 0 42px 0 10px;
+  margin: 0 35px 0 10px;
 }
 .title-bar-container {
   cursor: pointer;
