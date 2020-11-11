@@ -31,7 +31,7 @@ export default [
       }),
   },
   {
-    path: '/list/:id',
+    path: '/room/:id',
     pathname: 'room-info',
     component: (app: any) =>
       dynamic({

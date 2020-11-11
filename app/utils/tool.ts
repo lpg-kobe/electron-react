@@ -2,11 +2,6 @@
  * @desc common tool
  * @author pika
  */
-
-type StorageType = {
-  [key: string]: any;
-};
-
 const { v4 } = require('uuid');
 
 // random guid base Number(16)

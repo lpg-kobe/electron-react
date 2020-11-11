@@ -60,12 +60,12 @@ function ATable(props: PropsType) {
   const tablePagination = curTable.pagination || {};
   const defaultPagination = {
     hideOnSinglePage: true,
-    position: ['bottomCenter'],
+    // position: ['bottomCenter'],
     current: 1,
     pageSize: 10,
     total: 0,
     // pageSizeOptions: ['10', '20', '30', '50', '100'],
-    showQuickJumper: true,
+    showQuickJumper: false,
     // showSizeChanger: true,
     showTotal: (total: any) => {
       return `共 ${Math.ceil(total / defaultPagination.pageSize)} 页`;

@@ -1,4 +1,5 @@
 declare const styles: {
+  readonly "avatar": string;
   readonly "bar-r": string;
   readonly "common-header": string;
   readonly "header-l": string;

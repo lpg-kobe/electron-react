@@ -83,6 +83,7 @@ export default function request(
     .then(checkStatus)
     .then(parseJSON)
     .then((data: any) => {
+      debugger
       if ((data.code === -10 || data.code === -20 || data.code === -22) && !expireValveOn) {
         // 会话已失效
         message.error('登录已过期，请重新登录')

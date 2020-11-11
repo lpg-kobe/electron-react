@@ -20,6 +20,9 @@
   display: flex;
   justify-content: space-around;
 }
+.home-page-container {
+  padding: 22px 42px 0 32px;
+}
 .home-page-container .ant-btn:empty {
   display: inline-block;
   width: auto;
@@ -140,12 +143,15 @@
   padding: 10px 10px 0 10px;
   overflow: hidden;
   background: #fff;
+}
+.home-page-container .ant-list .wrap-item:hover {
+  transition: all 0.3s ease;
   box-shadow: 0px 5px 8px 0px rgba(194, 194, 194, 0.2);
 }
 .home-page-container .ant-list .wrap-item .item-img {
   position: relative;
   height: 130px;
-  background: #e0e0e0;
+  background: url(~assets/img/home/bg-cover.webp) no-repeat center / cover;
 }
 .home-page-container .ant-list .wrap-item .item-img img {
   max-width: 100%;

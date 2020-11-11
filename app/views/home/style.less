@@ -2,6 +2,7 @@
 
 
 .home-page-container {
+  padding: 22px 42px 0 32px;
 
   .ant-btn:empty {
     display: inline-block;
@@ -136,18 +137,22 @@
     margin-top: 10px;
 
     .wrap-item {
+      &:hover {
+        transition: all .3s ease;
+        box-shadow: 0px 5px 8px 0px rgba(194, 194, 194, 0.2);
+      }
+
       cursor: pointer;
       height: 224px;
       position: relative;
       padding: 10px 10px 0 10px;
       overflow: hidden;
       background: #fff;
-      box-shadow: 0px 5px 8px 0px rgba(194, 194, 194, 0.2);
 
       .item-img {
         position: relative;
         height: 130px;
-        background: #e0e0e0;
+        background: url(~assets/img/home/bg-cover.webp) no-repeat center/cover;
 
         img {
           max-width: 100%;

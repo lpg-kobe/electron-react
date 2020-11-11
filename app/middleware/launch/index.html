@@ -28,7 +28,7 @@
 </style>
 <script>
     const { ipcRenderer } = require('electron')
-    ipcRenderer.invoke('launch:ready')
+    ipcRenderer.send('RENDERER_LAUNCH_READY')
 </script>
 
 </html>

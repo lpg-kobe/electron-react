@@ -1,0 +1,52 @@
+.limit {
+  white-space: nowrap;
+  word-break: keep-all;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.flex {
+  display: flex;
+}
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+}
+.flex-around {
+  display: flex;
+  justify-content: space-around;
+}
+.room-page-container {
+  display: flex;
+  justify-content: space-between;
+}
+.section-wrap-l {
+  flex-basis: 820px;
+  width: 820px;
+  margin-right: 10px;
+}
+.section-wrap-r {
+  flex: 1;
+}
+.section-video {
+  height: 500px;
+  background: #fff;
+}
+.section-detail {
+  margin-top: 20px;
+  height: 240px;
+  background: #fff;
+}
+.section-chat {
+  height: 250px;
+  background: #fff;
+}
+.section-activity {
+  margin-top: 20px;
+  height: 240px;
+  background: #fff;
+}

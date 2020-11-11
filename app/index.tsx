@@ -6,7 +6,7 @@
 import dva from 'dva';
 import '@/assets/style/global.less';
 // @ts-ignore
-import { rendererInvoke, MAIN_EVENT } from '@/utils/ipc';
+import { rendererSend, MAIN_EVENT } from '@/utils/ipc';
 
 const routes = require('./routes').default;
 const systemModal = require('./models/system').default;
@@ -20,5 +20,5 @@ document.addEventListener('DOMContentLoaded', () => {
   app.model(systemModal);
   app.model(authModal);
   app.start('#root');
-  rendererInvoke(MAIN_EVENT.MAIN_LOAD_READY, {}, () => { })
+  rendererSend(MAIN_EVENT.MAIN_LOAD_READY)
 });

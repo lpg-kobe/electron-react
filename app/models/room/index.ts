@@ -3,15 +3,9 @@
  * @author pika
  */
 import immutable from 'immutable';
+import pathToRegexp from 'path-to-regexp'
 // @ts-ignore
-import { getList, sendSms, smsLogin } from '@/services/auth';
-// @ts-ignore
-import {
-  saveUserSession,
-  getUserSession,
-  removeUserSession,
-  // @ts-ignore
-} from '@/utils/session';
+import { getRoomInfo } from '@/services/room';
 
 type ActionType = {
   [key: string]: any;
@@ -34,7 +28,10 @@ type SetUpType = {
   dispatch: any;
 };
 
-const initialState = {};
+const initialState = {
+  // 当前房间信息
+  roomInfo: {}
+};
 export default {
   namespace: 'room',
   state: immutable.fromJS(initialState),
@@ -44,17 +41,30 @@ export default {
     },
   },
   effects: {
-    *getList({ payload }: ActionType, { call }: YieldType) {
-      yield call(getList, payload);
+    *getRoomInfo({ payload }: ActionType, { call, put }: YieldType) {
+      debugger
+      const { status, data: { data } } = yield call(getRoomInfo, payload);
+      if (status) {
+        yield put({
+          type: 'save',
+          payload: {
+            roomInfo: data
+          }
+        })
+      }
     },
   },
   subscriptions: {
     setup({ history, dispatch }: SetUpType) {
       return history.listen(({ pathname }: LocationType) => {
-        if (pathname === '/') {
+        const locationMatch = pathToRegexp('/room/:id').exec(pathname)
+        debugger
+        if (locationMatch) {
           dispatch({
-            type: 'getList',
-            payload: {},
+            type: 'getRoomInfo',
+            payload: {
+              id: locationMatch[1]
+            },
           });
         }
       });

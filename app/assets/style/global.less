@@ -27,6 +27,11 @@ img {
   vertical-align: middle;
 }
 
+
+img[data-img="unloaded"] {
+  display: none;
+}
+
 p,
 a,
 span,
@@ -76,7 +81,7 @@ h5 {
 }
 
 .main-container {
-  padding: 22px 42px 0 32px;
+  padding: 22px 22px 0 22px;
 }
 
 .ant-form {
@@ -106,4 +111,26 @@ h5 {
 
 .ant-form-item-has-error .ant-form-item-explain.ant-form-item-explain-error {
   color: #AF0101;
+}
+
+.ant-list {
+  .ant-list-pagination {
+    text-align: center;
+  }
+
+  .ant-pagination {
+    text-align: center;
+  }
+}
+
+.ant-list-pagination {
+  text-align: center;
+
+  .ant-pagination-item {
+
+    a {
+      line-height: inherit;
+    }
+  }
+
 }

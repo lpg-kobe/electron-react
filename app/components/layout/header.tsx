@@ -1,7 +1,7 @@
 /**
  * @desc common component of header
  */
-import React from 'react';
+import React, { useState } from 'react';
 import { connect } from 'dva';
 import { Layout } from 'antd';
 import TitleBar from './titleBar'
@@ -10,6 +10,7 @@ import './style.less';
 const CommonHeader = (props: any) => {
   const { auth: { userInfo } } = props;
   const { Header } = Layout;
+  const [imgError, setImgError] = useState(false)
   return <>{userInfo ? <><Header id="common-header">
     <div className="header-l">
       <i className="logo"></i>
@@ -17,7 +18,9 @@ const CommonHeader = (props: any) => {
     </div>
     <div className="header-r">
       <div className="user-bar">
-        <img src={userInfo.logoUrl} alt="头像" />
+        <div className="avatar">
+          <img src={userInfo.logoUrl} alt="头像" data-img={imgError ? 'unloaded' : 'loaded'} onError={() => setImgError(true)} />
+        </div>
         <span>
           {userInfo.completeInfoDto.nick}
         </span>

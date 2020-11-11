@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { connect } from 'dva';
 // @ts-ignore
 import { SDK_APP_ID, API_HOST } from '@/constants';
@@ -8,14 +8,19 @@ import CommonHeader from '@/components/layout/header';
 import ATable from '@/components/table';
 import { withRouter } from 'dva/router';
 import { List, Form, Input, Select, Button } from 'antd';
+// @ts-ignore
+import { MAIN_EVENT, rendererInvoke } from '@/utils/ipc'
 import { SearchOutlined } from '@ant-design/icons'
-import { WindowInstance } from '../../main.dev'
 import moment from 'moment'
 import './style.less'
 
 
 type RoomType = {
   id: number, // 房间Id
+  role: number,// 房间角色 1主播 2嘉宾
+  name: number, // 房间名称
+  expUrl: string, // 房间封面
+  startTime: any, // 房间开始时间
   status: number // 直播房间状态。1:进行中,2: 保留,3:新建,4: 保留,5: 保留,6:结束
 }
 
@@ -25,6 +30,7 @@ function HomePage(props: any) {
     dispatch
   } = props;
   const [form] = Form.useForm()
+  const [imgError, setImgError] = useState(false)
   const { Option } = Select
   const tableOptions = {
     grid: { gutter: 16, column: 5 },
@@ -84,9 +90,9 @@ function HomePage(props: any) {
       emptyText: '您还没有直播间，请联系客服创建。客服电话：4009962228'
     },
     tableList: true,
-    renderItem: (item: any) => <List.Item className="wrap-item" onClick={(item: any) => handleGoRoom(item)}>
+    renderItem: (item: RoomType) => <List.Item className="wrap-item" onClick={() => handleGoRoom(item)}>
       <div className="item-img">
-        <img src={item.expUrl} alt="封面" />
+        <img src={item.expUrl} alt="封面" data-img={imgError ? 'unloaded' : 'loaded'} onError={() => setImgError(true)} />
         <span className="status">
           {['', '直播', '预告', '', '', '', '结束'][item.status]}
         </span>
@@ -118,10 +124,14 @@ function HomePage(props: any) {
     })
   }
 
-  function handleGoRoom({ id }: RoomType) {
-    WindowInstance.createWindow('roomWindow', {
+  // open new window to room detail
+  function handleGoRoom({ id }: any) {
+    rendererInvoke(MAIN_EVENT.MAIN_OPEN_PAGE, {
+      namespace: 'roomWindow',
+      width: 1124,
+      height: 754,
       url: `file://${__dirname}/app.html#/room/${id}`
-    })
+    }, () => { })
   }
 
   return (
