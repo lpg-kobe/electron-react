@@ -14,7 +14,7 @@ import {
   // @ts-ignore
 } from '@/utils/session';
 // @ts-ignore
-import { setWindowSize } from '@/utils/ipc';
+import { setWindowSize, MAIN_EVENT } from '@/utils/ipc';
 import './style.less';
 
 type PropsType = {
