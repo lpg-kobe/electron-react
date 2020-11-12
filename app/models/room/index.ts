@@ -5,7 +5,7 @@
 import immutable from 'immutable';
 import pathToRegexp from 'path-to-regexp'
 // @ts-ignore
-import { getRoomInfo } from '@/services/room';
+import { getRoomInfo, getRoomIntroduce } from '@/services/room';
 
 type ActionType = {
   [key: string]: any;
@@ -28,42 +28,164 @@ type SetUpType = {
   dispatch: any;
 };
 
-const initialState = {
+type MenuType = {
+  menuValue: number,
+  menuType: number,
+  name: string,
+  sort: number
+}
+
+const initialState: StateType = {
   // 当前房间信息
-  roomInfo: {}
+  roomInfo: {},
+  // 当前房间简介
+  roomIntroduce: {},
+  // 自定义直播间左侧详情模块菜单,sort根据后端返回
+  detailMenu: [
+    { menuType: 2, name: '图文直播', sort: 0 },
+    { menuType: 4, name: '产品展示', sort: 0 },
+    { menuType: 5, name: '资料下载', sort: 0 },
+    { menuType: 6, name: '活动介绍', sort: 0 }
+  ],
+  // 自定义直播间右侧聊天模块菜单,sort根据后端返回
+  chatMenu: [
+    { menuType: 1, name: '互动区', sort: 0 },
+    { menuType: 3, name: '问答区', sort: 0 },
+    { menuType: 7, name: '图片直播', sort: 0 }
+  ],
 };
 export default {
   namespace: 'room',
+
   state: immutable.fromJS(initialState),
+
   reducers: {
     save(state: StateType, { payload }: ActionType) {
       return state.merge(payload);
     },
+
+    /**
+     * @desc 条件过滤菜单
+     * @param {Array} origin 来源菜单 
+     * @param {Array} target 被过滤的菜单  
+     * @param {string} key 要合并的state key    
+     */
+    filterMenu(state: StateType, { payload: { origin, target, key } }: ActionType) {
+      const value = origin.map((menu: MenuType) => {
+        const cur = target.find((ele: any) => ele.menuType === menu.menuType)
+        if (cur) {
+          return {
+            ...menu,
+            name: cur.name
+          }
+        } else {
+          return menu
+        }
+      }).filter((item: MenuType) => target.some((ele: any) => ele.menuType === item.menuType))
+      return state.merge({
+        [key]: value
+      });
+    },
   },
+
   effects: {
-    *getRoomInfo({ payload }: ActionType, { call, put }: YieldType) {
-      debugger
+    // 获取直播间详情
+    *getRoomInfo({ payload }: ActionType, { call, put, select }: YieldType) {
       const { status, data: { data } } = yield call(getRoomInfo, payload);
       if (status) {
+        const { menulist } = data
+        const { detailMenu, chatMenu } = initialState
+        // 过滤左侧详情区域菜单
+        yield put({
+          type: 'filterMenu',
+          payload: {
+            key: 'detailMenu',
+            origin: menulist,
+            target: detailMenu
+          }
+        })
+        // 过滤右侧聊天区域菜单
+        yield put({
+          type: 'filterMenu',
+          payload: {
+            key: 'chatMenu',
+            origin: menulist,
+            target: chatMenu
+          }
+        })
         yield put({
           type: 'save',
           payload: {
             roomInfo: data
           }
         })
+
+        const leftMenus = yield select(({ room }: StateType) => room.get('detailMenu'))
+        const rightMenus = yield select(({ room }: StateType) => room.get('chatMenu'))
+
+        // 默认拉取左侧菜单栏第一个菜单信息
+        switch (leftMenus[0] && leftMenus[0].menuType) {
+          // 图文直播
+          case 2:
+            break;
+          // 产品展示
+          case 4:
+            break;
+          // 资料下载
+          case 5:
+            break;
+          // 活动介绍
+          case 6:
+            const { status: roomStatus, data: { data: roomIntroduce } } = yield call(getRoomIntroduce, payload)
+            if (roomStatus) {
+              yield put({
+                type: 'save',
+                payload: {
+                  roomIntroduce
+                }
+              })
+            }
+            break;
+        }
+
+        // 默认拉取右侧菜单栏第一个菜单信息
+        switch (rightMenus[0] && rightMenus[0].menuType) {
+          // 互动区
+          case 1:
+            break;
+          // 问答区
+          case 3:
+            break;
+          // 图片直播
+          case 7:
+            break;
+        }
+
       }
     },
+
+    // 获取直播间简介
+    *getRoomIntroduce({ payload }: ActionType, { call, put }: YieldType) {
+      const { status, data: { data } } = yield call(getRoomIntroduce, payload)
+      if (status) {
+        yield put({
+          type: 'save',
+          payload: {
+            roomIntroduce: data
+          }
+        })
+      }
+    }
   },
   subscriptions: {
     setup({ history, dispatch }: SetUpType) {
       return history.listen(({ pathname }: LocationType) => {
         const locationMatch = pathToRegexp('/room/:id').exec(pathname)
-        debugger
         if (locationMatch) {
           dispatch({
             type: 'getRoomInfo',
             payload: {
-              id: locationMatch[1]
+              roomid: locationMatch[1]
             },
           });
         }

@@ -18,3 +18,11 @@ export function getRoomInfo(params: ParamType): any {
         { method: 'get' }
     );
 }
+
+// 获取直播间活动介绍
+export function getRoomIntroduce(params: ParamType): any {
+    return request(
+        `/room/getroomsummary?${qs.stringify(params)}`,
+        { method: 'get' }
+    );
+}

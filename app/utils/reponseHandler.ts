@@ -30,6 +30,12 @@ export function handleSuccess(handler: handleType, data?: any): any {
           duration: 0.5,
         });
       },
+      search: () => {
+        message.success({
+          content: '查询成功',
+          duration: 0.5,
+        });
+      },
       sms: () => {
         message.success({
           content: '验证码已发送',
