@@ -11,7 +11,7 @@ const CommonHeader = (props: any) => {
   const { auth: { userInfo } } = props;
   const { Header } = Layout;
   const [imgError, setImgError] = useState(false)
-  return <>{userInfo ? <><Header id="common-header">
+  return <>{userInfo ? <><Header id="common-header" className={props.className || ""}>
     <div className="header-l">
       <i className="logo"></i>
       <span>直播</span>

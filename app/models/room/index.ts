@@ -90,7 +90,7 @@ export default {
 
   effects: {
     // 获取直播间详情
-    *getRoomInfo({ payload }: ActionType, { call, put, select }: YieldType) {
+    *getRoomInfo({ payload }: ActionType, { call, put }: YieldType) {
       const { status, data: { data } } = yield call(getRoomInfo, payload);
       if (status) {
         const { menulist } = data
@@ -120,47 +120,6 @@ export default {
           }
         })
 
-        const leftMenus = yield select(({ room }: StateType) => room.get('detailMenu'))
-        const rightMenus = yield select(({ room }: StateType) => room.get('chatMenu'))
-
-        // 默认拉取左侧菜单栏第一个菜单信息
-        switch (leftMenus[0] && leftMenus[0].menuType) {
-          // 图文直播
-          case 2:
-            break;
-          // 产品展示
-          case 4:
-            break;
-          // 资料下载
-          case 5:
-            break;
-          // 活动介绍
-          case 6:
-            const { status: roomStatus, data: { data: roomIntroduce } } = yield call(getRoomIntroduce, payload)
-            if (roomStatus) {
-              yield put({
-                type: 'save',
-                payload: {
-                  roomIntroduce
-                }
-              })
-            }
-            break;
-        }
-
-        // 默认拉取右侧菜单栏第一个菜单信息
-        switch (rightMenus[0] && rightMenus[0].menuType) {
-          // 互动区
-          case 1:
-            break;
-          // 问答区
-          case 3:
-            break;
-          // 图片直播
-          case 7:
-            break;
-        }
-
       }
     },
 
@@ -175,6 +134,44 @@ export default {
           }
         })
       }
+    },
+
+    // 根据菜单初始化数据，交互变更预留功能
+    *handleFetchByMenu({ payload }: ActionType, { call, put }: YieldType) {
+      switch (payload.menu) {
+        // 互动区
+        case 1:
+          break;
+        // 问答区
+        case 3:
+          break;
+        // 图片直播
+        case 7:
+          break;
+
+        // 图文直播
+        case 2:
+          break;
+        // 产品展示
+        case 4:
+          break;
+        // 资料下载
+        case 5:
+          break;
+        // 活动介绍
+        case 6:
+          const { status, data: { data: roomIntroduce } } = yield call(getRoomIntroduce, payload)
+          if (status) {
+            yield put({
+              type: 'save',
+              payload: {
+                roomIntroduce
+              }
+            })
+          }
+          break;
+      }
+
     }
   },
   subscriptions: {

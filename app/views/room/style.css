@@ -20,26 +20,90 @@
   display: flex;
   justify-content: space-around;
 }
+#common-header.room-page-header {
+  height: 27px;
+}
+#common-header.room-page-header .header-l .logo {
+  width: 50px;
+  height: 15px;
+  margin: 4px 4px 8px 6px;
+}
+#common-header.room-page-header .header-l > span {
+  font-size: 13px;
+  color: #AF0101;
+  font-weight: 600;
+  margin: 8px 0 0 0;
+}
+#common-header.room-page-header .header-r .user-bar .avatar {
+  width: 16px;
+  height: 16px;
+}
+#common-header.room-page-header .header-r .user-bar > span {
+  font-size: 10px;
+  margin: 0 18px 0 5px;
+}
+#common-header.room-page-header .header-r .icon-min-win {
+  width: 27px;
+  height: 27px;
+  background-size: 9px 1px;
+}
+#common-header.room-page-header .header-r .icon-close-win {
+  width: 27px;
+  height: 27px;
+  background-size: 8px 8px;
+  margin: 0 3px 0 -10px;
+}
 .room-page-container {
   display: flex;
   justify-content: space-between;
+  padding: 8px 6px 0 6px;
+}
+.room-page-container .pupop-tab-title {
+  position: relative;
+  font-weight: 600;
+  color: #1F1F1F;
+  font-size: 16px;
+  line-height: 1;
+  padding-left: 13px;
+}
+.room-page-container .pupop-tab-title::before {
+  content: ' ';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 3px;
+  height: 16px;
+  background: #AF0101;
+  border-radius: 2px;
 }
 .section-wrap-l {
-  flex-basis: 820px;
-  width: 820px;
-  margin-right: 10px;
+  position: relative;
+  flex-basis: 830px;
+  width: 830px;
 }
 .section-wrap-r {
   flex: 1;
 }
 .section-video {
-  height: 500px;
-  background: #fff;
+  height: 468px;
+  background: rgba(0, 0, 0, 0.8);
 }
 .section-detail {
-  margin-top: 20px;
-  height: 240px;
-  background: #fff;
+  padding-left: 20px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  background: #1D1E1E;
+}
+.section-detail nav a {
+  background: rgba(39, 116, 195, 0.8);
+  height: 18px;
+  line-height: 18px;
+  text-align: center;
+  color: #fff;
+  font-size: 8px;
+  border-radius: 2px;
+  display: inline-block;
 }
 .section-detail .tab-container.desc .wrap-item.time {
   display: flex;
@@ -56,9 +120,9 @@
   height: 100%;
   border-radius: 50%;
 }
-.section-chat {
-  height: 250px;
-  background: #fff;
+.section-chat .thumb-video-contain {
+  height: 158px;
+  background: rgba(0, 0, 0, 0.6);
 }
 .section-activity {
   margin-top: 20px;

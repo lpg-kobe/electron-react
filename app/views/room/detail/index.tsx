@@ -1,5 +1,10 @@
-import React, { useState, useEffect } from 'react';
+/**
+ * @desc 直播间菜单模块
+ */
+'use strict'
+import React, { useState } from 'react';
 import { connect } from 'dva';
+import { withRouter } from 'dva/router';
 import DescTab from './descTab'
 import ImgTextTab from './imgTextTab'
 // @ts-ignore
@@ -15,24 +20,24 @@ type MenuType = {
 
 type PropsType = {
     room: any,
-    dispatch: any
+    dispatch: any,
+    match: any
 }
 
 function DetailInfo(props: PropsType) {
 
-    const { room: { detailMenu, roomIntroduce } } = props
-
+    const { room: { detailMenu } } = props
     const [curMenu, setCurMenu] = useState(detailMenu[0])
 
-    useEffect(() => {
-        setCurMenu(detailMenu[0])
-        return () => { };
-    }, [detailMenu]);
+    // handle menu tab click
+    function handleOpentab(menu: MenuType) {
+        setCurMenu(menu)
+    }
 
     return <section className="section-detail">
         <nav>
             {
-                detailMenu && detailMenu.map((menu: MenuType) => <a key={menu.menuType} className={menu.menuType === curMenu.menuType ? 'active' : ''} onClick={() => setCurMenu(menu)}>
+                detailMenu && detailMenu.map((menu: MenuType) => <a key={menu.menuType} onClick={() => handleOpentab(menu)}>
                     {
                         menu.name
                     }
@@ -40,7 +45,9 @@ function DetailInfo(props: PropsType) {
             }
         </nav>
         {
-            curMenu.menuType === 6 && Object.keys(roomIntroduce).length ? <DescTab /> : null // you can add com loading here
+            curMenu.menuType === 6 ?
+                <DescTab />
+                : null
         }
         {
             curMenu.menuType === 2 ? <ImgTextTab /> : null
@@ -53,6 +60,6 @@ function DetailInfo(props: PropsType) {
         }
     </section >
 }
-export default connect(({ room }: any) => ({
+export default withRouter(connect(({ room }: any) => ({
     room: room.toJS(),
-}))(DetailInfo);
+}))(DetailInfo))

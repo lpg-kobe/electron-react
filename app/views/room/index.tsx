@@ -3,14 +3,14 @@ import { connect } from 'dva';
 // @ts-ignore
 import CommonHeader from '@/components/layout/header';
 import VideoInfo from './video'
-import DetailInfo from './detail'
 import ChatInfo from './chat'
-import Activity from './activity'
+import DetailInfo from './detail'
+// import Activity from './activity'
 import './style.less';
 
 function RoomInfo() {
   return <>
-    <CommonHeader />
+    <CommonHeader className="room-page-header" />
     <main className="room-page-container main-container clearfix">
       <section className="section-wrap-l">
         <VideoInfo />
@@ -18,7 +18,7 @@ function RoomInfo() {
       </section>
       <section className="section-wrap-r">
         <ChatInfo />
-        <Activity />
+        {/* <Activity /> */}
       </section>
     </main>
   </>

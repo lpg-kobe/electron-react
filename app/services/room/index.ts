@@ -26,3 +26,18 @@ export function getRoomIntroduce(params: ParamType): any {
         { method: 'get' }
     );
 }
+
+// 拉取聊天信息
+// data {
+// msgId: 当前显示最后一条消息的消息id(不填就从后台最后一条开始),
+// roomId: 直播间id,
+// size: 消息条数(默认20) }
+export function getChatList({ params, ...handler }: ParamType): any {
+    return request({
+        url: `/group/getmoremsg?${qs.stringify(params)}`,
+        method: 'post',
+        handler
+        // body: JSON.stringify(params)
+    })
+}
+

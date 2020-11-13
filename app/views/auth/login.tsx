@@ -33,7 +33,6 @@ function Login(props: PropsType) {
   const [smsText, setSmsText] = useState('获取验证码');
   const [smsBtnDisable, setSmsBtnDisable] = useState(true);
   const [smsLogin, setSmsLogin] = useState(false);
-  const [rememberPwd, setRememberPwd] = useState(false);
   const formOptions = {
     options: {
       name: 'loginForm',
@@ -44,7 +43,11 @@ function Login(props: PropsType) {
         remember: true,
         account: getStore('userAccount').account,
         password: getStore('userAccount').password
-      } : {}
+      } : {
+          remember: false,
+          account: '',
+          password: '',
+        }
     },
     items: [
       {
@@ -121,7 +124,7 @@ function Login(props: PropsType) {
             name: 'remember',
             valuePropName: 'checked'
           },
-          component: smsLogin ? null : <Checkbox onChange={({ target: checked }: any) => setRememberPwd(!!checked)}>记住密码</Checkbox>
+          component: smsLogin ? null : <Checkbox>记住密码</Checkbox>
         }, {
           options: {},
           component: <a href="https://live.ofweek.com" className="ofweek-link">申请直播</a>
@@ -170,7 +173,7 @@ function Login(props: PropsType) {
             saveUserSession(data)
             setWindowSize()
             // 账号密码登录成功后记录记住的密码
-            if (!smsLogin && rememberPwd) {
+            if (!smsLogin && form.getFieldValue('remember')) {
               setStore('userAccount', {
                 account: values.account,
                 password: values.password,

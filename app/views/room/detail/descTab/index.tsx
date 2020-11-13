@@ -2,17 +2,27 @@
  * @desc 活动介绍描述
  */
 'use strict'
-import React from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'dva';
+import { withRouter } from 'dva/router';
 
 type PropsType = {
     room: any,
+    match: any,
     dispatch: any
 }
 
 const DescTab = (props: PropsType) => {
-    const { room: { roomIntroduce } } = props
-    return (<div className="tab-container desc">
+    const { room: { roomIntroduce }, dispatch, match: { params: { id } } } = props
+    useEffect(() => {
+        dispatch({
+            type: 'home/getRoomIntroduce',
+            payload: {
+                roomid: id
+            }
+        })
+    }, [])
+    return (roomIntroduce ? <div className="tab-container desc">
         <div className="wrap-item time">
             <div className="logo">
                 <img src={roomIntroduce.companyLogoUrl} alt="logo" />
@@ -30,7 +40,7 @@ const DescTab = (props: PropsType) => {
         <div className="wrap-item member">
             <ul>
                 {
-                    roomIntroduce.showMemberList.map((item: any, index: number) => item.identity !== '主播' ? <li className="member-line" key={index}>
+                    roomIntroduce.showMemberList && roomIntroduce.showMemberList.map((item: any, index: number) => item.identity !== '主播' ? <li className="member-line" key={index}>
                         <h2>{item.identity}</h2>
                         {
                             item.memberList.map((member: any) => <dl key={member.memberLogoUrl}>
@@ -51,7 +61,7 @@ const DescTab = (props: PropsType) => {
             <h2>参与有奖</h2>
             <div className="gift-area">
                 {
-                    roomIntroduce.roomPrizeDtoList.map((gift: any) => <dl className="gift-item">
+                    roomIntroduce.roomPrizeDtoList && roomIntroduce.roomPrizeDtoList.map((gift: any) => <dl className="gift-item">
                         <dt>
                             <img src={gift.prizeImageUrl} alt="奖品封面" />
                         </dt>
@@ -77,9 +87,9 @@ const DescTab = (props: PropsType) => {
             <h2>公司介绍</h2>
             <p>{roomIntroduce.companySummary}</p>
         </div>
-    </div >
+    </div > : null // you can add loading here before component loaded
     )
 }
-export default connect(({ room }: any) => ({
+export default withRouter(connect(({ room }: any) => ({
     room: room.toJS(),
-}))(DescTab);
+}))(DescTab));

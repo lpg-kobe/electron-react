@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { connect } from 'dva';
 // @ts-ignore
-import { SDK_APP_ID, API_HOST } from '@/constants';
+import { SDK_APP_ID, API_HOST, DEFAULT_WINDOW_SIZE } from '@/constants';
 // @ts-ignore
 import CommonHeader from '@/components/layout/header';
 // @ts-ignore
@@ -127,10 +127,9 @@ function HomePage(props: any) {
   // open new window to room detail
   function handleGoRoom({ id }: any) {
     rendererInvoke(MAIN_EVENT.MAIN_OPEN_PAGE, {
+      ...DEFAULT_WINDOW_SIZE.MAIN,
       namespace: 'roomWindow',
-      width: 1124,
-      height: 754,
-      url: `file://${__dirname}/app.html#/room/${id}`
+      url: `file://${__dirname}/app.html#/room/${id}`,
     }, () => { })
   }
 

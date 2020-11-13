@@ -11,28 +11,14 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import path from 'path';
+import chalk from 'chalk'
 import { app, BrowserWindow } from 'electron';
 import { autoUpdater } from 'electron-updater';
 // @ts-ignore 
 import { MAIN_EVENT, RENDERER_EVENT, mainListen, mainHandle } from './utils/ipc';
+import { DEFAULT_WINDOW_CONFIG, DEFAULT_WINDOW_SIZE } from './constants'
 import log from 'electron-log';
 // import MenuBuilder from './menu';
-
-type DefaultConfigParam = {
-  show?: boolean;
-  width?: number;
-  height?: number;
-  webPreferences?: any;
-  maximizable?: boolean,
-  minimizable?: boolean,
-  resizable?: boolean, // 是否支持调整大小
-  titleBarStyle?: any,// 隐藏标题栏窗口
-  transparent?: boolean,// 透明窗口?
-  frame?: boolean, // 带边框窗口?
-  icon?: string, // 窗口icon
-  url?: string, // 开启的窗口url
-  skipTaskbar?: boolean // 窗口icon
-};
 
 export default class AppUpdater {
   constructor() {
@@ -54,28 +40,6 @@ const RESOURCES_PATH = app.isPackaged
 // get public path of app
 const getAssetPath = (...paths: string[]): string => {
   return path.join(RESOURCES_PATH, ...paths);
-};
-// default config of create a new window 
-const defaultWindowConfig: DefaultConfigParam = {
-  show: true,
-  maximizable: true,
-  minimizable: true,
-  resizable: false,
-  titleBarStyle: 'hidden',
-  transparent: true,
-  frame: false,
-  width: 740,
-  height: 406,
-  webPreferences:
-    (process.env.NODE_ENV === 'development' ||
-      process.env.E2E_BUILD === 'true') &&
-      process.env.ERB_SECURE !== 'true'
-      ? {
-        nodeIntegration: true,
-      }
-      : {
-        preload: path.join(__dirname, 'dist/renderer.prod.js'),
-      },
 };
 
 if (process.env.NODE_ENV === 'production') {
@@ -116,14 +80,13 @@ const initWindow = async () => {
   }
 
   createWindow(launchWindowKey, {
+    ...DEFAULT_WINDOW_SIZE.LAUNCH,
     skipTaskbar: true,
-    width: 700,
-    height: 450,
     url: `file://${__dirname}/middleware/launch/index.html`
   })
 
   createWindow(mainWindowKey, {
-    ...defaultWindowConfig,
+    ...DEFAULT_WINDOW_CONFIG,
     icon: getAssetPath('icon.png'),
     show: false,
     url: `file://${__dirname}/app.html#/login`
@@ -149,7 +112,7 @@ const initWindow = async () => {
     Object.entries(totalWindow).forEach(([key, value]: any) => {
       if (key === mainWindowKey) {
         // load login page here,or replace hashState of currentPage? @todo
-        value.setSize(740, 406, true)
+        value.setSize(DEFAULT_WINDOW_SIZE.LOGIN.width, DEFAULT_WINDOW_SIZE.LOGIN.height, true)
         value.loadURL(`file://${__dirname}/app.html#/login`)
       } else {
         value.close()
@@ -163,7 +126,7 @@ const initWindow = async () => {
    * @param {config} config of new window
    */
   mainHandle(MAIN_EVENT.MAIN_OPEN_PAGE, async ({ sender: { history } }: any, { namespace, ...config }: any) => {
-    console.log(history, MAIN_EVENT.MAIN_OPEN_PAGE, '=>', JSON.stringify(config))
+    console.log(chalk.green(history, MAIN_EVENT.MAIN_OPEN_PAGE, '=>', JSON.stringify(config)))
     if (!namespace) {
       throw new Error("can not create new window without namespce, plaease try again with namespace key in your config")
     }
@@ -190,7 +153,7 @@ const initWindow = async () => {
 const createWindow = (namespace: string, config: any) => {
   totalWindow[namespace] = new BrowserWindow(
     {
-      ...defaultWindowConfig,
+      ...DEFAULT_WINDOW_CONFIG,
       ...config
     }
   );
