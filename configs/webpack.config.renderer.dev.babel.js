@@ -94,6 +94,9 @@ export default merge(baseConfig, {
               sourceMap: true,
               importLoaders: 1
             }
+          },
+          {
+            loader: require.resolve('postcss-loader')
           }
         ]
       },
@@ -210,17 +213,17 @@ export default merge(baseConfig, {
     requiredByDLLConfig
       ? null
       : new webpack.DllReferencePlugin({
-          context: path.join(__dirname, '..', 'dll'),
-          manifest: require(manifest),
-          sourceType: 'var'
-        }),
+        context: path.join(__dirname, '..', 'dll'),
+        manifest: require(manifest),
+        sourceType: 'var'
+      }),
 
     new webpack.HotModuleReplacementPlugin({
       multiStep: true
     }),
 
     new TypedCssModulesPlugin({
-      globPattern: 'app/**/*.{css,scss,sass,less}'
+      globPattern: 'app/**/*.{css,scss,sass}'
     }),
 
     new webpack.NoEmitOnErrorsPlugin(),

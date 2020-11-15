@@ -88,6 +88,6 @@ export function handleError(handler: handleType): any {
         : keyReact[key]?.();
     });
   } else {
-    message.error('未知异常');
+    message.error('网络开小差了~~');
   }
 }

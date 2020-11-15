@@ -4,6 +4,7 @@
  */
 
 import { ipcRenderer, ipcMain, remote } from 'electron'
+import { DEFAULT_WINDOW_SIZE } from '../constants'
 
 // event name config of main process, name rule as [process_operate_status]
 export const MAIN_EVENT = {
@@ -59,8 +60,8 @@ export function mainHandle(eventName: string, handler: any) {
  * @param height size of height of window
  */
 export function setWindowSize(width?: number, height?: number) {
-    width = width || 1124
-    height = height || 754
+    width = width || DEFAULT_WINDOW_SIZE.MAIN.width
+    height = height || DEFAULT_WINDOW_SIZE.MAIN.height
     remote.getCurrentWindow().setSize(width, height, true)
 }
 
