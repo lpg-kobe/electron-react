@@ -5,7 +5,7 @@
 import immutable from 'immutable';
 import pathToRegexp from 'path-to-regexp'
 // @ts-ignore
-import { getRoomInfo, getRoomIntroduce } from '@/services/room';
+import { getRoomInfo, getRoomIntroduce, getChatList } from '@/services/room';
 
 type ActionType = {
   [key: string]: any;
@@ -53,6 +53,8 @@ const initialState: StateType = {
     { menuType: 3, name: '问答区', sort: 0 },
     { menuType: 7, name: '图片直播', sort: 0 }
   ],
+  // 互动区聊天列表
+  chatList: []
 };
 export default {
   namespace: 'room',
@@ -172,6 +174,21 @@ export default {
           break;
       }
 
+    },
+
+    // 获取互动区聊天数据
+    *getChatList({ payload }: ActionType, { call, put, select }: YieldType) {
+      let { status, data: { data } } = yield call(getChatList, payload)
+      if (status) {
+        data = data.reverse()
+        const oldList = yield select((state: StateType) => state.room.get('chatList').toJS())
+        yield put({
+          type: 'save',
+          payload: {
+            chatList: data.concat(oldList)
+          }
+        })
+      }
     }
   },
   subscriptions: {

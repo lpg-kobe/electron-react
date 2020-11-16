@@ -33,11 +33,9 @@ export function getRoomIntroduce(params: ParamType): any {
 // roomId: 直播间id,
 // size: 消息条数(默认20) }
 export function getChatList({ params, ...handler }: ParamType): any {
-    return request({
-        url: `/group/getmoremsg?${qs.stringify(params)}`,
+    return request('/group/getmoremsg', {
         method: 'post',
-        handler
-        // body: JSON.stringify(params)
-    })
+        body: JSON.stringify(params)
+    }, handler)
 }
 
