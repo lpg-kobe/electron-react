@@ -1,17 +1,16 @@
 /**
  * @desc 直播间互动区
  */
-import React, { useState, useEffect, useLayoutEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { connect } from 'dva';
+import { Popover, Modal, message } from 'antd'
 import { withRouter } from 'dva/router';
 // @ts-ignore
-import List from 'react-virtualized/dist/commonjs/List';
+import Editor from '@/components/editor'
 // @ts-ignore
-import InfiniteLoader from 'react-virtualized/dist/commonjs/InfiniteLoader';
+import { scrollElement, tottle, rqaToGetElePos } from '@/utils/tool'
 // @ts-ignore
-import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
-// @ts-ignore
-import WindowScroller from 'react-virtualized/dist/commonjs/WindowScroller';
+import { FACE_URL } from '@/constants'
 
 type PropsType = {
     room: any,
@@ -20,92 +19,300 @@ type PropsType = {
     dispatch(action: any): void
 }
 
-type RowType = {
-    index: number,
-    isScrolling: boolean,
-    isVisible: boolean,
-    key: any,
-    parent: any,// Reference to the parent List (instance)
-    style: any
-}
-
-type ChildRowType = {
-    onRowsRendered(): void,// callback after children loaded
-    registerChild(): void // dom element to get children
-}
-
 function ActiveInfo(props: PropsType) {
     const [msgId, setMsgId] = useState('')
-    const { room: { chatList }, dispatch, match: { params: { id } } } = props
+    const [dataLoading, setDataLoading] = useState(true)
+    const scrollRef: any = useRef(null)
+    const { chat: { list: chatList, hasMore: dataHasMore, chatScrollTop, inputValue }, dispatch, match: { params: { id: roomId } }, room: { userStatus } } = props
+    const faceRegExp = /\[[a-zA-Z0-9\/\u4e00-\u9fa5]+\]/g
 
     useLayoutEffect(() => {
         dispatch({
-            type: 'room/getChatList',
+            type: 'chat/getChatList',
             payload: {
                 params: {
-                    roomId: id,
+                    roomId,
                     msgId,
                     size: 50
+                },
+                isInit: true,
+                onSuccess: {
+                    search: () => setDataLoading(false)
                 }
             }
         })
     }, [])
 
     useEffect(() => {
+        // 实时更新最后一条消息id
         chatList[0] && setMsgId(chatList[0].msgId)
     }, [chatList])
 
-    function renderItem({ index, key }: RowType) {
-        const rowItem = chatList[index]
-        return <div className="wrap-item" key={key}>
-            <label> {rowItem.nick}{`[${rowItem.identity}]`}</label>
-            <p>{rowItem.content.replace(/\n/g, '<br>')}</p>
-        </div>
+    // 条件性触发聊天窗口滚动
+    useEffect(() => {
+        scrollElement(scrollRef.current, chatScrollTop.split(':')[1])
+    }, [chatScrollTop])
+
+    function faceToHtml(content: any) {
+        return content
+        // return content.replace(faceRegExp, (word: any) => <img src={`${FACE_URL}${word}@2x.png`} />)
     }
 
-    function loadMoreRows({ startIndex, stopIndex }: any) {
-        console.log('ready to load more...', startIndex, stopIndex)
-        // issue? this can not be caused after scroll  bottom or top,so i use scroll listen of list to handle load more
+    // 滚动跟随屏幕帧率刷新
+    function animateToScroll() {
+        const scrollTop = scrollRef.current.scrollTop
+        if (scrollTop <= 0) {
+            handleScrollTop()
+        }
     }
 
-    function handleScroll({ scrollTop }: any) {
-        console.log(scrollTop)
-    }
-
-    function noListRender() {
-        return <h3>暂时无人发言，快来抢占沙发~</h3>
-    }
-    return <div className="tab-container interactive">
-        <InfiniteLoader
-            isRowLoaded={({ index }: RowType) => !!chatList[index]}
-            loadMoreRows={loadMoreRows}
-            rowCount={chatList.length}
-        >
-            {({ onRowsRendered, registerChild }: ChildRowType) =>
-                <div className="chat-panel">
-                    <AutoSizer disableHeight>
-                        {
-                            ({ width }: any) => <List
-                                width={width}
-                                height={300}
-                                onRowsRendered={onRowsRendered}
-                                rowCount={chatList.length}
-                                ref={registerChild}
-                                rowHeight={20}
-                                rowRenderer={renderItem}
-                                noRowsRenderer={noListRender}
-                                overscanRowCount={0}
-                                tabIndex={chatList.length - 1}
-                                onScroll={handleScroll}
-                            />
-                        }
-                    </AutoSizer>
-                </div>
+    // handle scroll top of chat area
+    function handleScrollTop() {
+        if (dataLoading || !dataHasMore) {
+            return
+        }
+        setDataLoading(true)
+        dispatch({
+            type: 'chat/getChatList',
+            payload: {
+                params: {
+                    roomId,
+                    msgId,
+                    size: 50
+                },
+                onSuccess: {
+                    search: async () => {
+                        const scrollDom = document.getElementById(`msg-${msgId}`)
+                        setDataLoading(false)
+                        // dom元素位置更新后滚动至追加数据前第一条消息位置
+                        rqaToGetElePos(scrollDom, ({ offsetTop }: any) => {
+                            dispatch({
+                                type: 'chat/save',
+                                payload: {
+                                    chatScrollTop: `scroll${new Date().getTime()}:${offsetTop}`
+                                }
+                            })
+                        })
+                    }
+                }
             }
-        </InfiniteLoader>
-        <div className="operate-panel"></div>
+        })
+    }
+
+    // handle filter right menu of msg
+    function handleFilterMenu(msg: any) {
+        const { role } = userStatus
+        const { role: msgRole } = msg
+        let menus = [{
+            label: '删除聊天',
+            value: 'delete',
+        },
+        {
+            label: '回复聊天',
+            value: 'reply',
+        },
+        {
+            label: '禁言用户',
+            value: 'forbit',
+        },
+        {
+            label: '取消禁言',
+            value: 'cancelForbit',
+        },
+        {
+            label: '踢出用户',
+            value: 'kick',
+        }]
+
+        // 消息禁言状态过滤禁言 || 非禁言菜单
+        menus = menus.filter((menu: any) => msg.isForbit === 1 ? menu.value !== 'forbit' : menu.value !== 'cancelForbit')
+
+        // 身份筛选消息菜单
+        let menuMap: any = {
+            // 主播
+            1: msgRole === 1 ? menus.filter(item => item.value === 'delete') : menus,
+            // 嘉宾
+            2: msgRole === 2 ? menus.filter(item => item.value === 'delete') : menus.filter(item => item.value === 'reply')
+        }
+
+        return <ul>
+            {
+                menuMap[role] && menuMap[role].map((menu: any) => <li className="msg-menu-item" key={menu.value} onClick={() => handleMsgClick({ ...menu, ...msg })}>
+                    {menu.label}
+                </li>)
+            }
+        </ul>
+    }
+
+    // handle click menu of msg
+    function handleMsgClick({ value, nick, msgId, roomId, senderId }: any) {
+        const reactObj: any = {
+            // 删除聊天
+            'delete': () => {
+                Modal.confirm({
+                    centered: true,
+                    content: '确认删除聊天信息？',
+                    title: '提示',
+                    onOk: () => {
+                        dispatch({
+                            type: 'chat/deleteMsg',
+                            payload: {
+                                params: {
+                                    msgId,
+                                    roomId
+                                },
+                                onSuccess: {
+                                    operate: true
+                                }
+                            }
+                        })
+                    }
+                })
+            },
+
+            // 回复聊天
+            'reply': () => {
+                dispatch({
+                    type: 'chat/save',
+                    payload: {
+                        inputValue: `${inputValue}@${nick}`
+                    }
+                })
+            },
+
+            // 禁言用户
+            'forbit': () => {
+                dispatch({
+                    type: 'chat/forbitChat',
+                    payload: {
+                        params: {
+                            memberId: senderId,
+                            roomId,
+                            type: 1
+                        },
+                        onSuccess: {
+                            operate: () => {
+                                message.success('已禁言')
+                                handleUpdateMsg([{
+                                    key: 'isForbit',
+                                    value: 1
+                                }], senderId)
+                            }
+                        }
+                    }
+                })
+            },
+
+            // 取消禁言用户
+            'cancelForbit': () => {
+                dispatch({
+                    type: 'chat/forbitChat',
+                    payload: {
+                        params: {
+                            memberId: senderId,
+                            roomId,
+                            type: 2
+                        },
+                        onSuccess: {
+                            operate: () => {
+                                message.success('已取消禁言')
+                                handleUpdateMsg([{
+                                    key: 'isForbit',
+                                    value: 2
+                                }], senderId)
+                            }
+                        }
+                    }
+                })
+            },
+            // 踢用户出房间
+            'kick': () => {
+                Modal.confirm({
+                    centered: true,
+                    content: `确定把${nick}踢出房间`,
+                    title: '提示',
+                    onOk: () => {
+                        dispatch({
+                            type: 'chat/kickOutUser',
+                            payload: {
+                                params: {
+                                    memberId: senderId,
+                                    msgId,
+                                    roomId
+                                },
+                                onSuccess: {
+                                    operate: true
+                                }
+                            }
+                        })
+                    }
+                })
+
+            },
+        }
+        reactObj[value] && reactObj[value]()
+    }
+
+    /**
+     * @desc 键值对更改同个发送者所有消息状态 
+     * @param {Array<Object<key:value>>} attrs 更改的属性集合
+     * @param {String} senderId 单条消息体
+     */
+    function handleUpdateMsg(attrs: Array<any>, senderId: any) {
+        dispatch({
+            type: 'chat/save',
+            payload: {
+                list: chatList.map((msg: any) => {
+                    const matchMsg = String(msg.senderId) === String(senderId)
+                    if (matchMsg) {
+                        let updateObj: any = {}
+                        attrs.forEach(({ key, value }: any) => {
+                            updateObj[key] = value
+                        })
+                        return {
+                            ...msg,
+                            ...updateObj
+                        }
+                    } else {
+                        return msg
+                    }
+                })
+            }
+        })
+    }
+
+
+    return <div className="tab-container interactive">
+        <div className={`chat-panel${!chatList.length ? ' empty flex-center' : ''}`} onScroll={() => tottle(animateToScroll)} ref={scrollRef}>
+            {chatList.length ? <>
+                {
+                    dataLoading || dataHasMore ? null : <div className="wrap-item no-more">加载完毕~~</div>
+                }
+                {
+                    chatList.map((msg: any, index: number) =>
+                        <div className="wrap-item" key={index} id={`msg-${msg.msgId}`}>
+                            <Popover content={handleFilterMenu(msg)}>
+                                <label className={msg.role === 1 || msg.role === 2 ? 'role' : ''}>
+                                    {msg.nick}{msg.role === 1 || msg.role === 2 ? `  [${msg.identity}]` : null}
+                                </label>
+                            </Popover>
+                            <p>
+                                {faceToHtml(msg.content)}
+                            </p>
+                        </div>)
+                }
+            </>
+                :
+                <h3>暂时无人发言，快来抢占沙发~</h3>
+            }
+        </div>
+        {
+            dataLoading && <div className="chat-loading">{'加载中...'}</div>
+        }
+        <Editor />
     </div>
 }
-export default withRouter(connect(({ room }: any) => ({
+export default withRouter(connect(({ room, chat }: any) => ({
     room: room.toJS(),
+    chat: chat.toJS(),
 }))(ActiveInfo))

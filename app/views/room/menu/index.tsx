@@ -24,7 +24,7 @@ type PropsType = {
     match: any
 }
 
-function DetailInfo(props: PropsType) {
+function MenuInfo(props: PropsType) {
 
     const { room: { detailMenu } } = props
     const [curMenu, setCurMenu] = useState(detailMenu[0])
@@ -34,7 +34,7 @@ function DetailInfo(props: PropsType) {
         setCurMenu(menu)
     }
 
-    return <section className="section-detail">
+    return <section className="section-menu">
         <nav>
             {
                 detailMenu && detailMenu.map((menu: MenuType) => <a key={menu.menuType} onClick={() => handleOpentab(menu)}>
@@ -62,4 +62,4 @@ function DetailInfo(props: PropsType) {
 }
 export default withRouter(connect(({ room }: any) => ({
     room: room.toJS(),
-}))(DetailInfo))
+}))(MenuInfo))

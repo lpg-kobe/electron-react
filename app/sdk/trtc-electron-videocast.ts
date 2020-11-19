@@ -11,8 +11,16 @@ const {
   TRTCVideoEncParam,
 } = require('trtc-electron-sdk/liteav/trtc_define');
 
+interface ImLoginParam {
+  sdkAppId: number;
+  userID: string; // 用户 ID
+  userSig: string; // 签名
+}
+
 type ConfigParam = {
   sdkAppId: number;
+  userID: string; // 用户 ID
+  userSig: string; // 签名
 };
 
 type SourceParam = {
@@ -49,6 +57,43 @@ export default class TrtcElectronVideocast {
     TRTCElectron.destroyTRTCShareInstance(); // clear prev trtc instance before init new instance
     this.trtcInstance = TRTCElectron.getTRTCShareInstance(); // create new trtc instance
     this._bindEvent();
+    this.loginIm({
+      sdkAppId: config.sdkAppId,
+      userID: config.userID,
+      userSig: config.userSig
+    })
+  }
+
+  /**
+   * 登录IM
+   * @param {Object} params
+   * @param {String} userID 用户ID
+   * @param {String} userSig 签名
+   */
+  loginIm(params: ImLoginParam) {
+    if (!this.tim) {
+      return;
+    }
+    const promise = this.tim.login({
+      SDKAppID: params.sdkAppId,
+      userID: params.userID,
+      userSig: params.userSig
+    });
+    promise.then((imResponse: { data: { repeatLogin: boolean; errorInfo: any } }) => {
+      console.log('loginIm', imResponse.data); // IM登录成功
+    }).catch((imError: any) => {
+      console.warn('login Im error:', imError); // 登录失败的相关信息
+    });
+  }
+
+  //登出IM
+  logoutIm() {
+    let promise = this.tim.logout();
+    promise.then(() => {
+      console.log('logout success'); // IM登出成功
+    }).catch(function (imError: any) {
+      console.warn('logout error:', imError);
+    });
   }
 
   // 初始化 sdk 实例
@@ -96,6 +141,7 @@ export default class TrtcElectronVideocast {
 
   // 被踢下线
   _onKickedOut(event: any) {
+    debugger
     this.emmitter.emit(EVENT.KICKED_OUT, event);
   }
 
@@ -112,19 +158,19 @@ export default class TrtcElectronVideocast {
     const messageData = event.data;
     this.emmitter.emit(EVENT.MESSAGE_RECEIVED, messageData);
     try {
-      messageData.map((item: any) => {
-        if (item.conversationType === TIM.TYPES.CONV_GROUP) {
-          // 群发消息
-          const data = JSON.parse(item.payload.data);
-          console.log(data);
-        }
-        if (item.conversationType === TIM.TYPES.CONV_C2C) {
-          // 单个用户消息
-          const data = JSON.parse(item.payload.data);
-          console.log(data);
-        }
-      });
-    } catch (e) {}
+      // messageData.map((item: any) => {
+      //   if (item.conversationType === TIM.TYPES.CONV_GROUP) {
+      //     // 群发消息
+      //     const data = JSON.parse(item.payload.data);
+      //     console.log(data);
+      //   }
+      //   if (item.conversationType === TIM.TYPES.CONV_C2C) {
+      //     // 单个用户消息
+      //     const data = JSON.parse(item.payload.data);
+      //     console.log(data);
+      //   }
+      // });
+    } catch (e) { }
   }
 
   /**
@@ -237,7 +283,7 @@ class Event {
   eventBus: any;
 
   constructor() {
-    this.eventBus == this.eventBus || Object.create(null);
+    this.eventBus = this.eventBus || Object.create(null);
   }
 
   on(eventName: any, handler: any, context: any) {
@@ -245,8 +291,8 @@ class Event {
       console.error('Event handler must be a function');
       return;
     }
-    const eventCollection = this.eventBus[eventName] || [];
-    eventCollection.push({
+    this.eventBus[eventName] = this.eventBus[eventName] || []
+    this.eventBus[eventName].push({
       handler,
       context,
     });
@@ -276,7 +322,7 @@ class Event {
       return;
     }
 
-    if (eventCollection) {
+    if (!eventCollection || !eventCollection.length) {
       return;
     }
 

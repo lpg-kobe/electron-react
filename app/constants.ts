@@ -22,6 +22,7 @@ type DefaultConfigParam = {
 
 export const SDK_APP_ID: any = process.env.sdkAppId;
 export const API_HOST: any = process.env.apiHost;
+export const FACE_URL: any = 'https://newlive.ofweek.com/file/static/img/face/emoji/';
 
 // 默认打开的窗口配置
 export const DEFAULT_WINDOW_CONFIG: DefaultConfigParam = {
@@ -50,8 +51,8 @@ export const DEFAULT_WINDOW_CONFIG: DefaultConfigParam = {
 export const DEFAULT_WINDOW_SIZE = {
     // 主窗口||二级窗口
     MAIN: {
-        width: 1124,
-        height: 632
+        width: 1280,
+        height: 720
     },
     // 启动缓冲窗口
     LAUNCH: {

@@ -4,11 +4,14 @@
  */
 import immutable from 'immutable';
 import pathToRegexp from 'path-to-regexp'
+
 // @ts-ignore
-import { getRoomInfo, getRoomIntroduce, getChatList } from '@/services/room';
+import { getRoomInfo, getUserStatusInRoom, getRoomIntroduce } from '@/services/room';
+// @ts-ignore
+import { closeWindow } from '@/utils/ipc';
 
 type ActionType = {
-  [key: string]: any;
+  payload: any;
 };
 
 type StateType = {
@@ -16,7 +19,10 @@ type StateType = {
 };
 
 type YieldType = {
-  [key: string]: any;
+  call(payload?: any, params?: any): void,
+  put(action: any): void,
+  select(fn?: any): void,
+  take(): void
 };
 
 type LocationType = {
@@ -36,6 +42,8 @@ type MenuType = {
 }
 
 const initialState: StateType = {
+  // 用户进来直播间时的状态
+  userStatus: {},
   // 当前房间信息
   roomInfo: {},
   // 当前房间简介
@@ -51,10 +59,8 @@ const initialState: StateType = {
   chatMenu: [
     { menuType: 1, name: '互动区', sort: 0 },
     { menuType: 3, name: '问答区', sort: 0 },
-    { menuType: 7, name: '图片直播', sort: 0 }
-  ],
-  // 互动区聊天列表
-  chatList: []
+    // { menuType: 7, name: '图片直播', sort: 0 }
+  ]
 };
 export default {
   namespace: 'room',
@@ -138,6 +144,31 @@ export default {
       }
     },
 
+    // 获取用户进入直播间时的信息
+    *getUserStatusInRoom({ payload }: ActionType, { call, put }: YieldType) {
+      const { status, data: { data } } = yield call(getUserStatusInRoom, payload)
+      if (status) {
+        yield put({
+          type: 'save',
+          payload: {
+            userStatus: data
+          }
+        })
+        // 初始化禁言状态
+        yield put({
+          type: 'chat/save',
+          payload: {
+            inputDisabled: data.isForbit === 1
+          }
+        })
+      } else {
+        // 进不了直播间就直接关闭窗口到直播列表
+        setTimeout(() => {
+          closeWindow()
+        }, 3000)
+      }
+    },
+
     // 根据菜单初始化数据，交互变更预留功能
     *handleFetchByMenu({ payload }: ActionType, { call, put }: YieldType) {
       switch (payload.menu) {
@@ -174,23 +205,9 @@ export default {
           break;
       }
 
-    },
-
-    // 获取互动区聊天数据
-    *getChatList({ payload }: ActionType, { call, put, select }: YieldType) {
-      let { status, data: { data } } = yield call(getChatList, payload)
-      if (status) {
-        data = data.reverse()
-        const oldList = yield select((state: StateType) => state.room.get('chatList').toJS())
-        yield put({
-          type: 'save',
-          payload: {
-            chatList: data.concat(oldList)
-          }
-        })
-      }
     }
   },
+
   subscriptions: {
     setup({ history, dispatch }: SetUpType) {
       return history.listen(({ pathname }: LocationType) => {
@@ -202,8 +219,14 @@ export default {
               roomid: locationMatch[1]
             },
           });
+          dispatch({
+            type: 'getUserStatusInRoom',
+            payload: {
+              roomid: locationMatch[1]
+            },
+          });
         }
       });
     },
-  },
-};
+  }
+}

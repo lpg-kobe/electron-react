@@ -2,20 +2,19 @@
  * Base webpack config used across other specific configs
  */
 
-import path from 'path';
-import webpack from 'webpack';
-import { dependencies as externals } from '../app/package.json';
-import { readFile2Json } from './tool';
+import path from 'path'
+import webpack from 'webpack'
+import { dependencies as externals } from '../app/package.json'
+import { readFile2Json } from './tool'
 
-const appRoot = path.join(__dirname, '..', 'app');
+const appRoot = path.join(__dirname, '..', 'app')
 const { defineKey } =
   process.env.NODE_ENV === 'production'
     ? readFile2Json(path.join(appRoot, './.env.prod'))
-    : readFile2Json(path.join(appRoot, './.env.dev'));
+    : readFile2Json(path.join(appRoot, './.env.dev'))
 
 export default {
   externals: [...Object.keys(externals || {})],
-
   module: {
     rules: [
       {
@@ -24,9 +23,9 @@ export default {
         use: {
           loader: 'babel-loader',
           options: {
-            cacheDirectory: true,
-          },
-        },
+            cacheDirectory: true
+          }
+        }
       },
       {
         test: /\.node$/,
@@ -37,16 +36,16 @@ export default {
           rewritePath:
             process.env.NODE_ENV === 'production'
               ? './'
-              : 'node_modules/trtc-electron-sdk/build/Release/',
-        },
-      },
-    ],
+              : 'node_modules/trtc-electron-sdk/build/Release/'
+        }
+      }
+    ]
   },
 
   output: {
     path: appRoot,
     // https://github.com/webpack/webpack/issues/1114
-    libraryTarget: 'commonjs2',
+    libraryTarget: 'commonjs2'
   },
 
   /**
@@ -56,17 +55,24 @@ export default {
     extensions: ['.js', '.jsx', '.json', '.ts', '.tsx'],
     modules: [appRoot, 'node_modules'],
     alias: {
-      '@': appRoot,
-    },
+      '@': appRoot
+    }
   },
 
   plugins: [
+    // 没有副作用的未使用的包不会被打包
+    new webpack.LoaderOptionsPlugin({
+      options: {
+        sideEffects: false
+      }
+    }),
+
     new webpack.EnvironmentPlugin({
-      NODE_ENV: 'production',
+      NODE_ENV: 'production'
     }),
 
     new webpack.DefinePlugin(defineKey),
 
-    new webpack.NamedModulesPlugin(),
-  ],
-};
+    new webpack.NamedModulesPlugin()
+  ]
+}

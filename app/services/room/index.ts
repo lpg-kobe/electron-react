@@ -19,12 +19,68 @@ export function getRoomInfo(params: ParamType): any {
     );
 }
 
+// 获取用户进入直播间时的信息
+export function getUserStatusInRoom(params: ParamType): any {
+    return request(
+        `/room/entryroom?${qs.stringify(params)}`,
+        { method: 'get' }
+    );
+}
+
 // 获取直播间活动介绍
 export function getRoomIntroduce(params: ParamType): any {
     return request(
         `/room/getroomsummary?${qs.stringify(params)}`,
         { method: 'get' }
     );
+}
+
+// 发送一条群消息
+export function sendMsg({ params, ...handler }: ParamType): any {
+    return request(
+        '/group/sendmsg',
+        {
+            method: 'post',
+            body: JSON.stringify(params)
+        },
+        handler
+    );
+}
+
+// 删除发送过的消息，返回发送消息的状态
+export function groupDelmsg({ params, ...handler }: ParamType): any {
+    return request(
+        '/group/deletegroupmsg',
+        {
+            method: 'post',
+            body: JSON.stringify(params)
+        },
+        handler
+    )
+}
+
+// 禁言或者取消禁言接口
+export function forbitChat({ params, ...handler }: ParamType): any {
+    return request(
+        '/member/forbitchat',
+        {
+            method: 'post',
+            body: JSON.stringify(params)
+        },
+        handler
+    )
+}
+
+// 踢出直播间用户接口
+export function shotOff({ params, ...handler }: ParamType): any {
+    return request(
+        '/member/shotoff',
+        {
+            method: 'post',
+            body: JSON.stringify(params)
+        },
+        handler
+    )
 }
 
 // 拉取聊天信息

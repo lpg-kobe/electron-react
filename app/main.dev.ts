@@ -109,8 +109,8 @@ const initWindow = async () => {
   // 监听关闭所有窗口并打开登录页面
   mainListen(MAIN_EVENT.MAIN_CLOSE_TOLOG, () => {
     // close all window only not mainWindow before add loginWindow to totalWindow
-    Object.entries(totalWindow).forEach(([key, value]: any) => {
-      if (key === mainWindowKey) {
+    Object.entries(totalWindow).forEach(([key, value]: any, index: number, arr: Array<any>) => {
+      if (index === arr.length - 1) {
         // load login page here,or replace hashState of currentPage? @todo
         value.setSize(DEFAULT_WINDOW_SIZE.LOGIN.width, DEFAULT_WINDOW_SIZE.LOGIN.height, true)
         value.loadURL(`file://${__dirname}/app.html#/login`)

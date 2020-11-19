@@ -67,10 +67,98 @@ h5 {
   font-size: 14px;
 }
 
+.editor-container {
+
+  .text-area {
+    width: 100%;
+    height: 80px;
+    line-height: 1;
+    font-size: 14px;
+    color: #B3B3B3;
+    resize: none;
+    border: 1px solid #E6E6E6;
+    background: transparent;
+    border-radius: 2px;
+    padding: 12px;
+  }
+
+  .operate-area {
+    .tool {
+      position: relative;
+
+      .face-box {
+        position: absolute;
+        top: -80px;
+        left: 0;
+        width: 185px;
+        height: 88px;
+        overflow-x: hidden;
+        overflow-y: hidden;
+        border: 1px solid #d4d4d4;
+        background: #fff;
+
+        &:hover {
+          overflow-y: auto;
+        }
+
+        &::-webkit-scrollbar {
+          display: none;
+        }
+
+        ul {
+          display: flex;
+          flex-wrap: wrap;
+        }
+
+        li {
+          cursor: pointer;
+          background: #fff;
+          width: calc(100% / 6);
+          height: 29px;
+          box-sizing: border-box;
+          text-align: center;
+          border-right: 1px solid #d4d4d4;
+          border-bottom: 1px solid #d4d4d4;
+
+          &:nth-child(6n) {
+            border-right: 0;
+          }
+        }
+      }
+
+      i {
+        margin: 14px 0 22px 14px;
+        width: 18px;
+        height: 15px;
+        background: url(~assets/img/room/i-face.webp) no-repeat center/100%;
+
+        &.face {
+          margin: 14px 0 20px 6px;
+          width: 18px;
+          height: 18px;
+          background: url(~assets/img/room/i-face.webp) no-repeat center/100%;
+        }
+      }
+    }
+
+    .send-btn {
+      margin: 9px 0 18px 0;
+      min-width: 50px;
+      height: 24px;
+      line-height: 24px;
+      text-align: center;
+      color: #fff;
+      font-size: 12px;
+      border-radius: 2px;
+      background: #E65E50;
+    }
+  }
+}
+
 .icon-min-win {
   width: 30px;
   height: 30px;
-  background: url(~assets/img/login/i-min-win.webp) no-repeat center/16px 2px;
+  background: url(~assets/img/login/i-min-win.webp) no-repeat center/14px 1px;
 }
 
 .icon-close-win {
@@ -142,4 +230,32 @@ h5 {
     }
   }
 
+}
+
+::-webkit-scrollbar {
+  z-index: 11;
+  width: 6px
+}
+
+::-webkit-scrollbar:horizontal {
+  height: 6px
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+  width: 6px;
+  background: #b4bccc
+}
+
+::-webkit-scrollbar-corner {
+  background: #fff
+}
+
+::-webkit-scrollbar-track {
+  background: #fff
+}
+
+::-webkit-scrollbar-track-piece {
+  background: #fff;
+  width: 6px
 }

@@ -20,43 +20,14 @@
   display: flex;
   justify-content: space-around;
 }
-#common-header.room-page-header {
-  height: 27px;
-}
-#common-header.room-page-header .header-l .logo {
-  width: 50px;
-  height: 15px;
-  margin: 4px 4px 8px 6px;
-}
-#common-header.room-page-header .header-l > span {
-  font-size: 13px;
-  color: #AF0101;
-  font-weight: 600;
-  margin: 8px 0 0 0;
-}
-#common-header.room-page-header .header-r .user-bar .avatar {
-  width: 16px;
-  height: 16px;
-}
-#common-header.room-page-header .header-r .user-bar > span {
-  font-size: 10px;
-  margin: 0 18px 0 5px;
-}
-#common-header.room-page-header .header-r .icon-min-win {
-  width: 27px;
-  height: 27px;
-  background-size: 9px 1px;
-}
-#common-header.room-page-header .header-r .icon-close-win {
-  width: 27px;
-  height: 27px;
-  background-size: 8px 8px;
-  margin: 0 3px 0 -10px;
-}
 .room-page-container {
+  height: 100%;
   display: flex;
-  justify-content: space-between;
-  padding: 8px 6px 0 6px;
+  flex-direction: column;
+}
+.room-page-container > main {
+  flex: 1;
+  display: flex;
 }
 .room-page-container .pupop-tab-title {
   position: relative;
@@ -77,52 +48,178 @@
   border-radius: 2px;
 }
 .section-wrap-l {
-  position: relative;
-  flex-basis: 830px;
-  width: 830px;
+  box-sizing: border-box;
+  width: 90px;
+  flex-basis: 90px;
+  background: #424242;
+  border-bottom: 1px solid #2C2C2C;
+}
+.section-wrap-m {
+  width: calc(calc(100vh - 50px - 50px - 30px) * 1.51694915);
+  flex-basis: calc(calc(100vh - 50px - 50px - 30px) * 1.51694915);
+  display: flex;
+  flex-direction: column;
 }
 .section-wrap-r {
   flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 .section-video {
-  height: 468px;
-  background: rgba(0, 0, 0, 0.8);
+  flex: 1;
+  background: #000000;
 }
-.section-detail {
-  padding-left: 20px;
-  height: 28px;
+.section-menu {
+  height: 50px;
+  flex-basis: 50px;
+}
+.section-menu nav {
   display: flex;
+  height: 100%;
   align-items: center;
-  background: #1D1E1E;
+  background: #2C2C2C;
 }
-.section-detail nav a {
-  background: rgba(39, 116, 195, 0.8);
-  height: 18px;
-  line-height: 18px;
+.section-menu nav a {
+  min-width: 80px;
+  height: 26px;
+  line-height: 24px;
+  box-sizing: border-box;
   text-align: center;
-  color: #fff;
-  font-size: 8px;
-  border-radius: 2px;
+  color: #CDCFCE;
+  font-size: 12px;
+  border-radius: 13px;
+  border: 1px solid #CDCFCE;
   display: inline-block;
+  margin: 0 0 0 16px;
 }
-.section-detail .tab-container.desc .wrap-item.time {
+.section-menu .tab-container.desc .wrap-item.time {
   display: flex;
 }
-.section-detail .tab-container.desc .wrap-item.member dl {
+.section-menu .tab-container.desc .wrap-item.member dl {
   display: flex;
 }
-.section-detail .tab-container.desc .wrap-item.member dl dt {
+.section-menu .tab-container.desc .wrap-item.member dl dt {
   width: 160px;
   height: 160px;
 }
-.section-detail .tab-container.desc .wrap-item.member dl dt img {
+.section-menu .tab-container.desc .wrap-item.member dl dt img {
   width: 100%;
   height: 100%;
   border-radius: 50%;
 }
-.section-chat .thumb-video-contain {
-  height: 158px;
-  background: rgba(0, 0, 0, 0.6);
+.thumb-video-container {
+  background: #6F92D4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: calc(calc(100vw - 90px - calc(calc(100vh - 50px - 50px - 30px) * 1.51694915)) / 1.77710843);
+  flex-basis: calc(calc(100vw - 90px - calc(calc(100vh - 50px - 50px - 30px) * 1.51694915)) / 1.77710843);
+}
+.live-info-container {
+  background: #fff;
+  flex: 1;
+}
+.live-info-container .nav-panel {
+  border-bottom: 1px solid #E6E6E6;
+  padding: 0 16px;
+}
+.live-info-container nav {
+  display: flex;
+  align-items: center;
+  height: 44px;
+  flex: 1;
+}
+.live-info-container nav a {
+  height: 100%;
+  width: auto;
+  margin: 0 0 0 16px;
+  color: #808080;
+  font-size: 14px;
+  line-height: 44px;
+}
+.live-info-container nav a:first-child {
+  margin-left: 0;
+}
+.live-info-container nav a.active {
+  border-bottom: 1px solid #1F1F1F;
+  color: #1F1F1F;
+}
+.live-info-container .hot-label {
+  display: flex;
+  align-items: center;
+  color: #1F1F1F;
+  padding-left: 17px;
+  position: relative;
+}
+.live-info-container .hot-label::before {
+  content: ' ';
+  position: absolute;
+  top: 15px;
+  left: 0;
+  width: 12px;
+  height: 14px;
+  background: url(~assets/img/room/i-hot.webp) no-repeat center / 100%;
+}
+.live-info-container .tab-container {
+  padding: 0 16px;
+}
+.live-info-container .tab-container.interactive {
+  position: relative;
+}
+.live-info-container .tab-container.interactive .chat-panel {
+  height: calc(100vh - 44px - 50px - 30px - 134px - calc(calc(100vw - 90px - calc(calc(100vh - 50px - 50px - 30px) * 1.51694915)) / 1.77710843));
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+.live-info-container .tab-container.interactive .chat-panel:hover {
+  overflow-y: auto;
+}
+.live-info-container .tab-container.interactive .chat-panel.empty h3 {
+  color: #808080;
+  text-align: center;
+}
+.live-info-container .tab-container.interactive .chat-panel .wrap-item {
+  margin: 16px 0 0 0;
+}
+.live-info-container .tab-container.interactive .chat-panel .wrap-item.no-more {
+  color: #808080;
+  height: 24px;
+  width: 100%;
+  line-height: 24px;
+  text-align: center;
+  margin-top: 0;
+}
+.live-info-container .tab-container.interactive .chat-panel .wrap-item > label {
+  font-size: 14px;
+  color: #1F1F1F;
+  cursor: pointer;
+}
+.live-info-container .tab-container.interactive .chat-panel .wrap-item > label.role {
+  color: #2691E9;
+}
+.live-info-container .tab-container.interactive .chat-panel .wrap-item > p {
+  white-space: normal;
+  word-break: break-all;
+  font-size: 14px;
+  line-height: 22px;
+  margin: 10px 0 0 0;
+  color: #808080;
+}
+.live-info-container .tab-container.interactive .chat-panel .wrap-item img {
+  width: 15px;
+  height: 17px;
+}
+.live-info-container .tab-container.interactive .chat-loading {
+  position: absolute;
+  width: 100%;
+  top: 0;
+  left: 0;
+  height: 24px;
+  line-height: 24px;
+  background: #fff;
+  text-align: center;
+  font-size: 14px;
+  color: #808080;
 }
 .section-activity {
   margin-top: 20px;

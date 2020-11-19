@@ -1,11 +1,12 @@
-#common-header {
+#commonHeader {
   -webkit-app-region: drag;
   padding: 0;
   display: flex;
   justify-content: space-between;
   width: 100%;
   background: #fff;
-  height: 46px;
+  height: 50px;
+  flex-basis: 50px;
   box-shadow: 0px 1px 0px 0px #DDDDDD;
 
   .header-l {
@@ -13,17 +14,23 @@
     display: flex;
 
     .logo {
-      width: 86px;
-      height: 26px;
-      margin: 8px 6px 12px 38px;
+      width: 80px;
+      height: 24px;
+      margin: 12px 5px 0 15px;
       background: url(~assets/img/logo.webp) no-repeat center/100%;
     }
 
     >span {
       color: #AF0101;
       font-weight: 600;
-      font-size: 23px;
-      margin: 14px 0 0 0;
+      font-size: 21px;
+      margin: 17px 0 0 0;
+    }
+
+    >title {
+      font-size: 16px;
+      margin: 17px 0 0 19px;
+      color: #1F1F1F;
     }
   }
 
@@ -40,11 +47,21 @@
       .bar-r {
         display: flex;
         align-items: center;
+
+        i {
+          cursor: pointer;
+          margin: 0 0 0 6px;
+
+          &.icon-min-win {
+            margin: 0;
+          }
+
+          &.icon-close-win {
+            margin: 0 20px 0 6px;
+          }
+        }
       }
 
-      .icon-close-win {
-        margin: 0 32px 0 0;
-      }
     }
 
     .user-bar {
@@ -76,10 +93,18 @@
   }
 }
 
-.title-bar-container {
-  cursor: pointer;
+#commonFooter {
+  padding: 0;
+  margin: 0;
+  height: 30px;
+  flex-basis: 30px;
+  background: #424242;
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  color: #CDCFCE;
 
-  i {
-    cursor: pointer;
+  >label {
+    margin: 0 0 0 24px;
   }
 }

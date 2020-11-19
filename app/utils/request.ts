@@ -88,7 +88,7 @@ export default function request(
         message.error('登录已过期，请重新登录')
         expireValveOn = true;
         removeUserSession();
-        // rendererSend(MAIN_EVENT.MAIN_CLOSE_TOLOG)
+        rendererSend(MAIN_EVENT.MAIN_CLOSE_TOLOG)
         setTimeout(() => (expireValveOn = false), expireValveDuration);
       } else if (data.code !== 0) {
         message.error(data.message);

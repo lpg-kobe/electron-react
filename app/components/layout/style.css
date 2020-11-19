@@ -1,52 +1,64 @@
-#common-header {
+#commonHeader {
   -webkit-app-region: drag;
   padding: 0;
   display: flex;
   justify-content: space-between;
   width: 100%;
   background: #fff;
-  height: 46px;
+  height: 50px;
+  flex-basis: 50px;
   box-shadow: 0px 1px 0px 0px #DDDDDD;
 }
-#common-header .header-l {
+#commonHeader .header-l {
   -webkit-app-region: no-drag;
   display: flex;
 }
-#common-header .header-l .logo {
-  width: 86px;
-  height: 26px;
-  margin: 10px 6px 10px 32px;
+#commonHeader .header-l .logo {
+  width: 80px;
+  height: 24px;
+  margin: 12px 5px 0 15px;
   background: url(~assets/img/logo.webp) no-repeat center / 100%;
 }
-#common-header .header-l > span {
+#commonHeader .header-l > span {
   color: #AF0101;
   font-weight: 600;
-  font-family: Source Han Sans CN;
-  font-size: 23px;
-  margin: 15px 0 0 0;
+  font-size: 21px;
+  margin: 17px 0 0 0;
 }
-#common-header .header-r {
+#commonHeader .header-l > title {
+  font-size: 16px;
+  margin: 17px 0 0 19px;
+  color: #1F1F1F;
+}
+#commonHeader .header-r {
   -webkit-app-region: no-drag;
   display: flex;
   align-items: center;
 }
-#common-header .header-r .title-bar-container {
+#commonHeader .header-r .title-bar-container {
   display: flex;
   align-items: center;
   height: 100%;
 }
-#common-header .header-r .title-bar-container .bar-r {
+#commonHeader .header-r .title-bar-container .bar-r {
   display: flex;
   align-items: center;
 }
-#common-header .header-r .title-bar-container .icon-close-win {
-  margin: 0 34px 0 0;
+#commonHeader .header-r .title-bar-container .bar-r i {
+  cursor: pointer;
+  margin: 0 0 0 6px;
 }
-#common-header .header-r .user-bar {
+#commonHeader .header-r .title-bar-container .bar-r i.icon-min-win {
+  margin: 0;
+}
+#commonHeader .header-r .title-bar-container .bar-r i.icon-close-win {
+  margin: 0 20px 0 6px;
+}
+#commonHeader .header-r .user-bar {
   display: flex;
   align-items: center;
 }
-#common-header .header-r .user-bar .avatar {
+#commonHeader .header-r .user-bar .avatar {
   cursor: pointer;
   line-height: normal;
   width: 32px;
@@ -54,20 +66,28 @@
   border-radius: 50%;
   background: url(~assets/img/avatar.webp) no-repeat center / 100%;
 }
-#common-header .header-r .user-bar .avatar img {
+#commonHeader .header-r .user-bar .avatar img {
   width: 100%;
   height: 100%;
   border-radius: 50%;
 }
-#common-header .header-r .user-bar > span {
+#commonHeader .header-r .user-bar > span {
   cursor: pointer;
   font-size: 14px;
   color: #282828;
-  margin: 0 35px 0 10px;
+  margin: 0 28px 0 10px;
 }
-.title-bar-container {
-  cursor: pointer;
+#commonFooter {
+  padding: 0;
+  margin: 0;
+  height: 30px;
+  flex-basis: 30px;
+  background: #424242;
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  color: #CDCFCE;
 }
-.title-bar-container i {
-  cursor: pointer;
+#commonFooter > label {
+  margin: 0 0 0 24px;
 }
