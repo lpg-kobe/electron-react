@@ -95,3 +95,12 @@ export function getChatList({ params, ...handler }: ParamType): any {
     }, handler)
 }
 
+
+// 拉取直播间问答信息
+export function getQaaList({ params, ...handler }: ParamType): any {
+    return request('/room/question/getmoremsg', {
+        method: 'post',
+        body: JSON.stringify(params)
+    }, handler)
+}
+

@@ -11,7 +11,7 @@ const { API_HOST } = require('@/constants');
 const { handleSuccess, handleError } = require('./reponseHandler');
 const { removeUserSession } = require('./session');
 
-const expireValveDuration = 10e3; // 接口过期处理后多少秒内保持静默，默认10秒
+const expireValveDuration = 3e3; // 接口过期处理后多少秒内保持静默，默认3秒
 let expireValveOn = false; // 接口过期处理开关
 
 type HandlerType = {
@@ -88,8 +88,10 @@ export default function request(
         message.error('登录已过期，请重新登录')
         expireValveOn = true;
         removeUserSession();
-        rendererSend(MAIN_EVENT.MAIN_CLOSE_TOLOG)
-        setTimeout(() => (expireValveOn = false), expireValveDuration);
+        setTimeout(() => {
+          rendererSend(MAIN_EVENT.MAIN_CLOSE_TOLOG)
+          expireValveOn = false
+        }, expireValveDuration)
       } else if (data.code !== 0) {
         message.error(data.message);
         return {

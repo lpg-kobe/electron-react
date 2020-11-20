@@ -1,10 +1,10 @@
 /**
- * @desc 直播间聊天互动模块model
+ * @desc 直播间聊天互动&问答&成员模块model
  * @author pika
  */
 import immutable from 'immutable';
 // @ts-ignore
-import { getChatList, sendMsg, groupDelmsg, forbitChat, shotOff } from '@/services/room';
+import { getChatList, sendMsg, groupDelmsg, forbitChat, shotOff, getQaaList } from '@/services/room';
 
 
 type ActionType = {
@@ -24,16 +24,22 @@ type YieldType = {
 
 
 const inititalState = immutable.fromJS({
-    // 文本框内容
+    // 互动文本框内容
     inputValue: '',
-    // 文本禁用状态
+    // 互动文本禁用状态
     inputDisabled: false,
     // 互动区聊天列表
     list: [],
-    // 是否更多数据
+    // 互动区是否有更多数据
     hasMore: false,
-    // 聊天窗口滚动触发条件，触发滚动时只需改变:前后缀内容即可，值取:后缀，否则会被hooks忽略
-    chatScrollTop: 'scroll:0'
+    // 互动区聊天窗口滚动触发条件，触发滚动时只需改变:前后缀内容即可，值取:后缀，否则会被hooks忽略
+    chatScrollTop: 'scroll:0',
+    // 问答区聊天窗口滚动触发条件，触发滚动时只需改变:前后缀内容即可，值取:后缀，否则会被hooks忽略
+    qaaScrollTop: 'scroll:0',
+    // 问答区列表
+    qaaList: [],
+    // 问答区是否有更多数据
+    qaaHasMore: false,
 })
 export default {
     namespace: 'chat',
@@ -80,6 +86,24 @@ export default {
         // 踢出直播间用户
         *kickOutUser({ payload }: ActionType, { call }: YieldType) {
             yield call(shotOff, payload)
+        },
+
+        // 获取直播间问答列表
+        *getQaaList({ payload }: ActionType, { put, call, select }: YieldType) {
+            let { status, data: { data } } = yield call(getQaaList, payload)
+            if (status) {
+                data = data.reverse()
+                const { qaaList, qaaScrollTop } = yield select((state: StateType) => state.chat.toJS())
+                yield put({
+                    type: 'save',
+                    payload: {
+                        qaaList: data.concat(qaaList),
+                        qaaHasMore: data.length >= payload.params.size,
+                        // 初始化数据时滚动到底部
+                        qaaScrollTop: typeof (payload.isInit) !== 'undefined' ? 'scroll:bottom' : qaaScrollTop
+                    }
+                })
+            }
         },
     },
     subscriptions: {}

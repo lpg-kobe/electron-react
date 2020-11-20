@@ -30,6 +30,7 @@ type SourceParam = {
 };
 
 const EVENT = {
+  SDK_READY: 'SDK_READY', // SDK login成功
   ENTER_ROOM_SUCCESS: 'ENTER_ROOM_SUCCESS', // 进房成功
   LEAVE_ROOM_SUCCESS: 'LEAVE_ROOM_SUCCESS', // 离开房间
   ERROR: 'ERROR', // SDK ERROR
@@ -141,7 +142,6 @@ export default class TrtcElectronVideocast {
 
   // 被踢下线
   _onKickedOut(event: any) {
-    debugger
     this.emmitter.emit(EVENT.KICKED_OUT, event);
   }
 

@@ -47,6 +47,19 @@ function RoomInfo(props: PropsType) {
         userSig
       })
       bindEvent(rtcClient)
+      // @todo 是否需要在sdk初始化之后通过sendCustomCmdMsg发送一条广播通知?
+      // sendCustomCmdMsg < msgId:number, msgData:string, reliable, ordered >
+      // const EVENT = rtcClient.EVENT;
+      // rtcClient.on(EVENT.SDK_READY, () => {
+      //   const { trtcInstance: { sendCustomCmdMsg } } = rtcClient
+      //   sendCustomCmdMsg(Math.ceil(Math.random() * 10), JSON.stringify({
+      //     msgCode: 1024,
+      //     payload: {
+      //       imAccount,
+      //       contain: '进入直播间'
+      //     }
+      //   }), false, false)
+      // })
     }
     return () => {
       rtcClient.tim.logout()

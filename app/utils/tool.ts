@@ -3,9 +3,6 @@
  * @author pika
  */
 
-import { callbackify } from "util";
-
-// import { P } from react
 const { v4 } = require('uuid');
 // flag of requestAnimationFrame 
 let rafFlag: boolean = false
@@ -70,33 +67,33 @@ export function tottle(fn: any) {
  * @param {HTMLElement} dom 监听的dom节点
  * @param {Function} callback 回调函数
  */
-export function rqaToGetElePos(dom: HTMLElement, callback?: any) {
-  
-  if (!dom.nodeType) {
-    throw new Error(`target of ${dom} is not an HTMLElement`)
+export function rqaToGetElePos(dom: HTMLElement | string, callback?: any) {
+  const realDom: any = typeof (dom) === 'string' ? document.querySelector(dom) : dom
+  if (!realDom.nodeType) {
+    throw new Error(`target of ${realDom} is not an HTMLElement`)
   }
-debugger
-  const rect = dom.getBoundingClientRect()
+
+  const rect = realDom.getBoundingClientRect()
   // 触发首次对比
   let prevTop = rect.top - 1
   let prevLeft = rect.left - 1
 
   function getPosition() {
-    const nextRect = dom.getBoundingClientRect()
+    const nextRect = realDom.getBoundingClientRect()
     if (prevTop !== nextRect.top || prevLeft !== nextRect.left) {
       prevTop = nextRect.top
       prevLeft = nextRect.left
       window.requestAnimationFrame(getPosition)
       return {
-        offsetTop: dom.offsetTop,
-        offsetLeft: dom.offsetLeft,
-        rect: dom.getBoundingClientRect()
+        offsetTop: realDom.offsetTop,
+        offsetLeft: realDom.offsetLeft,
+        rect: realDom.getBoundingClientRect()
       }
     } else {
       const curRect = {
-        offsetTop: dom.offsetTop,
-        offsetLeft: dom.offsetLeft,
-        rect: dom.getBoundingClientRect()
+        offsetTop: realDom.offsetTop,
+        offsetLeft: realDom.offsetLeft,
+        rect: realDom.getBoundingClientRect()
       }
       callback && callback(curRect);
       return curRect

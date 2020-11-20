@@ -40,7 +40,10 @@ export default [
         // @ts-ignore
         component: () => import('./views/room/index'),
         // @ts-ignore
-        models: () => [import('./models/room'), import('./models/room/chat')],
+        models: () => [
+          import('./models/room'),
+          import('./models/room/chat')
+        ],
       }),
   },
 ];

@@ -4,7 +4,7 @@
 @sidebarWidth: 90px;
 @menuHeight: 50px;
 @chatMenuHeight: 44px;
-@chatInputHeight: 134px;
+@chatInputHeight: 150px;
 // 聊天输入控件总高度
 @headerHeight: 50px;
 @footerHeight: 30px;
@@ -140,7 +140,7 @@
     flex-basis: calc(calc(@viewportWidth - @sidebarWidth - calc(calc(@viewportHeight - @headerHeight - @menuHeight - @footerHeight) * @videoRate)) / @thumbRate);
 }
 
-// 互动区
+// 右侧菜单栏
 .live-info-container {
     background: #fff;
     flex: 1;
@@ -196,38 +196,67 @@
     .tab-container {
         padding: 0 16px;
 
+        .list-loading {
+            position: absolute;
+            width: 100%;
+            top: 0;
+            left: 0;
+            height: 24px;
+            line-height: 24px;
+            background: #fff;
+            text-align: center;
+            font-size: 14px;
+            color: #808080;
+        }
+
+        .panel-contain {
+            position: relative;
+            height: calc(@viewportHeight - @chatMenuHeight - @headerHeight - @footerHeight - @chatInputHeight - calc(calc(@viewportWidth - @sidebarWidth - calc(calc(@viewportHeight - @headerHeight - @menuHeight - @footerHeight) * @videoRate)) / @thumbRate));
+            overflow-x: hidden;
+            overflow-y: hidden;
+            transition: all 0.3s ease;
+
+            &:hover {
+                transition: all 0.3s ease;
+                overflow-y: auto;
+            }
+
+            &.empty {
+
+                h3 {
+                    color: #808080;
+                    text-align: center;
+                }
+            }
+
+            .wrap-item {
+                &.no-more {
+                    color: #808080;
+                    height: 24px;
+                    width: 100%;
+                    line-height: 24px;
+                    text-align: center;
+                    margin-top: 0;
+                }
+            }
+        }
+
         // 互动区
         &.interactive {
             position: relative;
 
             .chat-panel {
-
-                &:hover {
-                    overflow-y: auto;
-                }
-
-                &.empty {
-
-                    h3 {
-                        color: #808080;
-                        text-align: center;
-                    }
-                }
-
-                height: calc(@viewportHeight - @chatMenuHeight - @headerHeight - @footerHeight - @chatInputHeight - calc(calc(@viewportWidth - @sidebarWidth - calc(calc(@viewportHeight - @headerHeight - @menuHeight - @footerHeight) * @videoRate)) / @thumbRate));
-                overflow-x: hidden;
-                overflow-y: hidden;
-
                 .wrap-item {
                     margin: 16px 0 0 0;
 
                     &.no-more {
-                        color: #808080;
-                        height: 24px;
-                        width: 100%;
-                        line-height: 24px;
-                        text-align: center;
-                        margin-top: 0;
+                        margin: 0;
+                    }
+
+                    &.notice {
+                        margin: 22px 0 0 0;
+                        color: #2691E9;
+                        font-size: 14px;
                     }
 
                     >label {
@@ -255,18 +284,122 @@
                     }
                 }
             }
+        }
 
-            .chat-loading {
-                position: absolute;
-                width: 100%;
-                top: 0;
-                left: 0;
-                height: 24px;
-                line-height: 24px;
-                background: #fff;
-                text-align: center;
-                font-size: 14px;
-                color: #808080;
+        // 问答区
+        &.quest-and-answer {
+
+            .panel-contain {
+                height: calc(@viewportHeight - @chatMenuHeight - @headerHeight - @footerHeight - @chatInputHeight - calc(calc(@viewportWidth - @sidebarWidth - calc(calc(@viewportHeight - @headerHeight - @menuHeight - @footerHeight) * @videoRate)) / @thumbRate));
+            }
+
+            .wrap-item {
+                border-radius: 4px;
+                box-shadow: 0 0 8px 0 hsla(0, 0%, 72.2%, .7);
+                margin: 0 0 20px 0;
+
+                &.no-more {
+                    box-shadow: unset;
+                    border-radius: unset;
+                    margin: 10px 0 16px 0
+                }
+
+                .item-line {
+                    padding: 0 10px;
+
+                    .title {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        padding: 10px 0 0 0;
+
+                        h1 {
+                            font-weight: 600;
+                            font-size: 0;
+                            line-height: 1;
+                            display: flex;
+                            align-items: center;
+
+                            i {
+                                width: 24px;
+                                height: 24px;
+                                line-height: 24px;
+                                border-radius: 50%;
+                                background: #E6E6E6;
+                                color: #808080;
+                                font-size: 12px;
+                                text-align: center;
+                            }
+
+                            span {
+                                white-space: nowrap;
+                                word-break: keep-all;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                                font-size: 14px;
+                                margin: 0 0 0 10px;
+                                font-weight: 600;
+                                color: #1F1F1F;
+                            }
+                        }
+
+                        >label {
+                            font-size: 14px;
+                            color: #B3B3B3;
+                        }
+                    }
+
+                    .contain {
+                        white-space: normal;
+                        word-break: break-all;
+                        font-size: 14px;
+                        color: #808080;
+                        line-height: 22px;
+                        margin: 4px 0 0 0;
+                    }
+
+                    .operate {
+                        display: flex;
+                        justify-content: flex-end;
+
+                        >a {
+                            margin: 12px 10px 10px 0;
+                            font-size: 12px;
+                            color: #808080;
+                            padding: 0 8px;
+                            border-radius: 2px;
+                            height: 20px;
+                            line-height: 20px;
+                            text-align: center;
+                            background: #EDEDED;
+
+                            &.active {
+                                margin: 12px 0 10px 0;
+                                color: #2691E9;
+                                background: #E9F5FE;
+                            }
+                        }
+                    }
+
+                    &.ques {
+                        border-bottom: 1px solid #EBEBEB;
+                    }
+
+                    &.answer {
+                        .title {
+                            justify-content: flex-start;
+
+                            h1 {
+                                color: #2691E9;
+                                font-size: 14px;
+                            }
+                        }
+
+                        .contain {
+                            margin: 8px 0 0 0;
+                        }
+                    }
+                }
             }
         }
     }

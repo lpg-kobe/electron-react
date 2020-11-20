@@ -20,7 +20,6 @@ type PropsType = {
 }
 
 function ActiveInfo(props: PropsType) {
-    const [msgId, setMsgId] = useState('')
     const [dataLoading, setDataLoading] = useState(true)
     const scrollRef: any = useRef(null)
     const { chat: { list: chatList, hasMore: dataHasMore, chatScrollTop, inputValue }, dispatch, match: { params: { id: roomId } }, room: { userStatus } } = props
@@ -32,7 +31,7 @@ function ActiveInfo(props: PropsType) {
             payload: {
                 params: {
                     roomId,
-                    msgId,
+                    msgId: chatList[0] && chatList[0].msgId,
                     size: 50
                 },
                 isInit: true,
@@ -42,11 +41,6 @@ function ActiveInfo(props: PropsType) {
             }
         })
     }, [])
-
-    useEffect(() => {
-        // 实时更新最后一条消息id
-        chatList[0] && setMsgId(chatList[0].msgId)
-    }, [chatList])
 
     // 条件性触发聊天窗口滚动
     useEffect(() => {
@@ -72,20 +66,20 @@ function ActiveInfo(props: PropsType) {
             return
         }
         setDataLoading(true)
+        const topMsgId = chatList[0].msgId
         dispatch({
             type: 'chat/getChatList',
             payload: {
                 params: {
                     roomId,
-                    msgId,
+                    msgId: topMsgId,
                     size: 50
                 },
                 onSuccess: {
-                    search: async () => {
-                        const scrollDom = document.getElementById(`msg-${msgId}`)
+                    search: () => {
                         setDataLoading(false)
                         // dom元素位置更新后滚动至追加数据前第一条消息位置
-                        rqaToGetElePos(scrollDom, ({ offsetTop }: any) => {
+                        rqaToGetElePos(`#msg-${topMsgId}`, ({ offsetTop }: any) => {
                             dispatch({
                                 type: 'chat/save',
                                 payload: {
@@ -283,14 +277,14 @@ function ActiveInfo(props: PropsType) {
 
 
     return <div className="tab-container interactive">
-        <div className={`chat-panel${!chatList.length ? ' empty flex-center' : ''}`} onScroll={() => tottle(animateToScroll)} ref={scrollRef}>
+        <div className={`panel-contain chat-panel${!chatList.length ? ' empty flex-center' : ''}`} ref={scrollRef} onScroll={() => tottle(animateToScroll)}>
             {chatList.length ? <>
                 {
                     dataLoading || dataHasMore ? null : <div className="wrap-item no-more">加载完毕~~</div>
                 }
                 {
                     chatList.map((msg: any, index: number) =>
-                        <div className="wrap-item" key={index} id={`msg-${msg.msgId}`}>
+                        true ? <div className="wrap-item" key={index} id={`msg-${msg.msgId}`}>
                             <Popover content={handleFilterMenu(msg)}>
                                 <label className={msg.role === 1 || msg.role === 2 ? 'role' : ''}>
                                     {msg.nick}{msg.role === 1 || msg.role === 2 ? `  [${msg.identity}]` : null}
@@ -299,7 +293,8 @@ function ActiveInfo(props: PropsType) {
                             <p>
                                 {faceToHtml(msg.content)}
                             </p>
-                        </div>)
+                        </div> : <div className="wrap-item notice" key={index} id={`msg-${msg.msgId}`}>{msg.nick}进入直播间</div>
+                    )
                 }
             </>
                 :
@@ -307,7 +302,7 @@ function ActiveInfo(props: PropsType) {
             }
         </div>
         {
-            dataLoading && <div className="chat-loading">{'加载中...'}</div>
+            dataLoading && <div className="list-loading">{'加载中...'}</div>
         }
         <Editor />
     </div>
