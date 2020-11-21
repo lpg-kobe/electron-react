@@ -14,7 +14,10 @@ type PropsType = {
     auth: any,
     room: any,
     chat: any,
-    scrollRef: any
+    menuList: any,
+    scrollRef: any,
+    placeholder: string,
+    onSubmit(value: any): void
 }
 
 const Editor = (props: PropsType) => {
@@ -31,7 +34,9 @@ const Editor = (props: PropsType) => {
         room: {
             roomInfo: { id: roomId },
             userStatus: { imAccount, role, identity }
-        }
+        },
+        menuList,
+        placeholder
     } = props
 
     const [faceShow, setFaceShow] = useState(false)
@@ -58,6 +63,12 @@ const Editor = (props: PropsType) => {
         if (!inputValue) {
             return
         }
+
+        if (props.onSubmit) {
+            props.onSubmit(inputValue)
+            return
+        }
+
         dispatch({
             type: 'chat/sendMsg',
             payload: {
@@ -70,12 +81,10 @@ const Editor = (props: PropsType) => {
                     senderId: imAccount
                 },
                 onSuccess: {
-                    operate: ({ data }: any) => {
+                    operate: () => {
                         dispatch({
                             type: 'chat/save',
                             payload: {
-                                list: [...list, handleFormatMsg(data)],
-                                chatScrollTop: `scroll${new Date().getTime()}:bottom`,
                                 inputValue: ''
                             }
                         })
@@ -83,6 +92,19 @@ const Editor = (props: PropsType) => {
                 }
             }
         })
+    }
+
+    // handle menu click of edotor
+    function handleMenuClick({ label }: any) {
+        const menuAction: any = {
+            'emoji': () => {
+                setFaceShow(!faceShow)
+            },
+            'img': () => {
+                // setFaceShow(!faceShow)
+            }
+        }
+        menuAction[label] && menuAction[label]()
     }
 
     // handle face selected
@@ -108,12 +130,12 @@ const Editor = (props: PropsType) => {
 
     return (
         <div className="editor-container">
-            <Input.TextArea placeholder={inputDisabled ? '您已被禁言' : '一起聊天互动吧~~'} className="text-area" onChange={({ target: { value } }) => handleInputChange(value)} maxLength={1000} value={inputValue} disabled={inputDisabled} />
+            <Input.TextArea placeholder={inputDisabled ? '您已被禁言' : placeholder || '一起聊天互动吧~~'} className="text-area" onChange={({ target: { value } }) => handleInputChange(value)} maxLength={1000} value={inputValue} disabled={inputDisabled} />
             <div className="operate-area flex-between">
                 <div className="tool">
-                    <i className="icon face" data-alt="emoji" onClick={() => setFaceShow(!faceShow)}></i>
-                    {/* <i className="icon img"></i> */}
-
+                    {
+                        menuList && menuList.map((menu: any) => <i key={menu.label} className={`icon ${menu.label}`} data-alt={menu.label} onClick={() => handleMenuClick(menu)}></i>)
+                    }
                     {
                         faceShow ? <div className="face-box">
                             <ul>

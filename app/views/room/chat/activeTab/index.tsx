@@ -280,7 +280,7 @@ function ActiveInfo(props: PropsType) {
         <div className={`panel-contain chat-panel${!chatList.length ? ' empty flex-center' : ''}`} ref={scrollRef} onScroll={() => tottle(animateToScroll)}>
             {chatList.length ? <>
                 {
-                    dataLoading || dataHasMore ? null : <div className="wrap-item no-more">加载完毕~~</div>
+                    dataLoading || dataHasMore ? null : <div className="wrap-item no-more">加载完毕</div>
                 }
                 {
                     chatList.map((msg: any, index: number) =>
@@ -300,11 +300,11 @@ function ActiveInfo(props: PropsType) {
                 :
                 <h3>暂时无人发言，快来抢占沙发~</h3>
             }
+            {
+                dataLoading && <div className="list-loading">{'加载中...'}</div>
+            }
         </div>
-        {
-            dataLoading && <div className="list-loading">{'加载中...'}</div>
-        }
-        <Editor />
+        <Editor menuList={[{ label: 'emoji' }]} />
     </div>
 }
 export default withRouter(connect(({ room, chat }: any) => ({

@@ -1,4 +1,5 @@
 @import '../../assets/style/mixin.less';
+
 @viewportHeight: 100vh;
 @viewportWidth: 100vw;
 @sidebarWidth: 90px;
@@ -11,6 +12,15 @@
 @videoHeight: @viewportHeight - @headerHeight - @menuHeight - @footerHeight;
 @videoRate: 895 / 590;
 @thumbRate: 295 / 166;
+
+h1,
+h2,
+h3,
+p,
+label {
+    padding: 0;
+    margin: 0;
+}
 
 .room-page-container {
     height: 100%;
@@ -218,7 +228,7 @@
 
             &:hover {
                 transition: all 0.3s ease;
-                overflow-y: auto;
+                overflow-y: overlay;
             }
 
             &.empty {
@@ -236,7 +246,7 @@
                     width: 100%;
                     line-height: 24px;
                     text-align: center;
-                    margin-top: 0;
+                    margin-top: 10px;
                 }
             }
         }
@@ -247,10 +257,10 @@
 
             .chat-panel {
                 .wrap-item {
-                    margin: 16px 0 0 0;
+                    margin: 0 0 16px 0;
 
                     &.no-more {
-                        margin: 0;
+                        margin: 10px 0 0 0;
                     }
 
                     &.notice {
@@ -288,9 +298,11 @@
 
         // 问答区
         &.quest-and-answer {
+            padding: 0;
 
-            .panel-contain {
-                height: calc(@viewportHeight - @chatMenuHeight - @headerHeight - @footerHeight - @chatInputHeight - calc(calc(@viewportWidth - @sidebarWidth - calc(calc(@viewportHeight - @headerHeight - @menuHeight - @footerHeight) * @videoRate)) / @thumbRate));
+            .panel-contain,
+            .editor-container {
+                padding: 0 16px;
             }
 
             .wrap-item {
@@ -301,7 +313,7 @@
                 &.no-more {
                     box-shadow: unset;
                     border-radius: unset;
-                    margin: 10px 0 16px 0
+                    margin: 10px 0 0 0
                 }
 
                 .item-line {
@@ -355,7 +367,7 @@
                         font-size: 14px;
                         color: #808080;
                         line-height: 22px;
-                        margin: 4px 0 0 0;
+                        padding: 4px 0 12px 0;
                     }
 
                     .operate {
@@ -363,7 +375,7 @@
                         justify-content: flex-end;
 
                         >a {
-                            margin: 12px 10px 10px 0;
+                            margin: 0 10px 10px 0;
                             font-size: 12px;
                             color: #808080;
                             padding: 0 8px;
@@ -374,21 +386,24 @@
                             background: #EDEDED;
 
                             &.active {
-                                margin: 12px 0 10px 0;
+                                margin: 0 0 10px 0;
                                 color: #2691E9;
                                 background: #E9F5FE;
                             }
                         }
                     }
 
-                    &.ques {
+                    &.ques,
+                    &.answer {
                         border-bottom: 1px solid #EBEBEB;
                     }
 
                     &.answer {
-                        .title {
-                            justify-content: flex-start;
+                        &:last-child {
+                            border-bottom: 0;
+                        }
 
+                        .title {
                             h1 {
                                 color: #2691E9;
                                 font-size: 14px;
@@ -396,7 +411,7 @@
                         }
 
                         .contain {
-                            margin: 8px 0 0 0;
+                            padding: 8px 0 12px 0;
                         }
                     }
                 }

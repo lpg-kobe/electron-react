@@ -8,6 +8,10 @@ import { withRouter } from 'dva/router';
 import { scrollElement, tottle, rqaToGetElePos } from '@/utils/tool'
 // @ts-ignore
 import Editor from '@/components/editor'
+import { Modal, Input, message } from 'antd'
+// @ts-ignore
+import AModal from '@/components/modal'
+import moment from 'moment'
 
 type PropsType = {
     room: any,
@@ -17,9 +21,19 @@ type PropsType = {
 }
 
 function QAndAInfo(props: PropsType) {
-    const { chat: { qaaList, qaaHasMore: dataHasMore, qaaScrollTop }, dispatch, match: { params: { id: roomId } } } = props
+    const { chat: { qaaList, qaaHasMore: dataHasMore, qaaScrollTop }, dispatch, match: { params: { id: roomId } }, room: { userStatus } } = props
 
     const [dataLoading, setDataLoading] = useState(true)
+    const [answerShow, setAnswerShow] = useState(false)
+    const [answerValue, setAnswerValue] = useState('')
+    const [curMsg, setCurMsg] = useState({
+        content: '',
+        answer: '',
+        questionId: 0,
+        senderId: 0,
+        msgId: 0,
+        type: 1
+    })
     const scrollRef: any = useRef(null)
     useLayoutEffect(() => {
         dispatch({
@@ -74,9 +88,126 @@ function QAndAInfo(props: PropsType) {
                             dispatch({
                                 type: 'chat/save',
                                 payload: {
-                                    chatScrollTop: `scroll${new Date().getTime()}:${offsetTop}`
+                                    qaaScrollTop: `scroll${new Date().getTime()}:${offsetTop}`
                                 }
                             })
+                        })
+                    }
+                }
+            }
+        })
+    }
+
+    function handleShowAnswer(msg: any, reply?: any) {
+        setAnswerShow(!answerShow)
+        setAnswerValue('')
+        setCurMsg(reply ? {
+            ...reply,
+            content: msg.content,
+            answer: reply.content
+        } : {
+                ...msg
+            })
+    }
+
+    function handleDelAnswer({ msgId }: any) {
+        Modal.confirm({
+            centered: true,
+            content: '确定删除吗',
+            title: '提示',
+            onOk: () => {
+                dispatch({
+                    type: 'chat/delQaaMsg',
+                    payload: {
+                        params: {
+                            msgId,
+                            roomId
+                        },
+                        onSuccess: {
+                            operate: true
+                        }
+                    }
+                })
+            }
+        })
+    }
+
+    function handleEditAnswer() {
+        if (!answerValue) {
+            message.error('请输入您的解答')
+            return
+        }
+        const { type, msgId } = curMsg
+        const actionObj: any = {
+            // 解答
+            1: () => {
+                dispatch({
+                    type: 'chat/sendQaaMsg',
+                    payload: {
+                        params: {
+                            content: {
+                                content: encodeURI(answerValue),
+                                msgType: 1
+                            },
+                            questionId: msgId,
+                            roomId,
+                            senderId: userStatus.imAccount,
+                            type: 2
+                        },
+                        onSuccess: {
+                            operate: () => {
+                                message.success('操作成功')
+                                setAnswerShow(false)
+                            }
+                        }
+                    }
+                })
+            },
+            // 修改答案
+            2: () => {
+                dispatch({
+                    type: 'chat/updateQaaMsg',
+                    payload: {
+                        params: {
+                            answerId: msgId,
+                            content: encodeURI(answerValue),
+                            roomId,
+                            senderId: userStatus.imAccount
+                        },
+                        onSuccess: {
+                            operate: () => {
+                                message.success('操作成功')
+                                setAnswerShow(false)
+                            }
+                        }
+                    }
+                })
+            }
+        }
+        actionObj[type] && actionObj[type]()
+    }
+
+    // handle sending a new question
+    function handleSendQues(value: any) {
+        dispatch({
+            type: 'chat/sendQaaMsg',
+            payload: {
+                params: {
+                    content: {
+                        content: encodeURI(value),
+                        msgType: 1
+                    },
+                    roomId,
+                    senderId: userStatus.imAccount,
+                    type: 1
+                },
+                onSuccess: {
+                    operate: () => {
+                        dispatch({
+                            type: 'chat/save',
+                            payload: {
+                                inputValue: ''
+                            }
                         })
                     }
                 }
@@ -92,48 +223,75 @@ function QAndAInfo(props: PropsType) {
                         dataLoading || dataHasMore ? null : <div className="wrap-item no-more">加载完毕~~</div>
                     }
                     {
-                        qaaList.map((item: any, index: number) => <li key={index} className="wrap-item">
+                        qaaList.map((item: any) => <li key={Math.random()} className="wrap-item" id={`msg-${item.msgId}`}>
                             <div className="item-line ques">
                                 <div className="title">
                                     <h1>
                                         <i>问</i>
-                                        <span>Jinlai</span>
+                                        <span>{item.nick}</span>
                                     </h1>
                                     <label>
-                                        2020-09-19  10:15
-                            </label>
+                                        {
+                                            moment(item.createDate).format('YYYY-MM-DD HH:mm')
+                                        }
+                                    </label>
                                 </div>
-                                <p className="contain">如果获得这套工具软件和基本预算价？</p>
+                                <p className="contain">
+                                    {item.content.replace(/\n/g, '<br>')}
+                                </p>
                                 <div className="operate">
-                                    <a>删除</a>
-                                    <a className="active">文字答疑</a>
+                                    {
+                                        userStatus.role === 1 ? <a onClick={() => handleDelAnswer(item)}>删除</a> : null
+                                    }
+                                    <a className="active" onClick={() => { handleShowAnswer(item) }}>文字答疑</a>
                                 </div>
                             </div>
                             {
-                                item.answerList && item.answerList.length ? <div className="item-line answer">
-                                    <div className="title">
-                                        <h1>
-                                            xx[答疑嘉宾]
-                                </h1>
-                                    </div>
-                                    <p className="contain">
-                                        如果获得这套工具软件和基本预算价？
-                            </p>
-                                    <div className="operate">
-                                        <a>删除</a>
-                                        <a className="active">修改解答</a>
-                                    </div>
-                                </div> : null
+                                item.answerList && (item.answerList || []).map((answer: any) =>
+                                    <div className="item-line answer" key={Math.random()}>
+                                        <div className="title">
+                                            <h1>{answer.nick} [答疑{answer.identity}]</h1>
+                                            <label>
+                                                {
+                                                    moment(item.createDate).format('YYYY-MM-DD HH:mm')
+                                                }
+                                            </label>
+                                        </div>
+                                        <p className="contain">
+                                            {
+                                                answer.content.replace(/\n/g, '<br>')
+                                            }
+                                        </p>
+                                        {
+                                            String(userStatus.imAccount) === String(answer.senderId) || userStatus.role === 1 ? <div className="operate">
+                                                <a onClick={() => handleDelAnswer(answer)}> 删除</a>
+                                                <a className="active" onClick={() => { handleShowAnswer(item, answer) }}>修改解答</a>
+                                            </div> : null
+                                        }
+                                    </div>)
                             }
                         </li>)
                     }
                 </> : <h3>暂时无人发言，快来抢占沙发~</h3>
             }
+            {
+                dataLoading && <div className="list-loading">{'加载中...'}</div>
+            }
         </ul>
-        {
-            dataLoading && <div className="list-loading">{'加载中...'}</div>
-        }
-        <Editor />
+        <Editor onSubmit={handleSendQues} placeholder='我要提问' />
+        <AModal title="文字解答" className="qaa-modal" visible={answerShow} onCancel={() => setAnswerShow(false)} onOk={handleEditAnswer}>
+            <div className="modal-line">
+                <label>[问题内容]</label>
+                <span>{curMsg.content}</span>
+            </div>
+            {
+                curMsg.answer && <div className="modal-line">
+                    <label>[我的解答]</label>
+                    <span>{curMsg.answer}</span>
+                </div>
+            }
+            <Input.TextArea placeholder="请输入内容" value={answerValue} onChange={({ target: { value } }: any) => setAnswerValue(value)} />
+        </AModal>
     </div>
 }
 export default withRouter(connect(({ chat, room }: any) => ({

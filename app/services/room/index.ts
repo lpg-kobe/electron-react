@@ -104,3 +104,27 @@ export function getQaaList({ params, ...handler }: ParamType): any {
     }, handler)
 }
 
+// 删除直播间问答消息
+export function delQaaMsg({ params, ...handler }: ParamType): any {
+    return request('/room/question/deletemsg', {
+        method: 'post',
+        body: JSON.stringify(params)
+    }, handler)
+}
+
+// 发送问答消息
+export function sendQaaMsg({ params, ...handler }: ParamType): any {
+    return request('/room/question/sendmsg', {
+        method: 'post',
+        body: JSON.stringify(params)
+    }, handler)
+}
+
+// 更新问答消息
+export function updateQaaMsg({ params, ...handler }: ParamType): any {
+    return request('/room/question/updateanswer', {
+        method: 'post',
+        body: JSON.stringify(params)
+    }, handler)
+}
+

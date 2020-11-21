@@ -4,7 +4,7 @@
  */
 import immutable from 'immutable';
 // @ts-ignore
-import { getChatList, sendMsg, groupDelmsg, forbitChat, shotOff, getQaaList } from '@/services/room';
+import { getChatList, sendMsg, groupDelmsg, forbitChat, shotOff, getQaaList, delQaaMsg, sendQaaMsg, updateQaaMsg } from '@/services/room';
 
 
 type ActionType = {
@@ -104,6 +104,21 @@ export default {
                     }
                 })
             }
+        },
+
+        // 删除直播间问答消息
+        *delQaaMsg({ payload }: ActionType, { call }: YieldType) {
+            yield call(delQaaMsg, payload)
+        },
+
+        // 发送直播间问答消息
+        *sendQaaMsg({ payload }: ActionType, { call }: YieldType) {
+            yield call(sendQaaMsg, payload)
+        },
+
+        // 更新直播间问答消息
+        *updateQaaMsg({ payload }: ActionType, { call }: YieldType) {
+            yield call(updateQaaMsg, payload)
         },
     },
     subscriptions: {}

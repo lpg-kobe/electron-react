@@ -23,11 +23,17 @@ type PropsType = {
 }
 
 function DetailInfo(props: PropsType) {
-    const { room: { chatMenu, roomInfo } } = props
+    const { room: { chatMenu, roomInfo }, dispatch } = props
     const [curMenu, setCurMenu] = useState(chatMenu[0])
 
     // handle menu tab click
     function handleOpentab(menu: MenuType) {
+        dispatch({
+            type: 'chat/save',
+            payload: {
+                inputValue: ''
+            }
+        })
         setCurMenu(menu)
     }
 

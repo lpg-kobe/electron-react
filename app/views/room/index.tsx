@@ -36,7 +36,7 @@ type MsgReceiveType = {
 let rtcClient: any = null
 
 function RoomInfo(props: PropsType) {
-  const { dispatch, auth: { userInfo: { userSig, imAccount } }, match: { params: { id: roomId } }, chat: { list: chatList } } = props
+  const { dispatch, auth: { userInfo: { userSig, imAccount } }, match: { params: { id: roomId } }, chat: { list: chatList, qaaList } } = props
 
   useEffect(() => {
     // handleKickedOut()
@@ -78,7 +78,7 @@ function RoomInfo(props: PropsType) {
     return () => {
       rtcClient.off(EVENT.MESSAGE_RECEIVED, handleMsgReceive)
     }
-  }, [chatList])
+  }, [chatList, qaaList])
 
   function handleError(event: { data: { errmsg: string; errcode: number; } }) {
     message.error(event.data.errmsg + event.data.errcode);
@@ -107,13 +107,9 @@ function RoomInfo(props: PropsType) {
           return
         }
         switch (String(payloadData.msgCode)) {
-          // 接收到群推送消息
+          // 接收到群推送聊天消息
           case "1000":
             console.log('群推送消息1000')
-            // 自己推送的消息不做处理
-            if (String(payloadData.senderId) === String(imAccount)) {
-              return
-            }
             dispatch({
               type: 'chat/save',
               payload: {
@@ -140,6 +136,67 @@ function RoomInfo(props: PropsType) {
             console.log('审核不通过互动聊天消息1011')
             break
 
+          // 接收到群推送问答消息 
+          case "1002":
+            console.log('接收到群推送问答消息1002')
+            const actionObj: any = {
+              // 新增一条问题
+              1: () => {
+                dispatch({
+                  type: 'chat/save',
+                  payload: {
+                    qaaList: [...qaaList, payloadData],
+                    qaaScrollTop: `scroll${new Date().getTime()}:bottom`
+                  }
+                })
+              },
+              // 新增一条回答
+              2: () => {
+                dispatch({
+                  type: 'chat/save',
+                  payload: {
+                    // 找到questionId的子集并添加数据
+                    qaaList: qaaList.map((msg: any) => msg.msgId === payloadData.questionId ? {
+                      ...msg,
+                      answerList: [...(msg.answerList || []), payloadData]
+                    } : msg),
+                    qaaScrollTop: `scroll${new Date().getTime()}:bottom`
+                  }
+                })
+              }
+            }
+            actionObj[payloadData.type] && actionObj[payloadData.type]()
+            break
+
+          // 广播更新了直播间回答消息
+          case "1003":
+            console.log('广播更新了直播间回答消息1003')
+            dispatch({
+              type: 'chat/save',
+              payload: {
+                qaaList: qaaList.map((msg: any) => msg.msgId === payloadData.questionId ? {
+                  ...msg,
+                  answerList: (msg.answerList || []).map((answer: any) => answer.msgId === payloadData.msgId ? {
+                    ...answer,
+                    content: payloadData.content
+                  } : answer)
+                } : msg)
+              }
+            })
+            break
+
+          // 审核通过直播间问答消息
+          case "1012":
+            console.log('审核通过问答消息1012')
+            dispatch({
+              type: 'chat/save',
+              payload: {
+                qaaList: [...qaaList, payloadData],
+                qaaScrollTop: `scroll${new Date().getTime()}:bottom`
+              }
+            })
+            break
+
           // 删除群互动消息
           case "1014":
             console.log('删除群互动消息1014')
@@ -149,6 +206,36 @@ function RoomInfo(props: PropsType) {
                 list: chatList.filter((msg: any) => msg.msgId !== payloadData.msgId)
               }
             })
+            break
+
+          // 删除直播间问答消息 
+          case "1015":
+            console.log('删除直播间问答消息1015')
+            const reactObj: any = {
+              // 删除问题
+              1: () => {
+                dispatch({
+                  type: 'chat/save',
+                  payload: {
+                    qaaList: qaaList.filter((msg: any) => msg.msgId !== payloadData.msgId)
+                  }
+                })
+              },
+              // 删除回答
+              2: () => {
+                dispatch({
+                  type: 'chat/save',
+                  payload: {
+                    // 找到questionId的消息并将其子集过滤
+                    qaaList: qaaList.map((msg: any) => msg.msgId === payloadData.questionId ? {
+                      ...msg,
+                      answerList: (msg.answerList || []).filter((ele: any) => ele.msgId !== payloadData.msgId)
+                    } : msg)
+                  }
+                })
+              }
+            }
+            reactObj[payloadData.type] && reactObj[payloadData.type]()
             break
 
           // 禁言/取消禁言用户消息
