@@ -24,10 +24,7 @@ h1,
 h2,
 h3,
 p,
-label,
-ul,
-li,
-span {
+label {
   padding: 0;
   margin: 0;
 }
@@ -57,108 +54,6 @@ span {
   height: 16px;
   background: #AF0101;
   border-radius: 2px;
-}
-.tab-container.desc .wrap-item {
-  border-bottom: 1px solid #EEEEEE;
-}
-.tab-container.desc .wrap-item:last-child {
-  border-bottom: 0;
-}
-.tab-container.desc .wrap-item p {
-  color: #808080;
-  font-size: 14px;
-  line-height: 28px;
-}
-.tab-container.desc .wrap-item > h2 {
-  padding: 30px 0;
-  font-size: 16px;
-  color: #414749;
-}
-.tab-container.desc .wrap-item.time {
-  padding-bottom: 30px;
-  display: flex;
-  justify-content: space-between;
-}
-.tab-container.desc .wrap-item.time .item-l {
-  flex-basis: 300px;
-  width: 300px;
-  height: 100px;
-  margin-right: 20px;
-}
-.tab-container.desc .wrap-item.time .item-r {
-  flex: 1;
-}
-.tab-container.desc .wrap-item.time .item-r h1 {
-  color: #1F1F1F;
-  font-size: 18px;
-}
-.tab-container.desc .wrap-item.time .item-r .tag-box {
-  background: #F4F5F6;
-  margin-top: 15px;
-}
-.tab-container.desc .wrap-item.time .item-r .tag-box p {
-  position: relative;
-  padding: 15px 0 0 48px;
-  line-height: 1;
-}
-.tab-container.desc .wrap-item.time .item-r .tag-box p:last-child {
-  padding-bottom: 15px;
-}
-.tab-container.desc .wrap-item.time .item-r .tag-box p:last-child::before {
-  background: url(~assets/img/room/i-company.webp) no-repeat center / 100%;
-}
-.tab-container.desc .wrap-item.time .item-r .tag-box p::before {
-  content: ' ';
-  position: absolute;
-  top: 14px;
-  left: 20px;
-  width: 16px;
-  height: 16px;
-  background: url(~assets/img/room/i-time.webp) no-repeat center / 100%;
-}
-.tab-container.desc .wrap-item.desc p {
-  padding-bottom: 23px;
-}
-.tab-container.desc .wrap-item.member .member-line {
-  padding-bottom: 30px;
-}
-.tab-container.desc .wrap-item.member .member-line h2 {
-  padding: 30px 0;
-}
-.tab-container.desc .wrap-item.member .member-line dl {
-  display: flex;
-  justify-content: space-between;
-}
-.tab-container.desc .wrap-item.member .member-line dl dt {
-  flex-basis: 150px;
-  width: 150px;
-  height: 150px;
-  margin-right: 24px;
-}
-.tab-container.desc .wrap-item.member .member-line dl dt img {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-}
-.tab-container.desc .wrap-item.member .member-line dl dd {
-  flex: 1;
-}
-.tab-container.desc .wrap-item.member .member-line dl dd h3 {
-  color: #333;
-}
-.tab-container.desc .wrap-item.gift .gift-item {
-  display: flex;
-  justify-content: space-between;
-  padding-bottom: 30px;
-}
-.tab-container.desc .wrap-item.gift .gift-item dt {
-  width: 115px;
-  height: 87px;
-  margin-right: 16px;
-  flex-basis: 115px;
-}
-.tab-container.desc .wrap-item.gift .gift-item dd {
-  flex: 1;
 }
 .section-wrap-l {
   box-sizing: border-box;
@@ -204,6 +99,21 @@ span {
   border: 1px solid #CDCFCE;
   display: inline-block;
   margin: 0 0 0 16px;
+}
+.section-menu .tab-container.desc .wrap-item.time {
+  display: flex;
+}
+.section-menu .tab-container.desc .wrap-item.member dl {
+  display: flex;
+}
+.section-menu .tab-container.desc .wrap-item.member dl dt {
+  width: 160px;
+  height: 160px;
+}
+.section-menu .tab-container.desc .wrap-item.member dl dt img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
 }
 .thumb-video-container {
   background: #6F92D4;
@@ -275,7 +185,7 @@ span {
 }
 .live-info-container .tab-container .panel-contain {
   position: relative;
-  height: calc(100vh - 45px - 50px - 30px - 150px - calc(calc(100vw - 90px - calc(calc(100vh - 50px - 50px - 30px) * 1.51694915)) / 1.77710843));
+  height: calc(100vh - 44px - 50px - 30px - 150px - calc(calc(100vw - 90px - calc(calc(100vh - 50px - 50px - 30px) * 1.51694915)) / 1.77710843));
   overflow-x: hidden;
   overflow-y: hidden;
   transition: all 0.3s ease;
@@ -429,81 +339,8 @@ span {
 .live-info-container .tab-container.quest-and-answer .wrap-item .item-line.answer .contain {
   padding: 8px 0 12px 0;
 }
-.live-info-container .tab-container.member {
-  padding: 0;
-}
-.live-info-container .tab-container.member .panel-contain,
-.live-info-container .tab-container.member .editor-container {
-  padding: 0 16px;
-}
-.live-info-container .tab-container.member .panel-contain {
-  height: calc(100vh - 45px - 50px - 30px - calc(calc(100vw - 90px - calc(calc(100vh - 50px - 50px - 30px) * 1.51694915)) / 1.77710843));
-}
-.live-info-container .tab-container.member .wrap-item {
-  height: 58px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid #EBEBEB;
-}
-.live-info-container .tab-container.member .wrap-item .item-l.anchor label,
-.live-info-container .tab-container.member .wrap-item .item-l.anchor span {
-  color: #2691E9;
-}
-.live-info-container .tab-container.member .wrap-item .item-l label,
-.live-info-container .tab-container.member .wrap-item .item-l span {
-  color: #1F1F1F;
-  font-size: 14px;
-}
-.live-info-container .tab-container.member .wrap-item .item-r {
-  display: flex;
-  align-items: center;
-}
-.live-info-container .tab-container.member .wrap-item .item-r .icon {
-  cursor: pointer;
-  width: 14px;
-  height: 14px;
-  background: url(~assets/img/room/i-menu.webp) no-repeat center / 100%;
-}
-.live-info-container .tab-container.member .wrap-item .item-r .icon.unmic {
-  cursor: unset;
-  margin-right: 10px;
-  width: 22px;
-  height: 22px;
-  background: url(~assets/img/room/i-unmic.webp) no-repeat center / 100%;
-}
-.live-info-container .tab-container.member .wrap-item .item-r .icon.mic {
-  cursor: unset;
-  margin-right: 8px;
-  width: 22px;
-  height: 22px;
-  background: url(~assets/img/room/i-mic.webp) no-repeat center / 14px 18px;
-}
-.live-info-container .tab-container.member .wrap-item .item-r .icon.forbit {
-  cursor: unset;
-  width: 30px;
-  height: 20px;
-  background: url(~assets/img/room/i-forbit.webp) no-repeat center / 100%;
-  background-position: 0 2px;
-}
 .section-activity {
   margin-top: 20px;
   height: 240px;
   background: #fff;
-}
-.menu-container-modal {
-  cursor: move;
-}
-.menu-container-modal:hover .ant-modal-body {
-  overflow-y: overlay;
-}
-.menu-container-modal .ant-modal-header {
-  border-bottom: 0;
-  padding: 24px 50px;
-}
-.menu-container-modal .ant-modal-body {
-  padding: 0 50px 90px 50px;
-  height: calc(100vh - 88px);
-  overflow: hidden;
-  overflow-y: hidden;
 }
