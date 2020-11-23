@@ -36,7 +36,7 @@ type MsgReceiveType = {
 let rtcClient: any = null
 
 function RoomInfo(props: PropsType) {
-  const { dispatch, auth: { userInfo: { userSig, imAccount } }, match: { params: { id: roomId } }, chat: { list: chatList, qaaList } } = props
+  const { dispatch, auth: { userInfo: { userSig, imAccount } }, match: { params: { id: roomId } }, chat: { list: chatList, qaaList, memberList } } = props
 
   useEffect(() => {
     // handleKickedOut()
@@ -94,6 +94,37 @@ function RoomInfo(props: PropsType) {
       content: '您的账号在其它设备登录，您已下线',
       title: '提示',
       onOk: () => rendererSend(MAIN_EVENT.MAIN_CLOSE_TOLOG)
+    })
+  }
+
+  /**
+ * @desc 键值对更改同个发送者所有消息状态 
+ * @param {Array} filterList 过滤的数组 
+ * @param {Array<Object<key:value>>} attrs 更改的属性集合
+ * @param {String} id 比对id
+ * @param {String} judgeKey 比对的键值
+ * @param {String} updateKey 要更新state的key值
+ */
+  function handleUpdateMsg(filterList: Array<any>, attrs: Array<any>, id: any, judgeKey: string, updateKey: string) {
+    dispatch({
+      type: 'chat/save',
+      payload: {
+        [updateKey]: filterList.map((msg: any) => {
+          const matchMsg = String(msg[judgeKey]) === String(id)
+          if (matchMsg) {
+            let updateObj: any = {}
+            attrs.forEach(({ key, value }: any) => {
+              updateObj[key] = value
+            })
+            return {
+              ...msg,
+              ...updateObj
+            }
+          } else {
+            return msg
+          }
+        })
+      }
     })
   }
 
@@ -260,6 +291,15 @@ function RoomInfo(props: PropsType) {
                 })
               }
             }
+            // 同步列表消息状态值
+            handleUpdateMsg(chatList, [{
+              key: 'isForbit',
+              value: payloadData.type
+            }], payloadData.memberId, 'senderId', 'list')
+            handleUpdateMsg(memberList, [{
+              key: 'isForbit',
+              value: payloadData.type
+            }], payloadData.memberId, 'memberId', 'memberList')
             break
 
           // 被踢出房间

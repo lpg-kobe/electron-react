@@ -4,7 +4,7 @@
  */
 import immutable from 'immutable';
 // @ts-ignore
-import { getChatList, sendMsg, groupDelmsg, forbitChat, shotOff, getQaaList, delQaaMsg, sendQaaMsg, updateQaaMsg } from '@/services/room';
+import { getChatList, sendMsg, groupDelmsg, forbitChat, shotOff, getQaaList, delQaaMsg, sendQaaMsg, updateQaaMsg, getMemberList, inviteJoinRoom, onLine, offLine, handleRoomInvite, applyJoinRoom } from '@/services/room';
 
 
 type ActionType = {
@@ -40,6 +40,8 @@ const inititalState = immutable.fromJS({
     qaaList: [],
     // 问答区是否有更多数据
     qaaHasMore: false,
+    // 直播間成員列表
+    memberList: []
 })
 export default {
     namespace: 'chat',
@@ -119,6 +121,24 @@ export default {
         // 更新直播间问答消息
         *updateQaaMsg({ payload }: ActionType, { call }: YieldType) {
             yield call(updateQaaMsg, payload)
+        },
+
+        // 获取直播间用户列表
+        *getMemberList({ payload }: ActionType, { call, put }: YieldType) {
+            let { status, data: { data } } = yield call(getMemberList, payload)
+            if (status) {
+                yield put({
+                    type: 'save',
+                    payload: {
+                        memberList: data
+                    }
+                })
+            }
+        },
+
+        // 邀请上麦
+        *inviteJoinRoom({ payload }: ActionType, { call }: YieldType) {
+            yield call(inviteJoinRoom, payload)
         },
     },
     subscriptions: {}

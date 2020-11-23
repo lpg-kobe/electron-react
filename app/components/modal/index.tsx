@@ -6,5 +6,5 @@ import React from 'react'
 import { Modal } from 'antd'
 
 export default function AModal(props: any) {
-    return <Modal destroyOnClose {...props} cancelButtonProps={null} centered={true}>{props.children}</Modal>
+    return <Modal className={`ofweek-modal ${props.className || ''}`} destroyOnClose {...props} cancelButtonProps={null} centered={true}>{props.children}</Modal>
 }

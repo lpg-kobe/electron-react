@@ -11,6 +11,9 @@ import ImgTextTab from './imgTextTab'
 import ProViewTab from './proViewTab'
 // @ts-ignore
 import FileDownTab from './fileDownTab'
+// @ts-ignore
+import AModal from '@/components/modal';
+import Draggable from 'react-draggable';
 
 type MenuType = {
     menuType: number,
@@ -20,18 +23,50 @@ type MenuType = {
 
 type PropsType = {
     room: any,
-    dispatch: any,
+    dispatch(action: any): void,
     match: any
 }
 
 function MenuInfo(props: PropsType) {
-
-    const { room: { detailMenu } } = props
-    const [curMenu, setCurMenu] = useState(detailMenu[0])
+    const { room: { detailMenu }, dispatch, match: { params: { id: roomId } } } = props
+    const initVisible: any = {
+        2: false,
+        4: false,
+        5: false,
+        6: false
+    }
+    const [visible, setVisible] = useState(initVisible)
 
     // handle menu tab click
     function handleOpentab(menu: MenuType) {
-        setCurMenu(menu)
+        setVisible({
+            ...initVisible,
+            [menu.menuType]: !initVisible[menu.menuType]
+        })
+        const actionObj: any = {
+            // 图文直播
+            2: () => {
+
+            },
+            // 产品
+            4: () => {
+
+            },
+            // 文件下载
+            5: () => {
+
+            },
+            // 活动介绍
+            6: () => {
+                dispatch({
+                    type: 'room/getRoomIntroduce',
+                    payload: {
+                        roomid: roomId
+                    }
+                })
+            }
+        }
+        actionObj[menu.menuType] && actionObj[menu.menuType]()
     }
 
     return <section className="section-menu">
@@ -44,20 +79,34 @@ function MenuInfo(props: PropsType) {
                 </a>)
             }
         </nav>
-        {
-            curMenu.menuType === 6 ?
-                <DescTab />
-                : null
-        }
-        {
-            curMenu.menuType === 2 ? <ImgTextTab /> : null
-        }
-        {
-            curMenu.menuType === 4 ? <ProViewTab /> : null
-        }
-        {
-            curMenu.menuType === 5 ? <FileDownTab /> : null
-        }
+        <AModal className="menu-container-modal" width={900} footer={null} title={
+            <h1 className="ofweek-modal-title">
+                活动介绍
+            </h1>
+        } visible={visible[6]} onCancel={() => setVisible({
+            ...initVisible,
+            6: false
+        })} modalRender={(modal: any) => <Draggable>{modal}</Draggable>}>
+            <DescTab />
+        </AModal>
+        <AModal footer={null} visible={visible[2]} onCancel={() => setVisible({
+            ...initVisible,
+            2: false
+        })}>
+            <ImgTextTab />
+        </AModal>
+        <AModal footer={null} visible={visible[4]} onCancel={() => setVisible({
+            ...initVisible,
+            4: false
+        })}>
+            <ProViewTab />
+        </AModal>
+        <AModal footer={null} visible={visible[5]} onCancel={() => setVisible({
+            ...initVisible,
+            5: false
+        })}>
+            <FileDownTab />
+        </AModal>
     </section >
 }
 export default withRouter(connect(({ room }: any) => ({

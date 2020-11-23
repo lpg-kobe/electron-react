@@ -128,3 +128,42 @@ export function updateQaaMsg({ params, ...handler }: ParamType): any {
     }, handler)
 }
 
+// 获取直播间成员
+export function getMemberList({ params, ...handler }: ParamType): any {
+    return request(`/member/getroomuserlist?${qs.stringify(params)}`, {
+    }, handler)
+}
+
+// 开始直播
+export function onLine({ params, ...handler }: ParamType): any {
+    return request('/room/startroom', {
+        method: 'post',
+        body: JSON.stringify(params)
+    }, handler)
+}
+
+// 下麦
+export function offLine({ params, ...handler }: ParamType): any {
+    return request(`/room/overroom?${qs.stringify(params)}`, {
+    }, handler)
+}
+
+// 主播邀请上麦直播
+export function inviteJoinRoom({ params, ...handler }: ParamType): any {
+    return request(`/room/invitelive?${qs.stringify(params)}`, {
+    }, handler)
+}
+
+// 嘉宾处理直播邀请
+export function handleRoomInvite({ params, ...handler }: ParamType): any {
+    return request(`/room/guestauditlive?${qs.stringify(params)}`, {
+    }, handler)
+}
+
+// 嘉宾申请直播
+export function applyJoinRoom({ params, ...handler }: ParamType): any {
+    return request(`/room/auditlive?${qs.stringify(params)}`, {
+    }, handler)
+}
+
+

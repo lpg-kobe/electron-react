@@ -259,3 +259,32 @@ h5 {
   background: #fff;
   width: 6px
 }
+
+// 公用modal样式
+.ofweek-modal {
+  .ant-modal-header {
+    border-bottom: 0;
+    padding: 24px;
+  }
+
+  .ant-modal-body {}
+}
+
+.ofweek-modal-title {
+  position: relative;
+  padding-left: 13px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1F1F1F;
+
+  &::before {
+    position: absolute;
+    content: ' ';
+    left: 0;
+    top: 0;
+    width: 3px;
+    height: 16px;
+    border-radius: 2px;
+    background: #AF0101;
+  }
+}

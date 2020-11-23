@@ -3,7 +3,7 @@
  */
 import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { connect } from 'dva';
-import { Popover, Modal, message } from 'antd'
+import { Popover, Modal } from 'antd'
 import { withRouter } from 'dva/router';
 // @ts-ignore
 import Editor from '@/components/editor'
@@ -48,8 +48,7 @@ function ActiveInfo(props: PropsType) {
     }, [chatScrollTop])
 
     function faceToHtml(content: any) {
-        return content
-        // return content.replace(faceRegExp, (word: any) => <img src={`${FACE_URL}${word}@2x.png`} />)
+        return content.replace(faceRegExp, (word: any) => `<img src="${FACE_URL}${word}@2x.png" />`)
     }
 
     // 滚动跟随屏幕帧率刷新
@@ -66,24 +65,24 @@ function ActiveInfo(props: PropsType) {
             return
         }
         setDataLoading(true)
-        const topMsgId = chatList[0].msgId
+        const prevScrollHeight = scrollRef.current.scrollHeight
         dispatch({
             type: 'chat/getChatList',
             payload: {
                 params: {
                     roomId,
-                    msgId: topMsgId,
+                    msgId: chatList[0].msgId,
                     size: 50
                 },
                 onSuccess: {
                     search: () => {
                         setDataLoading(false)
                         // dom元素位置更新后滚动至追加数据前第一条消息位置
-                        rqaToGetElePos(`#msg-${topMsgId}`, ({ offsetTop }: any) => {
+                        rqaToGetElePos(scrollRef.current, ({ scrollHeight }: any) => {
                             dispatch({
                                 type: 'chat/save',
                                 payload: {
-                                    chatScrollTop: `scroll${new Date().getTime()}:${offsetTop}`
+                                    chatScrollTop: `scroll${new Date().getTime()}:${scrollHeight - prevScrollHeight}`
                                 }
                             })
                         })
@@ -185,13 +184,7 @@ function ActiveInfo(props: PropsType) {
                             type: 1
                         },
                         onSuccess: {
-                            operate: () => {
-                                message.success('已禁言')
-                                handleUpdateMsg([{
-                                    key: 'isForbit',
-                                    value: 1
-                                }], senderId)
-                            }
+                            operate: true
                         }
                     }
                 })
@@ -208,13 +201,7 @@ function ActiveInfo(props: PropsType) {
                             type: 2
                         },
                         onSuccess: {
-                            operate: () => {
-                                message.success('已取消禁言')
-                                handleUpdateMsg([{
-                                    key: 'isForbit',
-                                    value: 2
-                                }], senderId)
-                            }
+                            operate: true
                         }
                     }
                 })
@@ -223,7 +210,7 @@ function ActiveInfo(props: PropsType) {
             'kick': () => {
                 Modal.confirm({
                     centered: true,
-                    content: `确定把${nick}踢出房间`,
+                    content: `是否把${nick}踢出房间`,
                     title: '提示',
                     onOk: () => {
                         dispatch({
@@ -247,35 +234,6 @@ function ActiveInfo(props: PropsType) {
         reactObj[value] && reactObj[value]()
     }
 
-    /**
-     * @desc 键值对更改同个发送者所有消息状态 
-     * @param {Array<Object<key:value>>} attrs 更改的属性集合
-     * @param {String} senderId 单条消息体
-     */
-    function handleUpdateMsg(attrs: Array<any>, senderId: any) {
-        dispatch({
-            type: 'chat/save',
-            payload: {
-                list: chatList.map((msg: any) => {
-                    const matchMsg = String(msg.senderId) === String(senderId)
-                    if (matchMsg) {
-                        let updateObj: any = {}
-                        attrs.forEach(({ key, value }: any) => {
-                            updateObj[key] = value
-                        })
-                        return {
-                            ...msg,
-                            ...updateObj
-                        }
-                    } else {
-                        return msg
-                    }
-                })
-            }
-        })
-    }
-
-
     return <div className="tab-container interactive">
         <div className={`panel-contain chat-panel${!chatList.length ? ' empty flex-center' : ''}`} ref={scrollRef} onScroll={() => tottle(animateToScroll)}>
             {chatList.length ? <>
@@ -290,9 +248,7 @@ function ActiveInfo(props: PropsType) {
                                     {msg.nick}{msg.role === 1 || msg.role === 2 ? `  [${msg.identity}]` : null}
                                 </label>
                             </Popover>
-                            <p>
-                                {faceToHtml(msg.content)}
-                            </p>
+                            <p dangerouslySetInnerHTML={{ __html: faceToHtml(msg.content) }}></p>
                         </div> : <div className="wrap-item notice" key={index} id={`msg-${msg.msgId}`}>{msg.nick}进入直播间</div>
                     )
                 }

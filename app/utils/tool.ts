@@ -36,11 +36,11 @@ export function removeStore(key: any) {
   return localStorage.removeItem(key);
 }
 
-export function scrollElement(dom: HTMLElement, position: number | string) {
+export function scrollElement(dom: HTMLElement, position: any) {
   if (!dom.nodeType) {
     throw new Error(`target of ${dom} is not an HTMLElement`)
   }
-  if (typeof (position) === 'string') {
+  if (isNaN(position)) {
     const scrollReact: any = {
       'bottom': () => dom.scrollTop = dom.scrollHeight,
       'top': () => dom.scrollTop = 0
@@ -84,15 +84,12 @@ export function rqaToGetElePos(dom: HTMLElement | string, callback?: any) {
       prevTop = nextRect.top
       prevLeft = nextRect.left
       window.requestAnimationFrame(getPosition)
-      return {
-        offsetTop: realDom.offsetTop,
-        offsetLeft: realDom.offsetLeft,
-        rect: realDom.getBoundingClientRect()
-      }
+      return 'not real position'
     } else {
       const curRect = {
         offsetTop: realDom.offsetTop,
         offsetLeft: realDom.offsetLeft,
+        scrollHeight: realDom.scrollHeight,
         rect: realDom.getBoundingClientRect()
       }
       callback && callback(curRect);

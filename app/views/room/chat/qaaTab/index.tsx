@@ -71,24 +71,24 @@ function QAndAInfo(props: PropsType) {
             return
         }
         setDataLoading(true)
-        const topMsgId = qaaList[0].msgId
+        const prevScrollHeight = scrollRef.current.scrollHeight
         dispatch({
             type: 'chat/getQaaList',
             payload: {
                 params: {
                     roomId,
-                    questionId: topMsgId,
+                    questionId: qaaList[0].msgId,
                     size: 50
                 },
                 onSuccess: {
                     search: () => {
                         setDataLoading(false)
                         // dom元素位置更新后滚动至追加数据前第一条消息位置
-                        rqaToGetElePos(`#msg-${topMsgId}`, ({ offsetTop }: any) => {
+                        rqaToGetElePos(scrollRef.current, ({ scrollHeight }: any) => {
                             dispatch({
                                 type: 'chat/save',
                                 payload: {
-                                    qaaScrollTop: `scroll${new Date().getTime()}:${offsetTop}`
+                                    qaaScrollTop: `scroll${new Date().getTime()}:${scrollHeight - prevScrollHeight}`
                                 }
                             })
                         })
@@ -279,7 +279,7 @@ function QAndAInfo(props: PropsType) {
             }
         </ul>
         <Editor onSubmit={handleSendQues} placeholder='我要提问' />
-        <AModal title="文字解答" className="qaa-modal" visible={answerShow} onCancel={() => setAnswerShow(false)} onOk={handleEditAnswer}>
+        <AModal title="文字解答" className="ofweek-modal" visible={answerShow} onCancel={() => setAnswerShow(false)} onOk={handleEditAnswer}>
             <div className="modal-line">
                 <label>[问题内容]</label>
                 <span>{curMsg.content}</span>
