@@ -22,7 +22,7 @@ type DefaultConfigParam = {
 
 export const SDK_APP_ID: any = process.env.sdkAppId;
 export const API_HOST: any = process.env.apiHost;
-export const FACE_URL: any = 'https://newlive.ofweek.com/file/static/img/face/emoji/';
+export const FACE_URL: any = process.env.faceUrl;
 
 // 默认打开的窗口配置
 export const DEFAULT_WINDOW_CONFIG: DefaultConfigParam = {

@@ -1,6 +1,6 @@
 @charset 'utf-8';
+@import './mixin.less';
 @import './normalize.css';
-@import './mixin.css';
 @import 'antd/dist/antd.less';
 
 body,
@@ -127,6 +127,7 @@ h5 {
       }
 
       i {
+        cursor: pointer;
         margin: 14px 0 22px 14px;
         width: 18px;
         height: 15px;
@@ -142,6 +143,7 @@ h5 {
     }
 
     .send-btn {
+      cursor: pointer;
       margin: 9px 0 18px 0;
       min-width: 50px;
       height: 24px;
@@ -151,6 +153,11 @@ h5 {
       font-size: 12px;
       border-radius: 2px;
       background: #E65E50;
+
+      &.disabled {
+        cursor: not-allowed;
+        background: rgba(0, 0, 0, 0.25);
+      }
     }
   }
 }
@@ -262,12 +269,45 @@ h5 {
 
 // 公用modal样式
 .ofweek-modal {
-  .ant-modal-header {
-    border-bottom: 0;
-    padding: 24px;
+
+  &.draggable {
+    cursor: move;
   }
 
-  .ant-modal-body {}
+  &.big {
+    .ant-modal-body {
+      max-height: calc(100vh - @headerHeight - @menuHeight - @footerHeight);
+      overflow: hidden;
+    }
+
+    &:hover {
+      .ant-modal-body {
+        overflow-y: overlay;
+      }
+    }
+  }
+
+  .ant-modal-header {
+    border-bottom: 0;
+    padding: 24px 50px;
+  }
+
+  .ant-modal-footer {
+    border: 0;
+    padding: 0 50px 50px 50px;
+
+    button {
+      margin-left: 20px;
+
+      &:first-child {
+        margin-left: 0;
+      }
+    }
+  }
+
+  .ant-modal-body {
+    padding: 0 50px;
+  }
 }
 
 .ofweek-modal-title {
@@ -276,6 +316,17 @@ h5 {
   font-size: 16px;
   font-weight: 600;
   color: #1F1F1F;
+
+  &.z2,
+  &.z3,
+  &.z4,
+  &.z5 {
+    padding-left: 0;
+
+    &::before {
+      display: none;
+    }
+  }
 
   &::before {
     position: absolute;

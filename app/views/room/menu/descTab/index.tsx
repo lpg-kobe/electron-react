@@ -2,7 +2,7 @@
  * @desc 活动介绍描述
  */
 'use strict'
-import React, { useEffect } from 'react';
+import React from 'react';
 import { connect } from 'dva';
 import { withRouter } from 'dva/router';
 
@@ -13,55 +13,53 @@ type PropsType = {
 }
 
 const DescTab = (props: PropsType) => {
-    const { room: { roomIntroduce }, dispatch, match: { params: { id } } } = props
-    useEffect(() => {
-        dispatch({
-            type: 'home/getRoomIntroduce',
-            payload: {
-                roomid: id
-            }
-        })
-    }, [])
+    const { room: { roomIntroduce } } = props
     return (roomIntroduce ? <div className="tab-container desc">
         <div className="wrap-item time">
-            <div className="logo">
+            <div className="item-l">
                 <img src={roomIntroduce.companyLogoUrl} alt="logo" />
             </div>
-            <div className="title">
+            <div className="item-r">
                 <h1>{roomIntroduce.roomName}</h1>
-                <p>举办时间：{roomIntroduce.time}</p>
-                <p>举办单位：{roomIntroduce.companyName}</p>
+                <div className="tag-box">
+                    <p>举办时间：{roomIntroduce.time}</p>
+                    <p>举办单位：{roomIntroduce.companyName}</p>
+                </div>
             </div>
         </div>
-        <div className="wrap-item desc">
-            <h2>内容简介</h2>
-            <p>{roomIntroduce.description}</p>
-        </div>
-        <div className="wrap-item member">
-            <ul>
-                {
-                    roomIntroduce.showMemberList && roomIntroduce.showMemberList.map((item: any, index: number) => item.identity !== '主播' ? <li className="member-line" key={index}>
-                        <h2>{item.identity}</h2>
-                        {
-                            item.memberList.map((member: any) => <dl key={member.memberLogoUrl}>
-                                <dt>
-                                    <img src={member.memberLogoUrl} alt="用户头像" />
-                                </dt>
-                                <dd>
-                                    <h3>{member.memberName} - {member.memberCompany} / {member.memberJob}</h3>
-                                    <p>{member.memberSummary}</p>
-                                </dd>
-                            </dl>)
-                        }
-                    </li> : null)
-                }
-            </ul>
-        </div>
-        <div className="wrap-item gift">
-            <h2>参与有奖</h2>
-            <div className="gift-area">
-                {
-                    roomIntroduce.roomPrizeDtoList && roomIntroduce.roomPrizeDtoList.map((gift: any) => <dl className="gift-item">
+        {
+            roomIntroduce.description && <div className="wrap-item desc">
+                <h2>内容简介</h2>
+                <p>{roomIntroduce.description}</p>
+            </div>
+        }
+        {
+            roomIntroduce.showMemberList && roomIntroduce.showMemberList.filter((member: any) => member.identity !== '主播').length ? <div className="wrap-item member">
+                <ul>
+                    {
+                        roomIntroduce.showMemberList && roomIntroduce.showMemberList.map((item: any, index: number) => item.identity !== '主播' ? <li className="member-line" key={index}>
+                            <h2>{item.identity}</h2>
+                            {
+                                item.memberList.map((member: any) => <dl key={member.memberLogoUrl}>
+                                    <dt>
+                                        <img src={member.memberLogoUrl} alt="用户头像" />
+                                    </dt>
+                                    <dd>
+                                        <h3>{member.memberName} - {member.memberCompany} / {member.memberJob}</h3>
+                                        <p>{member.memberSummary}</p>
+                                    </dd>
+                                </dl>)
+                            }
+                        </li> : null)
+                    }
+                </ul>
+            </div> : null
+        }
+        {
+            roomIntroduce.roomPrizeDtoList && roomIntroduce.roomPrizeDtoList.length ? <div className="wrap-item gift">
+                <h2>参与有奖</h2>
+                <div className="gift-area">
+                    {roomIntroduce.roomPrizeDtoList.map((gift: any) => <dl className="gift-item">
                         <dt>
                             <img src={gift.prizeImageUrl} alt="奖品封面" />
                         </dt>
@@ -80,13 +78,16 @@ const DescTab = (props: PropsType) => {
                             </p>
                         </dd>
                     </dl>)
-                }
+                    }
+                </div>
+            </div> : null
+        }
+        {
+            roomIntroduce.companySummary && <div className="wrap-item introduct">
+                <h2>公司介绍</h2>
+                <p>{roomIntroduce.companySummary}</p>
             </div>
-        </div>
-        <div className="wrap-item introduct">
-            <h2>公司介绍</h2>
-            <p>{roomIntroduce.companySummary}</p>
-        </div>
+        }
     </div > : null // you can add loading here before component loaded
     )
 }

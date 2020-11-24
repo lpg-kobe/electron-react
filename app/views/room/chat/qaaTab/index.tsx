@@ -8,7 +8,7 @@ import { withRouter } from 'dva/router';
 import { scrollElement, tottle, rqaToGetElePos } from '@/utils/tool'
 // @ts-ignore
 import Editor from '@/components/editor'
-import { Modal, Input, message } from 'antd'
+import { Modal, Input, message, Button } from 'antd'
 // @ts-ignore
 import AModal from '@/components/modal'
 import moment from 'moment'
@@ -133,10 +133,6 @@ function QAndAInfo(props: PropsType) {
     }
 
     function handleEditAnswer() {
-        if (!answerValue) {
-            message.error('请输入您的解答')
-            return
-        }
         const { type, msgId } = curMsg
         const actionObj: any = {
             // 解答
@@ -279,18 +275,31 @@ function QAndAInfo(props: PropsType) {
             }
         </ul>
         <Editor onSubmit={handleSendQues} placeholder='我要提问' />
-        <AModal title="文字解答" className="ofweek-modal" visible={answerShow} onCancel={() => setAnswerShow(false)} onOk={handleEditAnswer}>
+        <AModal draggable={true}
+            className="ofweek-modal draggable ofweek-answer-modal"
+            width={520}
+            title={
+                <h1 className="ofweek-modal-title">
+                    文字解答
+            </h1>
+            }
+            footer={[
+                <Button key={Math.random()} type="primary" onClick={handleEditAnswer} disabled={!answerValue}>确定</Button>
+            ]}
+            visible={answerShow}
+            onCancel={() => setAnswerShow(false)}
+            onOk={handleEditAnswer}>
             <div className="modal-line">
                 <label>[问题内容]</label>
                 <span>{curMsg.content}</span>
             </div>
             {
-                curMsg.answer && <div className="modal-line">
+                curMsg.answer && <div className="modal-line anchor">
                     <label>[我的解答]</label>
                     <span>{curMsg.answer}</span>
                 </div>
             }
-            <Input.TextArea placeholder="请输入内容" value={answerValue} onChange={({ target: { value } }: any) => setAnswerValue(value)} />
+            <Input.TextArea className="modal-line textarea" placeholder="请输入内容" value={answerValue} onChange={({ target: { value } }: any) => setAnswerValue(value)} />
         </AModal>
     </div>
 }

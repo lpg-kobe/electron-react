@@ -149,7 +149,7 @@ const Editor = (props: PropsType) => {
                         </div> : null
                     }
                 </div>
-                <a onClick={handleSendMsg} className="send-btn">发送</a>
+                <a onClick={handleSendMsg} className={`send-btn${!inputValue ? ' disabled' : ''}`}>发送</a>
             </div>
         </div>
     )

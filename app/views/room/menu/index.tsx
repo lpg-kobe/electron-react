@@ -13,7 +13,6 @@ import ProViewTab from './proViewTab'
 import FileDownTab from './fileDownTab'
 // @ts-ignore
 import AModal from '@/components/modal';
-import Draggable from 'react-draggable';
 
 type MenuType = {
     menuType: number,
@@ -46,7 +45,12 @@ function MenuInfo(props: PropsType) {
         const actionObj: any = {
             // 图文直播
             2: () => {
-
+                dispatch({
+                    type: 'room/getImgTextList',
+                    payload: {
+                        roomid: roomId
+                    }
+                })
             },
             // 产品
             4: () => {
@@ -72,36 +76,40 @@ function MenuInfo(props: PropsType) {
     return <section className="section-menu">
         <nav>
             {
-                detailMenu && detailMenu.map((menu: MenuType) => <a key={menu.menuType} onClick={() => handleOpentab(menu)}>
+                detailMenu && detailMenu.map((menu: MenuType) => <a key={menu.menuType} onClick={() => handleOpentab(menu)} className={`${visible[menu.menuType] ? 'active' : ''}`}>
                     {
                         menu.name
                     }
                 </a>)
             }
         </nav>
-        <AModal className="menu-container-modal" width={900} footer={null} title={
+        <AModal className="ofweek-modal big draggable" draggable={true} footer={null} title={
             <h1 className="ofweek-modal-title">
                 活动介绍
             </h1>
         } visible={visible[6]} onCancel={() => setVisible({
             ...initVisible,
             6: false
-        })} modalRender={(modal: any) => <Draggable>{modal}</Draggable>}>
+        })}>
             <DescTab />
         </AModal>
-        <AModal footer={null} visible={visible[2]} onCancel={() => setVisible({
+        <AModal className="ofweek-modal big draggable" draggable={true} footer={null} title={
+            <h1 className="ofweek-modal-title">
+                图文直播
+            </h1>
+        } visible={visible[2]} onCancel={() => setVisible({
             ...initVisible,
             2: false
         })}>
             <ImgTextTab />
         </AModal>
-        <AModal footer={null} visible={visible[4]} onCancel={() => setVisible({
+        <AModal className="ofweek-modal big draggable" draggable={true} footer={null} visible={visible[4]} onCancel={() => setVisible({
             ...initVisible,
             4: false
         })}>
             <ProViewTab />
         </AModal>
-        <AModal footer={null} visible={visible[5]} onCancel={() => setVisible({
+        <AModal className="ofweek-modal big draggable" draggable={true} footer={null} visible={visible[5]} onCancel={() => setVisible({
             ...initVisible,
             5: false
         })}>

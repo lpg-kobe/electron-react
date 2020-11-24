@@ -48,7 +48,7 @@ function ActiveInfo(props: PropsType) {
     }, [chatScrollTop])
 
     function faceToHtml(content: any) {
-        return content.replace(faceRegExp, (word: any) => `<img src="${FACE_URL}${word}@2x.png" />`)
+        return content.replace(faceRegExp, (word: any) => `<img src="${FACE_URL}/${word}@2x.png" />`)
     }
 
     // 滚动跟随屏幕帧率刷新

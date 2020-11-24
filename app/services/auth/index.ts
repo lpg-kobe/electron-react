@@ -14,7 +14,7 @@ type ParamType = {
 // 用户登录
 export function login({ params, ...handler }: ParamType): any {
   return request(
-    `/login/memberlogin?${qs.stringify(params)}`,
+    `/web/login/memberlogin?${qs.stringify(params)}`,
     { method: 'post' },
     handler
   );
@@ -23,7 +23,7 @@ export function login({ params, ...handler }: ParamType): any {
 // 验证码登录
 export function smsLogin({ params, ...handler }: ParamType): any {
   return request(
-    `/login/quickRegOrLogin?${qs.stringify(params)}`,
+    `/web/login/quickRegOrLogin?${qs.stringify(params)}`,
     { method: 'post' },
     handler
   );
@@ -32,7 +32,7 @@ export function smsLogin({ params, ...handler }: ParamType): any {
 // 发送验证码
 export function sendSms({ params, ...handler }: ParamType): any {
   return request(
-    `/login/sendSMSValicode?${qs.stringify(params)}`,
+    `/web/login/sendSMSValicode?${qs.stringify(params)}`,
     {
       method: 'post',
     },

@@ -98,3 +98,11 @@ export function rqaToGetElePos(dom: HTMLElement | string, callback?: any) {
   }
   getPosition()
 }
+
+/**
+ * @desc 过滤字符文本换行符
+ * @param {String} text 文本内容
+ */
+export function filterBreakWord(text: any) {
+  return text.replace(/\n/g, '<br/>')
+}

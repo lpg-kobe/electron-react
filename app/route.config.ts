@@ -42,6 +42,7 @@ export default [
         // @ts-ignore
         models: () => [
           import('./models/room'),
+          import('./models/room/detail'),
           import('./models/room/chat')
         ],
       }),

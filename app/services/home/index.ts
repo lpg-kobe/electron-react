@@ -14,7 +14,7 @@ type ParamType = {
 // 获取直播列表
 export function getList(params: ParamType): any {
   return request(
-    `/room/pc/getroomindex?${qs.stringify(params)}`,
+    `/web/room/pc/getroomindex?${qs.stringify(params)}`,
     { method: 'get' }
   );
 }
