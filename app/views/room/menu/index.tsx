@@ -22,12 +22,13 @@ type MenuType = {
 
 type PropsType = {
     room: any,
+    detail: any,
     dispatch(action: any): void,
     match: any
 }
 
 function MenuInfo(props: PropsType) {
-    const { room: { detailMenu }, dispatch, match: { params: { id: roomId } } } = props
+    const { room: { detailMenu }, detail: { imgTextList }, dispatch, match: { params: { id: roomId } } } = props
     const initVisible: any = {
         2: false,
         4: false,
@@ -46,9 +47,23 @@ function MenuInfo(props: PropsType) {
             // 图文直播
             2: () => {
                 dispatch({
-                    type: 'room/getImgTextList',
+                    type: 'detail/getImgTextList',
                     payload: {
-                        roomid: roomId
+                        params: {
+                            roomId,
+                            msgId: imgTextList[0] && imgTextList[0].msgId,
+                            size: 20
+                        },
+                        onSuccess: {
+                            search: () => {
+                                dispatch({
+                                    type: 'detail/save',
+                                    payload: {
+                                        imgTextLoading: false
+                                    }
+                                })
+                            }
+                        }
                     }
                 })
             },
@@ -93,7 +108,7 @@ function MenuInfo(props: PropsType) {
         })}>
             <DescTab />
         </AModal>
-        <AModal className="ofweek-modal big draggable" draggable={true} footer={null} title={
+        <AModal className="ofweek-modal img-text big draggable" draggable={true} footer={null} title={
             <h1 className="ofweek-modal-title">
                 图文直播
             </h1>
@@ -117,6 +132,7 @@ function MenuInfo(props: PropsType) {
         </AModal>
     </section >
 }
-export default withRouter(connect(({ room }: any) => ({
+export default withRouter(connect(({ room, detail }: any) => ({
     room: room.toJS(),
+    detail: detail.toJS()
 }))(MenuInfo))

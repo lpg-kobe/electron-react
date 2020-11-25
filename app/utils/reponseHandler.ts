@@ -48,6 +48,12 @@ export function handleSuccess(handler: handleType, data?: any): any {
           duration: 0.5,
         });
       },
+      delete: () => {
+        message.success({
+          content: '删除成功',
+          duration: 0.5,
+        });
+      },
       upload: () => {
         message.success({
           content: '上传成功',
@@ -65,19 +71,25 @@ export function handleError(handler: handleType): any {
     Object.entries(handler.onError).forEach(([key, value]) => {
       const keyReact: ReactType = {
         login: () => {
-          message.success({
+          message.error({
             content: '登录失败',
             duration: 0.5,
           });
         },
         operate: () => {
-          message.success({
+          message.error({
             content: '操作失败',
             duration: 0.5,
           });
         },
+        delete: () => {
+          message.error({
+            content: '删除失败',
+            duration: 0.5,
+          });
+        },
         upload: () => {
-          message.success({
+          message.error({
             content: '上传失败',
             duration: 0.5,
           });

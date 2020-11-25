@@ -25,6 +25,7 @@ type PropsType = {
   auth: any,
   room: any,
   chat: any,
+  detail: any,
   match: any
 }
 
@@ -36,7 +37,7 @@ type MsgReceiveType = {
 let rtcClient: any = null
 
 function RoomInfo(props: PropsType) {
-  const { dispatch, auth: { userInfo: { userSig, imAccount } }, match: { params: { id: roomId } }, chat: { list: chatList, qaaList, memberList } } = props
+  const { dispatch, auth: { userInfo: { userSig, imAccount } }, match: { params: { id: roomId } }, chat: { list: chatList, qaaList, memberList }, detail: { imgTextList } } = props
 
   useEffect(() => {
     // handleKickedOut()
@@ -78,7 +79,7 @@ function RoomInfo(props: PropsType) {
     return () => {
       rtcClient.off(EVENT.MESSAGE_RECEIVED, handleMsgReceive)
     }
-  }, [chatList, qaaList])
+  }, [chatList, qaaList, imgTextList])
 
   function handleError(event: { data: { errmsg: string; errcode: number; } }) {
     message.error(event.data.errmsg + event.data.errcode);
@@ -137,6 +138,7 @@ function RoomInfo(props: PropsType) {
         if (String(payloadData.roomId) !== String(roomId)) {
           return
         }
+
         switch (String(payloadData.msgCode)) {
           // 接收到群推送聊天消息
           case "1000":
@@ -146,6 +148,17 @@ function RoomInfo(props: PropsType) {
               payload: {
                 list: [...chatList, payloadData],
                 chatScrollTop: `scroll${new Date().getTime()}:bottom`
+              }
+            })
+            break
+
+          // 新增一条图文消息
+          case "1001":
+            console.log('群推送图文消息1001')
+            dispatch({
+              type: 'detail/save',
+              payload: {
+                imgTextList: [payloadData, ...imgTextList]
               }
             })
             break
@@ -269,6 +282,17 @@ function RoomInfo(props: PropsType) {
             reactObj[payloadData.type] && reactObj[payloadData.type]()
             break
 
+          // 删除直播间图文消息 
+          case "1016":
+            console.log('删除直播间图文消息1016')
+            dispatch({
+              type: 'detail/save',
+              payload: {
+                imgTextList: imgTextList.filter((msg: any) => msg.msgId !== payloadData.msgId)
+              }
+            })
+            break
+
           // 禁言/取消禁言用户消息
           case "1017":
             console.log('禁言/取消禁言用户消息1017')
@@ -325,6 +349,23 @@ function RoomInfo(props: PropsType) {
           case "1021":
             // console.log('在线用户变化广播消息1021')
             break
+
+          // 修改直播间图文消息 
+          case "1022":
+            console.log('修改直播间图文消息1022')
+            dispatch({
+              type: 'detail/save',
+              payload: {
+                imgTextList: imgTextList.map((imgText: any) => (
+                  imgText.msgId === payloadData.msgId ? {
+                    ...imgText,
+                    ...payloadData
+                  } : imgText
+                ))
+              }
+            })
+            break
+
         }
       }
     } catch (e) { }
@@ -364,8 +405,9 @@ function RoomInfo(props: PropsType) {
     </div>
   </>
 }
-export default withRouter(connect(({ room, auth, chat }: any) => ({
+export default withRouter(connect(({ room, auth, chat, detail }: any) => ({
   room: room.toJS(),
   auth: auth.toJS(),
+  detail: detail.toJS(),
   chat: chat.toJS()
 }))(RoomInfo));

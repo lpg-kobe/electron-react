@@ -105,13 +105,12 @@ export default function request(
       }
 
       return { status: true, data };
-    })
-    .catch((err: any) => {
+    }, (err: any) => {
       handleError(handler);
       return {
         err,
         status: false,
         data: {},
       };
-    });
+    })
 }

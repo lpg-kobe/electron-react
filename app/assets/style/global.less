@@ -54,6 +54,10 @@ h5 {
   float: right;
 }
 
+textarea {
+  resize: none;
+}
+
 .clearfix::after {
   content: ".";
   display: block;
@@ -155,6 +159,7 @@ h5 {
       background: #E65E50;
 
       &.disabled {
+        pointer-events: none;
         cursor: not-allowed;
         background: rgba(0, 0, 0, 0.25);
       }
@@ -308,6 +313,44 @@ h5 {
   .ant-modal-body {
     padding: 0 50px;
   }
+
+  // 上传卡片
+  .icon-upload-add {
+    position: relative;
+    width: 100%;
+    height: 100%;
+
+    &::before,
+    &::after {
+      position: absolute;
+      top: 59.5px;
+      left: 39px;
+      content: ' ';
+      width: 42px;
+      height: 2px;
+      background: #CACBCC;
+    }
+
+    &::after {
+      transform: rotate(90deg);
+    }
+  }
+
+  .ant-upload.ant-upload-select-picture-card {
+    width: 120px;
+    height: 120px;
+    border: none;
+  }
+
+  .ant-upload-list-picture-card-container {
+    width: 120px;
+    height: 120px;
+  }
+
+  .ant-upload-list-picture-card-container {
+    margin: 0 10px 10px 0;
+  }
+
 }
 
 .ofweek-modal-title {

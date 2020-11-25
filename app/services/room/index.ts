@@ -168,7 +168,31 @@ export function applyJoinRoom({ params, ...handler }: ParamType): any {
 
 // 获取图文直播数据
 export function getImgTextList({ params, ...handler }: ParamType): any {
-    return request('/web/group/getmoremsg', {
+    return request('/web/room/imagetext/getmoremsg', {
+        method: 'post',
+        body: JSON.stringify(params)
+    }, handler)
+}
+
+// 发送图文消息
+export function sendImgText({ params, ...handler }: ParamType): any {
+    return request('/web/room/imagetext/sendmsg', {
+        method: 'post',
+        body: JSON.stringify(params)
+    }, handler)
+}
+
+// 更新图文消息
+export function updateImgText({ params, ...handler }: ParamType): any {
+    return request('/web/room/imagetext/updateimagetext', {
+        method: 'post',
+        body: JSON.stringify(params)
+    }, handler)
+}
+
+// 删除图文消息
+export function delImgText({ params, ...handler }: ParamType): any {
+    return request('/web/room/imagetext/deletemsg', {
         method: 'post',
         body: JSON.stringify(params)
     }, handler)

@@ -19,7 +19,8 @@ export default function AModal(props: PropsType) {
     const { draggable, children, className } = props
     return <Modal
         className={`ofweek-modal ${className || ''}`}
-        destroyOnClose width={900}
+        destroyOnClose
+        width={900}
         // @ts-ignore
         modalRender={
             (modal: any) => draggable ? <Draggable>{modal}</Draggable> : modal
