@@ -52,7 +52,7 @@ const initialState: StateType = {
   detailMenu: [
     { menuType: 2, name: '图文直播', sort: 0 },
     { menuType: 4, name: '产品展示', sort: 0 },
-    { menuType: 5, name: '资料下载', sort: 0 },
+    // { menuType: 5, name: '资料下载', sort: 0 },
     { menuType: 6, name: '活动介绍', sort: 0 }
   ],
   // 自定义直播间右侧聊天模块菜单,sort根据后端返回

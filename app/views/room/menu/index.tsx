@@ -67,11 +67,11 @@ function MenuInfo(props: PropsType) {
                     }
                 })
             },
-            // 产品
+            // 产品，暂无该需求
             4: () => {
 
             },
-            // 文件下载
+            // 文件下载，暂无该需求
             5: () => {
 
             },
@@ -98,7 +98,7 @@ function MenuInfo(props: PropsType) {
                 </a>)
             }
         </nav>
-        <AModal className="ofweek-modal big draggable" draggable={true} footer={null} title={
+        <AModal className="ofweek-modal introduce big draggable" draggable={true} footer={null} title={
             <h1 className="ofweek-modal-title">
                 活动介绍
             </h1>

@@ -106,3 +106,23 @@ export function rqaToGetElePos(dom: HTMLElement | string, callback?: any) {
 export function filterBreakWord(text: any) {
   return text.replace(/\n/g, '<br/>')
 }
+
+
+/**
+ * @desc setTimeout 递归模拟 setInterval
+ * @param {Function} fn callback
+ * @param {timer} setTimeout timer result
+ * @param {delay} Number 间隔时间
+ */
+export function loopToInterval(fn: any, timer: any, delay: number = 8 * 1000) {
+  function loop() {
+    if (timer) {
+      clearTimeout(timer)
+      timer = null
+    }
+    fn()
+    timer = setTimeout(loop, delay)
+  }
+  loop()
+  return timer
+}

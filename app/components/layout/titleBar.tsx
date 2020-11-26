@@ -5,21 +5,21 @@ import React, { ReactNode } from 'react'
 import './style.less'
 // @ts-ignore
 import { isWindowMax, maxWindow, unMaxWindow, minWindow, closeWindow } from '@/utils/ipc'
+import { TitleMenusType } from '../../utils/type'
 
 type PropsTypes = {
     children?: ReactNode,
-    btns?: Array<any>// 要展示的菜单操作按钮
+    titleBarProps?: TitleMenusType // 要展示的窗口操作按钮
 }
-type OperateTypes = {
-    [key: string]: any
-}
+
 export default function TitleBar(props: PropsTypes) {
     /**
      * @desc handle click of titlebar btn
-     * @parma {Object} 
+     * @param {String} type event type
+     * @param {Function} click callback of click
      */
-    function handleBtnClick({ type }: any) {
-        const btnReact: OperateTypes = {
+    function handleBtnClick({ type, click }: any) {
+        const btnReact: any = {
             'min': () => minWindow(),
             'max': () => {
                 if (isWindowMax()) {
@@ -30,12 +30,12 @@ export default function TitleBar(props: PropsTypes) {
             },
             'close': () => closeWindow()
         }
-        btnReact[type] && btnReact[type]()
+        click ? click(type) : btnReact[type] && btnReact[type]()
     }
 
     const {
         //@ts-ignore
-        btns = btns || [{
+        titleBarProps = titleBarProps || [{
             type: 'min'
         }, {
             type: 'close'
@@ -47,7 +47,7 @@ export default function TitleBar(props: PropsTypes) {
         </div>
         <div className="bar-r">
             {
-                btns && btns.map((btn: any, index: number) => <i key={index} className={`icon-${btn.type}-win`} onClick={() => handleBtnClick(btn)} />)
+                titleBarProps && titleBarProps.map((btn: any, index: number) => <i key={index} className={`icon icon-${btn.type}-win`} onClick={() => handleBtnClick(btn)} />)
             }
         </div>
     </div>

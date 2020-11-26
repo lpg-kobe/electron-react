@@ -135,7 +135,7 @@ function HomePage(props: any) {
 
   return (
     <>
-      <CommonHeader />
+      <CommonHeader headerProps={[{ key: 'avatar' }]} />
       <main className="home-page-container clearfix main-container" data-tid="home-page-container">
         <ATable {...tableOptions} />
       </main>

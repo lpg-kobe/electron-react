@@ -74,12 +74,20 @@ span {
                 justify-content: space-between;
 
                 .item-l {
+                    border: 1px solid #e6e6e6;
+                    background: #fff;
                     flex-basis: 300px;
                     width: 300px;
                     height: 100px;
                     margin-right: 20px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
 
-                    img {}
+                    img {
+                        max-width: 100%;
+                        max-height: 100%;
+                    }
                 }
 
                 .item-r {
@@ -91,16 +99,16 @@ span {
                     }
 
                     .tag-box {
-                        background: #F4F5F6;
                         margin-top: 15px;
+                        background: #F4F5F6;
 
                         p {
                             position: relative;
-                            padding: 15px 0 0 48px;
+                            padding: 13px 0 0 48px;
                             line-height: 1;
 
                             &:last-child {
-                                padding-bottom: 15px;
+                                padding-bottom: 13px;
 
                                 &::before {
                                     background: url(~assets/img/room/i-company.webp) no-repeat center/100%;
@@ -145,6 +153,8 @@ span {
                             width: 150px;
                             height: 150px;
                             margin-right: 24px;
+                            background: url(~assets/img/avatar.webp) no-repeat center/100%;
+                            border-radius: 50%;
 
                             img {
                                 width: 100%;
@@ -161,7 +171,6 @@ span {
                                 color: #333;
                             }
 
-                            p {}
                         }
                     }
                 }
@@ -175,12 +184,19 @@ span {
                     padding-bottom: 30px;
 
                     dt {
+                        background: #F4F5F6;
                         width: 115px;
                         height: 87px;
                         margin-right: 16px;
                         flex-basis: 115px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
 
-                        img {}
+                        img {
+                            max-width: 100%;
+                            max-height: 100%
+                        }
                     }
 
                     dd {
@@ -829,6 +845,8 @@ span {
             color: #808080;
             font-size: 14px;
             margin-left: 10px;
+            display: inline-block;
+            vertical-align: middle;
         }
 
         &.textarea {
@@ -854,5 +872,13 @@ span {
         margin: 0 0 28px 0;
         font-size: 14px;
         color: #808080;
+    }
+}
+
+.ofweek-modal {
+    &.introduce {
+        .ant-modal-body {
+            padding: 0 50px 50px 50px;
+        }
     }
 }

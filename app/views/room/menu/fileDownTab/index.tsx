@@ -1,5 +1,5 @@
 /**
- * @desc 直播间文件下载
+ * @desc 直播间文件下载，暂不开发
  */
 'use strict'
 import React from 'react';

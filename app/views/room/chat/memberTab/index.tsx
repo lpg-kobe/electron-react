@@ -26,8 +26,8 @@ function MemberInfo(props: PropsType) {
 
     // handle filter right menu of item
     function handleFilterMenu(item: any) {
-        const { role } = userStatus
-        const { role: userRole } = item
+        const { role, imAccount } = userStatus
+        const { memberId: msgOwner } = item
         let menus = [{
             label: '上麦',
             value: 'online',
@@ -71,17 +71,19 @@ function MemberInfo(props: PropsType) {
         menus = menus.filter((menu: any) => true ? menu.value !== 'req-online' : menu.value !== 'req-offline')
 
         // 身份筛选消息菜单
+        const isUserSelf = String(msgOwner) === String(imAccount)
         let menuMap: any = {
             // 主播
-            1: userRole === 1 ? menus.filter(item => ['online', 'offline'].includes(item.value)) : menus.filter(item => ['offline', 'send-online', 'forbit', 'cancelForbit', 'kick'].includes(item.value)),
+            1: isUserSelf ? menus.filter(item => ['online', 'offline'].includes(item.value)) : menus.filter(item => ['offline', 'send-online', 'forbit', 'cancelForbit', 'kick'].includes(item.value)),
             // 嘉宾
-            2: userRole === 2 ? menus.filter(item => ['req-online', 'req-offline'].includes(item.value)) : []
+            2: isUserSelf ? menus.filter(item => ['req-online', 'req-offline'].includes(item.value)) : []
         }
 
-        return menuMap[role] && menuMap[role].length ?
+        const userRowMenus = menuMap[role]
+        return userRowMenus && userRowMenus.length ?
             <ul>
                 {
-                    menuMap[role] && menuMap[role].map((menu: any) => <li className="msg-menu-item" key={menu.value} onClick={() => handleMsgClick({ ...menu, ...item })}>
+                    userRowMenus.map((menu: any) => <li className="msg-menu-item" key={menu.value} onClick={() => handleMsgClick({ ...menu, ...item })}>
                         {menu.label}
                     </li>)
                 }
@@ -187,7 +189,7 @@ function MemberInfo(props: PropsType) {
                         }
                         <i className={`icon ${true ? 'mic' : 'unmic'}`}></i>
                         {
-                            handleFilterMenu(item) && <Popover content={handleFilterMenu(item)}>
+                            handleFilterMenu(item) && <Popover content={handleFilterMenu(item)} placement="bottomLeft">
                                 <i className='icon menu'></i>
                             </Popover>
                         }

@@ -5,7 +5,7 @@ import immutable from 'immutable';
 // @ts-ignore
 import TRTCElectronVideoCast from '@/sdk/trtc-electron-videocast';
 // @ts-ignore
-import { getTableData } from '@/services/common';
+import { getTableData, sendHeartBeat } from '@/services/common';
 
 const initialState = {
   TRTCCloud: TRTCElectronVideoCast,
@@ -19,9 +19,10 @@ export default {
   namespace: 'system',
   state: immutable.fromJS(initialState),
   subscriptions: {
-    setup() {},
+    setup() { },
   },
   effects: {
+    // 自动拉取表格数据
     *getTableData({ payload }: any, { call, put, select }: any) {
       const {
         data: { data, total },
@@ -48,6 +49,11 @@ export default {
         },
       });
     },
+
+    // 发送房间心跳
+    *sendHeartBeat({ payload }: any, { call }: any) {
+      yield call(sendHeartBeat, payload);
+    }
   },
 
   reducers: {

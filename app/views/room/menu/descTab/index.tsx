@@ -59,7 +59,7 @@ const DescTab = (props: PropsType) => {
             roomIntroduce.roomPrizeDtoList && roomIntroduce.roomPrizeDtoList.length ? <div className="wrap-item gift">
                 <h2>参与有奖</h2>
                 <div className="gift-area">
-                    {roomIntroduce.roomPrizeDtoList.map((gift: any) => <dl className="gift-item">
+                    {roomIntroduce.roomPrizeDtoList.map((gift: any) => <dl key={Math.random()} className="gift-item">
                         <dt>
                             <img src={gift.prizeImageUrl} alt="奖品封面" />
                         </dt>

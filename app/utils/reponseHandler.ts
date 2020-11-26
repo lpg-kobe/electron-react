@@ -66,7 +66,7 @@ export function handleSuccess(handler: handleType, data?: any): any {
 }
 
 // handle width ajax error
-export function handleError(handler: handleType): any {
+export function handleError(handler: handleType, data?: any): any {
   if (handler && handler.onError) {
     Object.entries(handler.onError).forEach(([key, value]) => {
       const keyReact: ReactType = {
@@ -96,10 +96,10 @@ export function handleError(handler: handleType): any {
         },
       };
       keyReact[key] && typeof value === 'function'
-        ? value()
+        ? value(data)
         : keyReact[key]?.();
     });
   } else {
-    message.error('网络开小差了~~');
+    // message.error('网络开小差了~~');
   }
 }

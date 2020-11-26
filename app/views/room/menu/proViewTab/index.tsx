@@ -1,5 +1,5 @@
 /**
- * @desc 直播间产品展示
+ * @desc 直播间产品展示，暂不开发
  */
 'use strict'
 import React from 'react';

@@ -31,6 +31,7 @@ img[data-img="unloaded"] {
   display: none;
 }
 
+
 p,
 a,
 span,
@@ -135,7 +136,7 @@ textarea {
         margin: 14px 0 22px 14px;
         width: 18px;
         height: 15px;
-        background: url(~assets/img/room/i-face.webp) no-repeat center/100%;
+        background: url(~assets/img/room/i-img.webp) no-repeat center/100%;
 
         &.emoji {
           margin: 14px 0 20px 6px;
@@ -170,13 +171,25 @@ textarea {
 .icon-min-win {
   width: 30px;
   height: 30px;
-  background: url(~assets/img/login/i-min-win.webp) no-repeat center/14px 1px;
+  background: url(~assets/img/i-min-win.webp) no-repeat center/14px 1px;
+}
+
+.icon-max-win {
+  width: 30px;
+  height: 30px;
+  background: url(~assets/img/i-max-win.webp) no-repeat center/14px 14px;
 }
 
 .icon-close-win {
   width: 30px;
   height: 30px;
-  background: url(~assets/img/login/i-close-win.webp) no-repeat center/14px 14px;
+  background: url(~assets/img/i-close-win.webp) no-repeat center/14px 14px;
+}
+
+.icon-share-win {
+  width: 30px;
+  height: 30px;
+  background: url(~assets/img/i-share.webp) no-repeat center/14px 14px;
 }
 
 .main-container {
@@ -214,7 +227,7 @@ textarea {
     content: ' ';
     width: 12px;
     height: 12px;
-    background: url(~assets/img/login/i-tips.webp) no-repeat left center/100%;
+    background: url(~assets/img/i-tips.webp) no-repeat left center/100%;
   }
 }
 
@@ -272,6 +285,35 @@ textarea {
   width: 6px
 }
 
+// 公用button样式
+.ofweek-btn {
+  border-radius: 2px;
+  background: @color;
+  color: #fff;
+  text-align: center;
+  min-height: unset;
+  height: 32px;
+  line-height: 32px;
+
+  &.gradient {
+    border-radius: 17px;
+    height: 34px;
+    line-height: 34px;
+    box-shadow: 0px 2px 5px 0px rgba(40, 142, 234, 0.5);
+    background: linear-gradient(0deg, #2691E9, #2D83EE);
+  }
+
+  &.middle {
+    height: 34px;
+    line-height: 34px;
+  }
+
+  &.big {
+    height: 36;
+    line-height: 36px;
+  }
+}
+
 // 公用modal样式
 .ofweek-modal {
 
@@ -281,7 +323,7 @@ textarea {
 
   &.big {
     .ant-modal-body {
-      max-height: calc(100vh - @headerHeight - @menuHeight - @footerHeight);
+      max-height: calc(100vh - @headerHeight - @menuHeight - @footerHeight - @modalTitleHeight);
       overflow: hidden;
     }
 
@@ -353,6 +395,7 @@ textarea {
 
 }
 
+// 公用modal标题
 .ofweek-modal-title {
   position: relative;
   padding-left: 13px;
@@ -380,5 +423,36 @@ textarea {
     height: 16px;
     border-radius: 2px;
     background: #AF0101;
+  }
+}
+
+// pop气泡样式
+.ant-popover {
+
+  &.ant-popover-placement-bottom>.ant-popover-content>.ant-popover-arrow,
+  &.ant-popover-placement-bottomLeft>.ant-popover-content>.ant-popover-arrow,
+  &.ant-popover-placement-bottomRight>.ant-popover-content>.ant-popover-arrow {
+    border-top-color: rgba(0, 0, 0, 0.8);
+    border-left-color: rgba(0, 0, 0, 0.8);
+  }
+
+  .ant-popover-inner {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+
+  .ant-popover-inner-content {
+    padding: 0 18px 0 10px;
+
+    .msg-menu-item {
+      height: 36px;
+      line-height: 36px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #999999;
+
+      &:hover {
+        color: #fff;
+      }
+    }
   }
 }

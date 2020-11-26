@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'dva';
 import { withRouter } from 'dva/router';
 // @ts-ignore
@@ -16,7 +16,9 @@ import TrtcElectronVideocast from '@/sdk/trtc-electron-videocast'
 import { SDK_APP_ID } from '@/constants'
 // @ts-ignore
 import { MAIN_EVENT, rendererSend, closeWindow } from '@/utils/ipc'
-import { message, Modal } from 'antd'
+// @ts-ignore
+import { loopToInterval } from '@/utils/tool'
+import { message, Modal, Button } from 'antd'
 import './style.less';
 
 
@@ -37,10 +39,13 @@ type MsgReceiveType = {
 let rtcClient: any = null
 
 function RoomInfo(props: PropsType) {
-  const { dispatch, auth: { userInfo: { userSig, imAccount } }, match: { params: { id: roomId } }, chat: { list: chatList, qaaList, memberList }, detail: { imgTextList } } = props
+  const { dispatch, auth: { userInfo: { userSig, imAccount } }, match: { params: { id: roomId } }, chat: { list: chatList, qaaList, memberList }, detail: { imgTextList }, room: { roomInfo } } = props
 
   useEffect(() => {
-    // handleKickedOut()
+    // 进直播间就发送心跳 
+    let timer: any = null
+    timer = loopToInterval(sendHeartBeat, timer)
+
     if (!rtcClient) {
       rtcClient = new TrtcElectronVideocast({
         sdkAppId: SDK_APP_ID,
@@ -63,10 +68,10 @@ function RoomInfo(props: PropsType) {
       // })
     }
     return () => {
-      rtcClient.tim.logout()
-      rtcClient.trtcInstance.destroy()
       rtcClient = null
       unBindEvent()
+      clearTimeout(timer)
+      timer = null
     }
   }, [])
 
@@ -81,6 +86,25 @@ function RoomInfo(props: PropsType) {
     }
   }, [chatList, qaaList, imgTextList])
 
+  const initialHeaderBtns = [
+    <Button className="ofweek-btn gradient" onClick={() => handleHeaderClick('start')} key={Math.random()}>开始直播</Button>,
+    <Button onClick={() => handleHeaderClick('stop')} key={Math.random()}>下麦</Button>,
+    <a onClick={() => handleHeaderClick('stop')} className="media-setting-btn">媒体设置</a>
+  ]
+  const [headerBtns, setHeaderBtns] = useState(initialHeaderBtns)
+
+  function handleHeaderClick(type: string) {
+    const actionObj: any = {
+      'start': () => {
+        debugger
+      },
+      'stop': () => {
+
+      }
+    }
+    actionObj[type] && actionObj[type]()
+  }
+
   function handleError(event: { data: { errmsg: string; errcode: number; } }) {
     message.error(event.data.errmsg + event.data.errcode);
   }
@@ -90,22 +114,43 @@ function RoomInfo(props: PropsType) {
   }
 
   function handleKickedOut() {
-    Modal.confirm({
+    Modal.warn({
       centered: true,
       content: '您的账号在其它设备登录，您已下线',
       title: '提示',
-      onOk: () => rendererSend(MAIN_EVENT.MAIN_CLOSE_TOLOG)
+      onOk: () => rendererSend(MAIN_EVENT.MAIN_CLOSE_TOLOG),
+      onCancel: () => rendererSend(MAIN_EVENT.MAIN_CLOSE_TOLOG)
     })
   }
 
+  /** 发送房间心跳保持连接 */
+  function sendHeartBeat() {
+    dispatch({
+      type: 'system/sendHeartBeat',
+      payload: {
+        params: {
+          memberId: imAccount,
+          roomId,
+          time: new Date()
+        },
+        onError: {
+          operate: () => {
+            // 下麦结束推流，todo..
+          }
+        }
+      }
+    })
+  }
+
+
   /**
- * @desc 键值对更改同个发送者所有消息状态 
- * @param {Array} filterList 过滤的数组 
- * @param {Array<Object<key:value>>} attrs 更改的属性集合
- * @param {String} id 比对id
- * @param {String} judgeKey 比对的键值
- * @param {String} updateKey 要更新state的key值
- */
+   * @desc 键值对更改同个发送者所有消息状态 
+   * @param {Array} filterList 过滤的数组 
+   * @param {Array<Object<key:value>>} attrs 更改的属性集合
+   * @param {String} id 比对id
+   * @param {String} judgeKey 比对的键值
+   * @param {String} updateKey 要更新state的key值
+   */
   function handleUpdateMsg(filterList: Array<any>, attrs: Array<any>, id: any, judgeKey: string, updateKey: string) {
     dispatch({
       type: 'chat/save',
@@ -389,7 +434,22 @@ function RoomInfo(props: PropsType) {
 
   return <>
     <div className="flex room-page-container">
-      <CommonHeader className="room-page-header" />
+      <CommonHeader
+        className="room-page-header"
+        headerProps={[
+          { key: 'title', value: roomInfo && roomInfo.name },
+          { key: 'button', value: headerBtns }
+        ]}
+        titleBarProps={[{
+          type: 'share'
+        }, {
+          type: 'min'
+        }, {
+          type: 'max'
+        }, {
+          type: 'close'
+        }]}
+      />
       <main>
         <section className="section-wrap-l"></section>
         <section className="section-wrap-m">

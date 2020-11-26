@@ -8,7 +8,7 @@ import { withRouter } from 'dva/router';
 // @ts-ignore
 import Editor from '@/components/editor'
 // @ts-ignore
-import { scrollElement, tottle, rqaToGetElePos } from '@/utils/tool'
+import { scrollElement, tottle, rqaToGetElePos, filterBreakWord } from '@/utils/tool'
 // @ts-ignore
 import { FACE_URL } from '@/constants'
 
@@ -48,7 +48,7 @@ function ActiveInfo(props: PropsType) {
     }, [chatScrollTop])
 
     function faceToHtml(content: any) {
-        return content.replace(faceRegExp, (word: any) => `<img src="${FACE_URL}${word}@2x.png" />`)
+        return filterBreakWord(content).replace(faceRegExp, (word: any) => `<img src="${FACE_URL}${word}@2x.png" />`)
     }
 
     // 滚动跟随屏幕帧率刷新
@@ -94,8 +94,8 @@ function ActiveInfo(props: PropsType) {
 
     // handle filter right menu of msg
     function handleFilterMenu(msg: any) {
-        const { role } = userStatus
-        const { role: msgRole } = msg
+        const { role, imAccount } = userStatus
+        const { senderId: msgOwner } = msg
         let menus = [{
             label: '删除聊天',
             value: 'delete',
@@ -121,20 +121,21 @@ function ActiveInfo(props: PropsType) {
         menus = menus.filter((menu: any) => msg.isForbit === 1 ? menu.value !== 'forbit' : menu.value !== 'cancelForbit')
 
         // 身份筛选消息菜单
+        const isUserSelf = String(msgOwner) === String(imAccount)
         let menuMap: any = {
             // 主播
-            1: msgRole === 1 ? menus.filter(item => item.value === 'delete') : menus,
+            1: isUserSelf ? menus.filter(item => item.value === 'delete') : menus,
             // 嘉宾
-            2: msgRole === 2 ? menus.filter(item => item.value === 'delete') : menus.filter(item => item.value === 'reply')
+            2: isUserSelf ? menus.filter(item => item.value === 'delete') : menus.filter(item => item.value === 'reply')
         }
 
-        return <ul>
-            {
-                menuMap[role] && menuMap[role].map((menu: any) => <li className="msg-menu-item" key={menu.value} onClick={() => handleMsgClick({ ...menu, ...msg })}>
+        const userRowMenus = menuMap[role]
+        return userRowMenus && userRowMenus.length ?
+            <ul>
+                {userRowMenus.map((menu: any) => <li className="msg-menu-item" key={menu.value} onClick={() => handleMsgClick({ ...menu, ...msg })}>
                     {menu.label}
-                </li>)
-            }
-        </ul>
+                </li>)}
+            </ul> : null
     }
 
     // handle click menu of msg
@@ -243,7 +244,7 @@ function ActiveInfo(props: PropsType) {
                 {
                     chatList.map((msg: any, index: number) =>
                         true ? <div className="wrap-item" key={index} id={`msg-${msg.msgId}`}>
-                            <Popover content={handleFilterMenu(msg)}>
+                            <Popover content={handleFilterMenu(msg)} arrowPointAtCenter placement="bottom">
                                 <label className={msg.role === 1 || msg.role === 2 ? 'role' : ''}>
                                     {msg.nick}{msg.role === 1 || msg.role === 2 ? `  [${msg.identity}]` : null}
                                 </label>

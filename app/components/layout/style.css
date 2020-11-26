@@ -1,5 +1,6 @@
 #commonHeader {
   -webkit-app-region: drag;
+  cursor: move;
   padding: 0;
   display: flex;
   justify-content: space-between;
@@ -25,7 +26,7 @@
   font-size: 21px;
   margin: 17px 0 0 0;
 }
-#commonHeader .header-l > title {
+#commonHeader .header-l > .title {
   font-size: 16px;
   margin: 17px 0 0 19px;
   color: #1F1F1F;
@@ -34,6 +35,20 @@
   -webkit-app-region: no-drag;
   display: flex;
   align-items: center;
+}
+#commonHeader .header-r .media-setting-btn {
+  margin: 0 22px 0 0;
+  padding-left: 23px;
+  position: relative;
+}
+#commonHeader .header-r .media-setting-btn::before {
+  position: absolute;
+  content: ' ';
+  left: 0;
+  top: 0;
+  width: 17px;
+  height: 13px;
+  background: url(~assets/img/i-video.webp) no-repeat center / 100%;
 }
 #commonHeader .header-r .title-bar-container {
   display: flex;
@@ -44,15 +59,15 @@
   display: flex;
   align-items: center;
 }
-#commonHeader .header-r .title-bar-container .bar-r i {
+#commonHeader .header-r .title-bar-container .bar-r .icon {
   cursor: pointer;
   margin: 0 0 0 6px;
 }
-#commonHeader .header-r .title-bar-container .bar-r i.icon-min-win {
-  margin: 0;
+#commonHeader .header-r .title-bar-container .bar-r .icon:first-child {
+  margin-left: 0;
 }
-#commonHeader .header-r .title-bar-container .bar-r i.icon-close-win {
-  margin: 0 20px 0 6px;
+#commonHeader .header-r .title-bar-container .bar-r .icon:last-child {
+  margin-right: 20px;
 }
 #commonHeader .header-r .user-bar {
   display: flex;

@@ -1,6 +1,4 @@
 import { message } from 'antd';
-// @ts-ignore
-import { MAIN_EVENT, rendererSend } from '@/utils/ipc'
 
 /**
  * @desc common request of fetch
@@ -8,10 +6,13 @@ import { MAIN_EVENT, rendererSend } from '@/utils/ipc'
  */
 const fetch = require('dva/fetch');
 const { API_HOST } = require('@/constants');
+// @ts-ignore
+import { MAIN_EVENT, rendererSend } from '@/utils/ipc'
 const { handleSuccess, handleError } = require('./reponseHandler');
-const { removeUserSession } = require('./session');
+import { Modal } from 'antd'
+// const { removeUserSession } = require('./session');
 
-const expireValveDuration = 3e3; // 接口过期处理后多少秒内保持静默，默认3秒
+const expireValveDuration = 8e3; // 接口过期处理后多少秒内保持静默，默认8秒
 let expireValveOn = false; // 接口过期处理开关
 
 type HandlerType = {
@@ -83,21 +84,27 @@ export default function request(
     .then(checkStatus)
     .then(parseJSON)
     .then((data: any) => {
-      if ((data.code === -10 || data.code === -20 || data.code === -22) && !expireValveOn) {
-        // 会话已失效
-        message.error('登录已过期，请重新登录')
+      if (data.code !== 0 && !expireValveOn) {
         expireValveOn = true;
-        removeUserSession();
         setTimeout(() => {
-          rendererSend(MAIN_EVENT.MAIN_CLOSE_TOLOG)
           expireValveOn = false
         }, expireValveDuration)
-      } else if (data.code !== 0) {
+        // 登录过期
+        if (data.code === -10 || data.code === -20 || data.code === -22) {
+          // removeUserSession();
+          handleError(handler, data);
+          Modal.warn({
+            centered: true,
+            content: '您的账号在其它设备登录，您已下线',
+            title: '提示',
+            onOk: () => rendererSend(MAIN_EVENT.MAIN_CLOSE_TOLOG),
+            onCancel: () => rendererSend(MAIN_EVENT.MAIN_CLOSE_TOLOG)
+          })
+          return { status: false, data };
+        }
+        handleError(handler, data);
         message.error(data.message);
-        return {
-          status: false,
-          data,
-        };
+        return { status: false, data }
       }
 
       if (handler && handler.onSuccess) {

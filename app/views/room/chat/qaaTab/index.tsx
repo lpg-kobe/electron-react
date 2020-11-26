@@ -5,7 +5,7 @@ import React, { useState, useRef, useLayoutEffect, useEffect } from 'react';
 import { connect } from 'dva';
 import { withRouter } from 'dva/router';
 // @ts-ignore
-import { scrollElement, tottle, rqaToGetElePos } from '@/utils/tool'
+import { scrollElement, tottle, rqaToGetElePos, filterBreakWord } from '@/utils/tool'
 // @ts-ignore
 import Editor from '@/components/editor'
 import { Modal, Input, message, Button } from 'antd'
@@ -232,9 +232,9 @@ function QAndAInfo(props: PropsType) {
                                         }
                                     </label>
                                 </div>
-                                <p className="contain">
-                                    {item.content.replace(/\n/g, '<br>')}
-                                </p>
+                                <p className="contain" dangerouslySetInnerHTML={{
+                                    __html: filterBreakWord(item.content)
+                                }}></p>
                                 <div className="operate">
                                     {
                                         userStatus.role === 1 ? <a onClick={() => handleDelAnswer(item)}>删除</a> : null
@@ -253,11 +253,9 @@ function QAndAInfo(props: PropsType) {
                                                 }
                                             </label>
                                         </div>
-                                        <p className="contain">
-                                            {
-                                                answer.content.replace(/\n/g, '<br>')
-                                            }
-                                        </p>
+                                        <p className="contain" dangerouslySetInnerHTML={{
+                                            __html: filterBreakWord(answer.content)
+                                        }}></p>
                                         {
                                             String(userStatus.imAccount) === String(answer.senderId) || userStatus.role === 1 ? <div className="operate">
                                                 <a onClick={() => handleDelAnswer(answer)}> 删除</a>
@@ -291,12 +289,12 @@ function QAndAInfo(props: PropsType) {
             onOk={handleEditAnswer}>
             <div className="modal-line">
                 <label>[问题内容]</label>
-                <span>{curMsg.content}</span>
+                <span dangerouslySetInnerHTML={{ __html: filterBreakWord(curMsg.content) }}></span>
             </div>
             {
                 curMsg.answer && <div className="modal-line anchor">
                     <label>[我的解答]</label>
-                    <span>{curMsg.answer}</span>
+                    <span dangerouslySetInnerHTML={{ __html: filterBreakWord(curMsg.answer) }}></span>
                 </div>
             }
             <Input.TextArea className="modal-line textarea" placeholder="请输入内容" value={answerValue} onChange={({ target: { value } }: any) => setAnswerValue(value)} />
