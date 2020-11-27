@@ -154,13 +154,6 @@ export default {
             userStatus: data
           }
         })
-        // 初始化禁言状态
-        yield put({
-          type: 'chat/save',
-          payload: {
-            inputDisabled: data.isForbit === 1
-          }
-        })
       } else {
         // 进不了直播间就直接关闭窗口到直播列表
         setTimeout(() => {

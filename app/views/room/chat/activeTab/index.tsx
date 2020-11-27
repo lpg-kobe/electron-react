@@ -22,8 +22,14 @@ type PropsType = {
 function ActiveInfo(props: PropsType) {
     const [dataLoading, setDataLoading] = useState(true)
     const scrollRef: any = useRef(null)
-    const { chat: { list: chatList, hasMore: dataHasMore, chatScrollTop, inputValue }, dispatch, match: { params: { id: roomId } }, room: { userStatus } } = props
+    const {
+        chat: { list: chatList, hasMore: dataHasMore, chatScrollTop, inputValue },
+        dispatch,
+        match: { params: { id: roomId } },
+        room: { userStatus }
+    } = props
     const faceRegExp = /\[[a-zA-Z0-9\/\u4e00-\u9fa5]+\]/g
+    const userIsForbit = userStatus.isForbit === 1
 
     useLayoutEffect(() => {
         dispatch({
@@ -95,6 +101,10 @@ function ActiveInfo(props: PropsType) {
     // handle filter right menu of msg
     function handleFilterMenu(msg: any) {
         const { role, imAccount } = userStatus
+        // 用户禁言时隐藏所有菜单
+        if (userIsForbit) {
+            return null
+        }
         const { senderId: msgOwner } = msg
         let menus = [{
             label: '删除聊天',
@@ -244,11 +254,15 @@ function ActiveInfo(props: PropsType) {
                 {
                     chatList.map((msg: any, index: number) =>
                         true ? <div className="wrap-item" key={index} id={`msg-${msg.msgId}`}>
-                            <Popover content={handleFilterMenu(msg)} arrowPointAtCenter placement="bottom">
-                                <label className={msg.role === 1 || msg.role === 2 ? 'role' : ''}>
-                                    {msg.nick}{msg.role === 1 || msg.role === 2 ? `  [${msg.identity}]` : null}
-                                </label>
-                            </Popover>
+                            {
+                                handleFilterMenu(msg) ? <Popover content={handleFilterMenu(msg)} arrowPointAtCenter placement="bottom">
+                                    <label className={msg.role === 1 || msg.role === 2 ? 'role' : ''}>
+                                        {msg.nick}{msg.role === 1 || msg.role === 2 ? `  [${msg.identity}]` : null}
+                                    </label>
+                                </Popover> : <label className={msg.role === 1 || msg.role === 2 ? 'role' : ''}>
+                                        {msg.nick}{msg.role === 1 || msg.role === 2 ? `  [${msg.identity}]` : null}
+                                    </label>
+                            }
                             <p dangerouslySetInnerHTML={{ __html: faceToHtml(msg.content) }}></p>
                         </div> : <div className="wrap-item notice" key={index} id={`msg-${msg.msgId}`}>{msg.nick}进入直播间</div>
                     )

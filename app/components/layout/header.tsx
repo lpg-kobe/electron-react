@@ -1,7 +1,7 @@
 /**
  * @desc common component of header
  */
-import React, { useState } from 'react';
+import React, { useState, ReactNode } from 'react';
 import { connect } from 'dva';
 import { Layout } from 'antd';
 import TitleBar from './titleBar'
@@ -23,13 +23,6 @@ const CommonHeader = (props: PropsType) => {
   const headerAvatar = headerProps.find((ele: any) => ele.key === 'avatar')
   const headerButtons: any = headerProps.find((ele: any) => ele.key === 'button')
 
-  function renderBtnComponent(btn: any) {
-    return function HooksCom() {
-      const BtnCom = btn
-      return <BtnCom />
-    }
-  }
-
   return <>{userInfo ? <><Header id="commonHeader" className={props.className || ""}>
     <div className="header-l">
       <i className="logo"></i>
@@ -40,7 +33,7 @@ const CommonHeader = (props: PropsType) => {
     </div>
     <div className="header-r">
       {
-        headerButtons && headerButtons.value.map((btn: any) => renderBtnComponent(btn))
+        headerButtons && headerButtons.value.map((btn: ReactNode) => btn)
       }
       {
         headerAvatar && <div className="user-bar">

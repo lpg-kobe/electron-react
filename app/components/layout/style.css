@@ -1,3 +1,25 @@
+.limit {
+  white-space: nowrap;
+  word-break: keep-all;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.flex {
+  display: flex;
+}
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+}
+.flex-around {
+  display: flex;
+  justify-content: space-around;
+}
 #commonHeader {
   -webkit-app-region: drag;
   cursor: move;
@@ -36,8 +58,12 @@
   display: flex;
   align-items: center;
 }
-#commonHeader .header-r .media-setting-btn {
+#commonHeader .header-r .header-btn {
   margin: 0 22px 0 0;
+}
+#commonHeader .header-r .media-setting-btn {
+  font-size: 14px;
+  color: #595959;
   padding-left: 23px;
   position: relative;
 }
@@ -48,7 +74,7 @@
   top: 0;
   width: 17px;
   height: 13px;
-  background: url(~assets/img/i-video.webp) no-repeat center / 100%;
+  background: url(~assets/img/room/i-video.webp) no-repeat center / 100%;
 }
 #commonHeader .header-r .title-bar-container {
   display: flex;

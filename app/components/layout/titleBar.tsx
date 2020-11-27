@@ -1,7 +1,7 @@
 /**
  * @desc 公用标题栏组件
  */
-import React, { ReactNode } from 'react'
+import React, { ReactNode, useState } from 'react'
 import './style.less'
 // @ts-ignore
 import { isWindowMax, maxWindow, unMaxWindow, minWindow, closeWindow } from '@/utils/ipc'
@@ -13,6 +13,8 @@ type PropsTypes = {
 }
 
 export default function TitleBar(props: PropsTypes) {
+    const [fullScreen, setFullScreen] = useState(isWindowMax())
+
     /**
      * @desc handle click of titlebar btn
      * @param {String} type event type
@@ -22,11 +24,8 @@ export default function TitleBar(props: PropsTypes) {
         const btnReact: any = {
             'min': () => minWindow(),
             'max': () => {
-                if (isWindowMax()) {
-                    unMaxWindow()
-                } else {
-                    maxWindow()
-                }
+                fullScreen ? unMaxWindow() : maxWindow()
+                setFullScreen(!fullScreen)
             },
             'close': () => closeWindow()
         }

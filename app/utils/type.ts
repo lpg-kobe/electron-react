@@ -19,3 +19,11 @@ export type HeaderBtnType = {
 
 // layout头部按钮集群
 export type HeaderBtnsType = Array<HeaderBtnType>
+
+// sidebar 左侧菜单栏
+export type SidebarType = {
+    key: string,
+    value: any
+}
+
+export type SidebarsType = Array<SidebarType>

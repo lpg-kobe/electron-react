@@ -1,3 +1,5 @@
+@import '../../assets/style/mixin.less';
+
 #commonHeader {
   -webkit-app-region: drag;
   cursor: move;
@@ -40,9 +42,14 @@
     display: flex;
     align-items: center;
 
+    .header-btn {
+      margin: 0 22px 0 0;
+    }
+
     // 媒体设置
     .media-setting-btn {
-      margin: 0 22px 0 0;
+      font-size: 14px;
+      color: #595959;
       padding-left: 23px;
       position: relative;
 
@@ -53,7 +60,7 @@
         top: 0;
         width: 17px;
         height: 13px;
-        background: url(~assets/img/i-video.webp) no-repeat center/100%;
+        background: url(~assets/img/room/i-video.webp) no-repeat center/100%;
       }
     }
 

@@ -19,6 +19,20 @@ i {
   font-style: normal;
   display: inline-block;
   vertical-align: middle;
+
+  &.disabled {
+    cursor: not-allowed;
+    filter: grayscale(100%);
+    filter: gray;
+  }
+}
+
+a {
+  &.disabled {
+    cursor: not-allowed;
+    filter: grayscale(100%);
+    filter: gray;
+  }
 }
 
 img {
@@ -45,6 +59,12 @@ h5 {
   line-height: 1;
   margin: 0;
   padding: 0;
+
+  &.disabled {
+    cursor: not-allowed;
+    filter: grayscale(100%);
+    filter: gray;
+  }
 }
 
 .fl {
@@ -132,6 +152,12 @@ textarea {
       }
 
       i {
+        &.disabled {
+          cursor: not-allowed;
+          filter: grayscale(100%);
+          filter: gray;
+        }
+
         cursor: pointer;
         margin: 14px 0 22px 14px;
         width: 18px;
@@ -160,7 +186,6 @@ textarea {
       background: #E65E50;
 
       &.disabled {
-        pointer-events: none;
         cursor: not-allowed;
         background: rgba(0, 0, 0, 0.25);
       }
@@ -286,29 +311,150 @@ textarea {
 }
 
 // 公用button样式
+.ant-btn {
+  &.ofweek-btn {
+    cursor: pointer;
+    border-radius: 2px;
+    background-color: #fff;
+    color: #595959;
+    border-color: #595959;
+    text-align: center;
+    min-height: unset;
+    height: 32px;
+    line-height: 32px;
+    padding: 0;
+    min-width: 86px;
+
+    &:hover,
+    &:focus,
+    &:active {
+      background-color: #fff;
+      color: #595959;
+      border-color: #595959;
+    }
+  }
+}
+
 .ofweek-btn {
+  transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+  cursor: pointer;
   border-radius: 2px;
-  background: @color;
-  color: #fff;
+  background-color: #fff;
+  color: #595959;
+  border-color: #595959;
   text-align: center;
   min-height: unset;
   height: 32px;
   line-height: 32px;
+  padding: 0;
+  min-width: 86px;
+  font-size: 14px;
+
+  &:hover,
+  &:focus,
+  &:active {
+    background-color: #fff;
+    color: #595959;
+    border-color: #595959;
+  }
+
+  >span {
+    color: #595959;
+    font-size: 14px;
+  }
+
+  &.radius {
+    padding: 0;
+    border-radius: 17px;
+  }
+
+  &.primary {
+    padding: 0;
+    background-color: @color;
+    border-color: @color;
+    color: #fff;
+
+    &:hover,
+    &:focus,
+    &:active {
+      background-color: @hovColor;
+      color: #fff;
+      border-color: @hovColor;
+    }
+
+    >span {
+      color: #fff;
+    }
+  }
 
   &.gradient {
-    border-radius: 17px;
+    color: #fff;
+    padding: 0;
     height: 34px;
     line-height: 34px;
+    border-color: #2D83EE;
     box-shadow: 0px 2px 5px 0px rgba(40, 142, 234, 0.5);
+    background-color: unset;
     background: linear-gradient(0deg, #2691E9, #2D83EE);
+
+    &:hover,
+    &:focus,
+    &:active {
+      background: linear-gradient(0deg, @hovColor, @hovColor);
+      color: #fff;
+      border-color: @hovColor;
+    }
+
+    >span {
+      color: #fff;
+    }
+  }
+
+  &.gradient.danger {
+    color: #fff;
+    background-color: unset;
+    border-color: #F24F4F;
+    box-shadow: 0px 2px 5px 0px rgba(237, 65, 65, 0.5);
+    background: linear-gradient(0deg, #ED4040, #F24F4F);
+
+    &:hover,
+    &:focus,
+    &:active {
+      background: linear-gradient(0deg, @hovDangerColor, @hovDangerColor);
+      color: #fff;
+      border-color: @hovDangerColor;
+    }
+  }
+
+  &.danger {
+    padding: 0;
+    height: 34px;
+    line-height: 34px;
+    border-color: #E65E50;
+    color: #fff;
+    background-color: #E65E50;
+
+    &:hover,
+    &:focus,
+    &:active {
+      background-color: @hovDangerColor;
+      color: #fff;
+      border-color: @hovDangerColor;
+    }
+
+    >span {
+      color: #fff;
+    }
   }
 
   &.middle {
+    padding: 0;
     height: 34px;
     line-height: 34px;
   }
 
   &.big {
+    padding: 0;
     height: 36;
     line-height: 36px;
   }
@@ -321,10 +467,36 @@ textarea {
     cursor: move;
   }
 
+  &.small {
+    .ant-modal-header {
+      border-bottom: 0;
+      padding: 15px 20px;
+    }
+
+    .ant-modal-body {
+      max-height: unset;
+      padding: 0 20px;
+    }
+
+    .ant-modal-footer {
+      border: 0;
+      padding: 0 20px 30px 20px;
+
+      button {
+        margin-left: 20px;
+
+        &:first-child {
+          margin-left: 0;
+        }
+      }
+    }
+  }
+
   &.big {
     .ant-modal-body {
       max-height: calc(100vh - @headerHeight - @menuHeight - @footerHeight - @modalTitleHeight);
       overflow: hidden;
+      padding: 0 50px;
     }
 
     &:hover {
@@ -332,28 +504,25 @@ textarea {
         overflow-y: overlay;
       }
     }
-  }
 
-  .ant-modal-header {
-    border-bottom: 0;
-    padding: 24px 50px;
-  }
+    .ant-modal-header {
+      border-bottom: 0;
+      padding: 24px 50px;
+    }
 
-  .ant-modal-footer {
-    border: 0;
-    padding: 0 50px 50px 50px;
+    .ant-modal-footer {
+      border: 0;
+      padding: 0 50px 50px 50px;
 
-    button {
-      margin-left: 20px;
+      button {
+        margin-left: 20px;
 
-      &:first-child {
-        margin-left: 0;
+        &:first-child {
+          margin-left: 0;
+        }
       }
     }
-  }
 
-  .ant-modal-body {
-    padding: 0 50px;
   }
 
   // 上传卡片
@@ -452,6 +621,34 @@ textarea {
 
       &:hover {
         color: #fff;
+      }
+    }
+  }
+}
+
+// 公用switch样式
+.ant-switch {
+  &.ofweek-switch {
+    min-width: 36px;
+    height: 20px;
+    line-height: 20px;
+    border-radius: 10px;
+    background-color: #D9D9D9;
+
+    .ant-switch-handle {
+      width: 16px;
+      height: 16px;
+
+      &::before {
+        box-shadow: 2px 0px 5px 0px rgba(187, 187, 187, 0.5);
+      }
+    }
+
+    &.ant-switch-checked {
+      background-color: #4BC949;
+
+      .ant-switch-handle {
+        left: calc(100% - 16px - 2px);
       }
     }
   }

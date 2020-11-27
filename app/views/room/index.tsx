@@ -1,10 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { connect } from 'dva';
 import { withRouter } from 'dva/router';
 // @ts-ignore
 import CommonHeader from '@/components/layout/header';
 // @ts-ignore
 import CommonFooter from '@/components/layout/footer';
+// @ts-ignore
+import AForm from '@/components/form';
+// @ts-ignore
+import AModal from '@/components/modal';
+import SidebarInfo from './sidebar'
 import VideoInfo from './video'
 import ChatInfo from './chat'
 // @ts-ignore
@@ -18,7 +23,7 @@ import { SDK_APP_ID } from '@/constants'
 import { MAIN_EVENT, rendererSend, closeWindow } from '@/utils/ipc'
 // @ts-ignore
 import { loopToInterval } from '@/utils/tool'
-import { message, Modal, Button } from 'antd'
+import { message, Modal, Button, Form, Select } from 'antd'
 import './style.less';
 
 
@@ -39,7 +44,14 @@ type MsgReceiveType = {
 let rtcClient: any = null
 
 function RoomInfo(props: PropsType) {
-  const { dispatch, auth: { userInfo: { userSig, imAccount } }, match: { params: { id: roomId } }, chat: { list: chatList, qaaList, memberList }, detail: { imgTextList }, room: { roomInfo } } = props
+  const {
+    dispatch,
+    auth: { userInfo: { userSig, imAccount } },
+    match: { params: { id: roomId } },
+    chat: { list: chatList, qaaList, memberList },
+    detail: { imgTextList },
+    room: { roomInfo, userStatus }
+  } = props
 
   useEffect(() => {
     // 进直播间就发送心跳 
@@ -87,32 +99,110 @@ function RoomInfo(props: PropsType) {
   }, [chatList, qaaList, imgTextList])
 
   const initialHeaderBtns = [
-    <Button className="ofweek-btn gradient" onClick={() => handleHeaderClick('start')} key={Math.random()}>开始直播</Button>,
-    <Button onClick={() => handleHeaderClick('stop')} key={Math.random()}>下麦</Button>,
-    <a onClick={() => handleHeaderClick('stop')} className="media-setting-btn">媒体设置</a>
+    userStatus.role === 1 ? <Button className="ofweek-btn gradient danger radius header-btn" onClick={() => handleHeaderClick('start')} key="start">开始直播</Button> : null,
+    <Button className="ofweek-btn gradient primary radius header-btn" onClick={() => handleHeaderClick('stop')} key="stop">下麦</Button>,
+    <a key="setting" onClick={() => handleHeaderClick('setting')} className="media-setting-btn header-btn">媒体设置</a>
   ]
   const [headerBtns, setHeaderBtns] = useState(initialHeaderBtns)
+  const [typeSetShow, setTypeSetShow] = useState(false)
+  const [mediaSetShow, setMediaSetShow] = useState(false)
+  const [cameraList, setCameraList] = useState([])
+  const [micList, setMicList] = useState([])
+  const mediaThumbRef: any = useRef(null)
+  const [typeForm] = Form.useForm()
+  const [mediaForm] = Form.useForm()
 
+  // 直播方式设置
+  const typeFormOptions = {
+    options: {
+      form: typeForm,
+      name: 'typeSetting',
+      preserve: false,
+      initialValues: {
+        videoType: 'camera'
+      },
+      onFinish: handleTypeFormSubmit
+    },
+    items: [{
+      options: {
+        name: 'videoType'
+      },
+      component: <Select>
+        <Select.Option value='video'>摄像头直播</Select.Option>
+        <Select.Option value='camera'>摄像机直播</Select.Option>
+      </Select>
+    }]
+  }
+
+  // 直播媒体设置
+  const mediaFormOptions = {
+    options: {
+      form: mediaForm,
+      name: 'mediaSetting',
+      onFinish: handleMediaFormSubmit
+    },
+    items: [{
+      options: {},
+      component: <div className="media-thumb-box" ref={mediaThumbRef}></div>
+    }, {
+      options: {
+        name: 'cameraVal',
+        label: '摄像头'
+      },
+      component: <Select>
+        {
+          cameraList.map((camera: any) => <Select.Option value={camera.deviceId}>{camera.deviceName}</Select.Option>)
+        }
+      </Select>
+    }, {
+      options: {
+        name: 'micVal',
+        label: '麦克风'
+      },
+      component: <Select>
+        {
+          micList.map((mic: any) => <Select.Option value={mic.deviceId}>{mic.deviceName}</Select.Option>)
+        }
+      </Select>
+    }]
+  }
+
+  /** 直播方式设置表单提交 */
+  function handleTypeFormSubmit() { }
+
+  /** 直播媒体设置表单提交 */
+  function handleMediaFormSubmit() { }
+
+  /** 直播间头部菜单事件处理 */
   function handleHeaderClick(type: string) {
     const actionObj: any = {
       'start': () => {
-        debugger
+        typeForm.validateFields().then(({ videoType }: any) => {
+
+        })
+        setHeaderBtns(initialHeaderBtns.filter((btn: any) => btn.key !== 'start'))
       },
       'stop': () => {
-
+        setHeaderBtns(initialHeaderBtns.filter((btn: any) => btn.key !== 'stop'))
+      },
+      'setting': () => {
+        setMediaSetShow(!mediaSetShow)
       }
     }
     actionObj[type] && actionObj[type]()
   }
 
+  /** IM-SDK 异常 */
   function handleError(event: { data: { errmsg: string; errcode: number; } }) {
     message.error(event.data.errmsg + event.data.errcode);
   }
 
+  /** IM-SDK 提示 */
   function handleWarning(event: { data: { errmsg: string; errcode: string; } }) {
     message.warning(event.data.errmsg + event.data.errcode)
   }
 
+  /** IM-SDK 强制下线 */
   function handleKickedOut() {
     Modal.warn({
       centered: true,
@@ -141,7 +231,6 @@ function RoomInfo(props: PropsType) {
       }
     })
   }
-
 
   /**
    * @desc 键值对更改同个发送者所有消息状态 
@@ -174,6 +263,7 @@ function RoomInfo(props: PropsType) {
     })
   }
 
+  /** 房间所有socket推送消息 */
   function handleMsgReceive({ data: messageData }: MsgReceiveType) {
     try {
       for (let i = 0, len = messageData.length; i < len; i++) {
@@ -345,17 +435,23 @@ function RoomInfo(props: PropsType) {
               if (payloadData.type === 1) {
                 message.warning('对不起，您已被禁言')
                 dispatch({
-                  type: 'chat/save',
+                  type: 'room/save',
                   payload: {
-                    inputDisabled: true
+                    userStatus: {
+                      ...userStatus,
+                      isForbit: 1
+                    }
                   }
                 })
               } else if (payloadData.type === 2) {
                 message.success('您已被解除禁言')
                 dispatch({
-                  type: 'chat/save',
+                  type: 'room/save',
                   payload: {
-                    inputDisabled: false
+                    userStatus: {
+                      ...userStatus,
+                      isForbit: 2
+                    }
                   }
                 })
               }
@@ -416,6 +512,7 @@ function RoomInfo(props: PropsType) {
     } catch (e) { }
   }
 
+  /** IM-SDK 事件绑定 */
   function bindEvent(rtcClient: any) {
     const EVENT = rtcClient.EVENT;
     rtcClient.on(EVENT.ERROR, handleError)
@@ -424,6 +521,7 @@ function RoomInfo(props: PropsType) {
     rtcClient.on(EVENT.KICKED_OUT, handleKickedOut)
   }
 
+  /** IM-SDK 事件解绑 */
   function unBindEvent() {
     const EVENT = rtcClient.EVENT;
     rtcClient.off(EVENT.ERROR, handleError)
@@ -451,7 +549,9 @@ function RoomInfo(props: PropsType) {
         }]}
       />
       <main>
-        <section className="section-wrap-l"></section>
+        <section className="section-wrap-l">
+          <SidebarInfo />
+        </section>
         <section className="section-wrap-m">
           <VideoInfo />
           <MenuInfo />
@@ -460,6 +560,33 @@ function RoomInfo(props: PropsType) {
           <ThumbInfo />
           <ChatInfo />
         </section>
+
+        {/* 开始上麦直播时的直播设置，重新进到直播间之前都会沿用选中的直播方式 */}
+        <AModal
+          width={380}
+          footer={[
+            <Button type="primary">保存</Button>
+          ]}
+          visible={typeSetShow}
+          title={<h1 className="ofweek-modal-title">直播设置</h1>}
+          className="ofweek-modal small"
+        >
+          <AForm {...typeFormOptions} />
+        </AModal>
+
+        {/* 媒体预览设置，可在直播时重新选择设备并推流 */}
+        <AModal
+          width={380}
+          footer={[
+            <Button key={Math.random()}>刷新设备</Button>,
+            <Button key={Math.random()} type="primary">确定</Button>
+          ]}
+          visible={mediaSetShow}
+          title={<h1 className="ofweek-modal-title">媒体设置</h1>}
+          className="ofweek-modal small"
+        >
+          <AForm {...mediaFormOptions} />
+        </AModal>
       </main>
       <CommonFooter />
     </div>

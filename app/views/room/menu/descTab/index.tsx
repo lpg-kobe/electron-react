@@ -42,7 +42,9 @@ const DescTab = (props: PropsType) => {
                             {
                                 item.memberList.map((member: any) => <dl key={member.memberLogoUrl}>
                                     <dt>
-                                        <img src={member.memberLogoUrl} alt="用户头像" />
+                                        {
+                                            member.memberLogoUrl ? <img src={member.memberLogoUrl} alt="用户头像" /> : <img src="assets/img/i-avatar-big.webp" alt="默认头像" />
+                                        }
                                     </dt>
                                     <dd>
                                         <h3>{member.memberName} - {member.memberCompany} / {member.memberJob}</h3>

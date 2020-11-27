@@ -24,15 +24,18 @@ type PropsType = {
 
 const ImgTextTab = (props: PropsType) => {
     const { detail: { imgTextList, imgTextHasMore, imgTextLoading }, room: { userStatus }, dispatch, match: { params: { id: roomId } } } = props
-    const initImgText: any = {
-        imageVoList: []
-    }
+    const userIsForbit = userStatus.isForbit === 1
+
     const [inputValue, setInputValue] = useState('')
     const [reviewShow, setReviewShow] = useState(false)
     const [editShow, setEditShow] = useState(false)
     const [uploadShow, setUploadShow] = useState(false)
     const [fileList, setFileList] = useState([])
-    const [curImgText, setCurImgText] = useState(initImgText)
+    const [curImgText, setCurImgText] = useState({
+        imageVoList: [],
+        msgId: 0,
+        text: ''
+    })
 
     useEffect(() => {
         const scrollDom: any = document.querySelector('.ofweek-modal.img-text .ant-modal-body')
@@ -225,7 +228,7 @@ const ImgTextTab = (props: PropsType) => {
 
     return (<div className="tab-container img-text">
         <div className="wrap-operate">
-            <Input.TextArea className="input-line" maxLength={1000} placeholder="" value={inputValue} onChange={({ target: { value } }: any) => setInputValue(value)}>
+            <Input.TextArea className="input-line" maxLength={1000} placeholder={userIsForbit ? "您已被禁言" : ""} value={inputValue} onChange={({ target: { value } }: any) => setInputValue(value)} disabled={userIsForbit}>
             </Input.TextArea>
             <div className="operate-line">
                 <div className="line-l">
@@ -234,9 +237,9 @@ const ImgTextTab = (props: PropsType) => {
                     </label>
                 </div>
                 <div className="line-r">
-                    <Button onClick={handleOpenUpload}>上传图片</Button>
+                    <Button onClick={handleOpenUpload} disabled={userIsForbit}>上传图片</Button>
                     <Button type="primary" disabled={!inputValue && !fileList.length} onClick={handleOpenReview}>预览</Button>
-                    <Button type="primary" danger disabled={!inputValue && !fileList.length} onClick={() => handleSubmit(0)}>发布</Button>
+                    <Button type="primary" danger disabled={!inputValue && !fileList.length || userIsForbit} onClick={() => handleSubmit(0)}>发布</Button>
                 </div>
             </div>
         </div>
@@ -247,10 +250,12 @@ const ImgTextTab = (props: PropsType) => {
                         imgTextList.map((item: any) => <li key={Math.random()} className="wrap-item">
                             <div className="item-t">
                                 <label>{moment(item.createDate).format('HH:mm:ss YYYY-MM-DD')}</label>
-                                <div className="flex">
-                                    <i className="icon edit" onClick={() => handleOpenEdit(item)}></i>
-                                    <i className="icon del" onClick={() => handleOpenDel(item)}></i>
-                                </div>
+                                {
+                                    (String(userStatus.imAccount) === String(item.senderId) || userStatus.role === 1) && <div className="flex">
+                                        <i className="icon edit" onClick={() => handleOpenEdit(item)}></i>
+                                        <i className="icon del" onClick={() => handleOpenDel(item)}></i>
+                                    </div>
+                                }
                             </div>
                             <div className="item-b">
                                 {
@@ -326,7 +331,7 @@ const ImgTextTab = (props: PropsType) => {
             }
             footer={[
                 <Button key={Math.random()} onClick={() => setReviewShow(false)}>继续编辑</Button>,
-                <Button key={Math.random()} type="primary" disabled={!inputValue && !fileList.length} onClick={() => handleSubmit(0)}>确认发布</Button>
+                <Button key={Math.random()} type="primary" disabled={!inputValue && !fileList.length || userIsForbit} onClick={() => handleSubmit(0)}>确认发布</Button>
             ]}
             visible={reviewShow}
             onCancel={() => setReviewShow(false)}
@@ -352,12 +357,12 @@ const ImgTextTab = (props: PropsType) => {
                 </h1>
             }
             footer={[
-                <Button key={Math.random()} type="primary" onClick={() => handleSubmit(1)} disabled={!curImgText.text && curImgText.imageVoList && !curImgText.imageVoList.length}>确认修改</Button>
+                <Button key={Math.random()} type="primary" onClick={() => handleSubmit(1)} disabled={!curImgText.text && curImgText.imageVoList && !curImgText.imageVoList.length || userIsForbit}>确认修改</Button>
             ]}
             visible={editShow}
             onCancel={() => setEditShow(false)}
         >
-            <Input.TextArea className="input-line" maxLength={1000} placeholder="" value={curImgText.text} onChange={({ target: { value } }: any) => setCurImgText({
+            <Input.TextArea disabled={userIsForbit} className="input-line" maxLength={1000} placeholder={userIsForbit ? "您已被禁言" : ""} value={curImgText.text} onChange={({ target: { value } }: any) => setCurImgText({
                 ...curImgText,
                 text: value
             })}>

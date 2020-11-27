@@ -21,7 +21,14 @@ type PropsType = {
 }
 
 function QAndAInfo(props: PropsType) {
-    const { chat: { qaaList, qaaHasMore: dataHasMore, qaaScrollTop }, dispatch, match: { params: { id: roomId } }, room: { userStatus } } = props
+    const {
+        chat: { qaaList, qaaHasMore: dataHasMore, qaaScrollTop },
+        dispatch,
+        match: { params: { id: roomId } },
+        room: { userStatus }
+    } = props
+
+    const userIsForbit = userStatus.isForbit === 1
 
     const [dataLoading, setDataLoading] = useState(true)
     const [answerShow, setAnswerShow] = useState(false)
@@ -237,9 +244,9 @@ function QAndAInfo(props: PropsType) {
                                 }}></p>
                                 <div className="operate">
                                     {
-                                        userStatus.role === 1 ? <a onClick={() => handleDelAnswer(item)}>删除</a> : null
+                                        userStatus.role === 1 ? <a onClick={() => !userIsForbit && handleDelAnswer(item)} className={userIsForbit ? 'disabled' : ''} title={userIsForbit ? "您已被禁言" : ""}>删除</a> : null
                                     }
-                                    <a className="active" onClick={() => { handleShowAnswer(item) }}>文字答疑</a>
+                                    <a onClick={() => !userIsForbit && handleShowAnswer(item)} className={`active${userIsForbit ? ' disabled' : ''}`} title={userIsForbit ? "您已被禁言" : ""}>文字答疑</a>
                                 </div>
                             </div>
                             {
@@ -258,8 +265,8 @@ function QAndAInfo(props: PropsType) {
                                         }}></p>
                                         {
                                             String(userStatus.imAccount) === String(answer.senderId) || userStatus.role === 1 ? <div className="operate">
-                                                <a onClick={() => handleDelAnswer(answer)}> 删除</a>
-                                                <a className="active" onClick={() => { handleShowAnswer(item, answer) }}>修改解答</a>
+                                                <a onClick={() => handleDelAnswer(answer)} className={userIsForbit ? 'disabled' : ''} title={userIsForbit ? "您已被禁言" : ""}> 删除</a>
+                                                <a className={`active${userIsForbit ? ' disabled' : ''}`} title={userIsForbit ? "您已被禁言" : ""} onClick={() => !userIsForbit && handleShowAnswer(item, answer)}>修改解答</a>
                                             </div> : null
                                         }
                                     </div>)

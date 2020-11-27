@@ -30,14 +30,15 @@ const Editor = (props: PropsType) => {
 
     const {
         dispatch,
-        chat: { list, inputValue, inputDisabled },
+        chat: { inputValue },
         room: {
             roomInfo: { id: roomId },
-            userStatus: { imAccount, role, identity }
+            userStatus: { imAccount, isForbit }
         },
         menuList,
         placeholder
     } = props
+    const userIsForbit = isForbit === 1
 
     const [faceShow, setFaceShow] = useState(false)
 
@@ -49,18 +50,9 @@ const Editor = (props: PropsType) => {
         setFaceShow(false)
     }
 
-    // handle format msg
-    function handleFormatMsg(msg: any) {
-        return {
-            ...msg,
-            role,
-            identity,
-        }
-    }
-
     // handle send msg
     function handleSendMsg() {
-        if (!inputValue) {
+        if (!inputValue || userIsForbit) {
             return
         }
 
@@ -96,6 +88,9 @@ const Editor = (props: PropsType) => {
 
     // handle menu click of edotor
     function handleMenuClick({ label }: any) {
+        if (userIsForbit) {
+            return
+        }
         const menuAction: any = {
             'emoji': () => {
                 setFaceShow(!faceShow)
@@ -130,11 +125,11 @@ const Editor = (props: PropsType) => {
 
     return (
         <div className="editor-container">
-            <Input.TextArea placeholder={inputDisabled ? '您已被禁言' : placeholder || '一起聊天互动吧~~'} className="text-area" onChange={({ target: { value } }) => handleInputChange(value)} maxLength={1000} value={inputValue} disabled={inputDisabled} />
+            <Input.TextArea placeholder={userIsForbit ? '您已被禁言' : placeholder || '一起聊天互动吧~~'} className="text-area" onChange={({ target: { value } }) => handleInputChange(value)} maxLength={1000} value={inputValue} disabled={userIsForbit} />
             <div className="operate-area flex-between">
                 <div className="tool">
                     {
-                        menuList && menuList.map((menu: any) => <i key={menu.label} className={`icon ${menu.label}`} data-alt={menu.label} onClick={() => handleMenuClick(menu)}></i>)
+                        menuList && menuList.map((menu: any) => <i key={menu.label} className={`icon ${menu.label}${userIsForbit ? " disabled" : ""}`} data-alt={menu.label} onClick={() => handleMenuClick(menu)} title={userIsForbit ? "您已被禁言" : ""}></i>)
                     }
                     {
                         faceShow ? <div className="face-box">
@@ -149,7 +144,7 @@ const Editor = (props: PropsType) => {
                         </div> : null
                     }
                 </div>
-                <a onClick={handleSendMsg} className={`send-btn${!inputValue ? ' disabled' : ''}`}>发送</a>
+                <a onClick={handleSendMsg} className={`send-btn${!inputValue || userIsForbit ? ' disabled' : ''}`} title={userIsForbit ? "您已被禁言" : "一起互动聊天吧~~"}>发送</a>
             </div>
         </div>
     )

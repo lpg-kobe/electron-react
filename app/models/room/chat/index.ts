@@ -26,8 +26,6 @@ type YieldType = {
 const inititalState = immutable.fromJS({
     // 互动文本框内容
     inputValue: '',
-    // 互动文本禁用状态
-    inputDisabled: false,
     // 互动区聊天列表
     list: [],
     // 互动区是否有更多数据
