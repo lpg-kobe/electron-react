@@ -67,7 +67,7 @@ export function tottle(fn: any) {
  * @param {HTMLElement} dom 监听的dom节点
  * @param {Function} callback 回调函数
  */
-export function rqaToGetElePos(dom: HTMLElement | string, callback?: any) {
+export function nextTick(dom: HTMLElement | string, callback?: any) {
   const realDom: any = typeof (dom) === 'string' ? document.querySelector(dom) : dom
   if (!realDom.nodeType) {
     throw new Error(`target of ${realDom} is not an HTMLElement`)

@@ -7,6 +7,7 @@ import AForm from '@/components/form';
 // @ts-ignore
 import TitleBar from '@/components/layout/titleBar';
 import { Form, Input, Button, Row, Checkbox, message } from 'antd';
+import { shell } from 'electron'
 // @ts-ignore
 import { setStore, getStore, removeStore } from '@/utils/tool';
 import {
@@ -14,7 +15,7 @@ import {
   // @ts-ignore
 } from '@/utils/session';
 // @ts-ignore
-import { setWindowSize, MAIN_EVENT } from '@/utils/ipc';
+import { setWindowSize } from '@/utils/ipc';
 import './style.less';
 
 type PropsType = {
@@ -36,7 +37,7 @@ function Login(props: PropsType) {
   const formOptions = {
     options: {
       name: 'loginForm',
-      preserve: false,
+      // preserve: false,
       form,
       onFinish: handleSubmit,
       initialValues: getStore('userAccount') ? {
@@ -125,13 +126,20 @@ function Login(props: PropsType) {
             valuePropName: 'checked'
           },
           component: smsLogin ? null : <Checkbox>记住密码</Checkbox>
-        }, {
+        },
+        {
           options: {},
-          component: <a href="https://live.ofweek.com" className="ofweek-link">申请直播</a>
-        }],
+          component: <a className="ofweek-link" onClick={handleOpenWindow}>申请直播</a>
+        }
+        ],
       },
     ],
   };
+
+  /** 打开默认浏览器申请直播 */
+  function handleOpenWindow() {
+    shell.openExternal('https://live.ofweek.com')
+  }
 
   /**
    * @desc format formitem to number
@@ -154,6 +162,7 @@ function Login(props: PropsType) {
   function handleLoginChange({ target: { dataset: { type } } }: any) {
     const smsType = type === 'sms'
     setSmsLogin(smsType);
+    // form.resetFields()
   }
 
   // handle submit form
@@ -172,14 +181,16 @@ function Login(props: PropsType) {
             message.success('登录成功');
             saveUserSession(data)
             setWindowSize()
-            // 账号密码登录成功后记录记住的密码
-            if (!smsLogin && form.getFieldValue('remember')) {
-              setStore('userAccount', {
-                account: values.account,
-                password: values.password,
-              })
-            } else {
-              removeStore('userAccount')
+            // 账号密码登录成功后记录记住的密码，目前只记住一个账号
+            if (!smsLogin) {
+              if (form.getFieldValue('remember')) {
+                setStore('userAccount', {
+                  account: values.account,
+                  password: values.password,
+                })
+              } else {
+                removeStore('userAccount')
+              }
             }
             history.push('/')
           },

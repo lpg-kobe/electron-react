@@ -78,6 +78,12 @@ function RoomInfo(props: PropsType) {
       //     }
       //   }), false, false)
       // })
+
+      // 获取用户设备信息
+      const mics = rtcClient.getMicList()
+      const cameras = rtcClient.getCameraList()
+      setMicList(mics)
+      setCameraList(cameras)
     }
     return () => {
       rtcClient = null
@@ -139,6 +145,12 @@ function RoomInfo(props: PropsType) {
     options: {
       form: mediaForm,
       name: 'mediaSetting',
+      initialValues: {
+        // @ts-ignore
+        cameraVal: cameraList[0] && cameraList[0].deviceId,
+        // @ts-ignore
+        micVal: micList[0] && micList[0].deviceId
+      },
       onFinish: handleMediaFormSubmit
     },
     items: [{
@@ -151,7 +163,7 @@ function RoomInfo(props: PropsType) {
       },
       component: <Select>
         {
-          cameraList.map((camera: any) => <Select.Option value={camera.deviceId}>{camera.deviceName}</Select.Option>)
+          cameraList.map((camera: any) => <Select.Option value={camera.deviceId} key={camera.deviceId}>{camera.deviceName}</Select.Option>)
         }
       </Select>
     }, {
@@ -161,7 +173,7 @@ function RoomInfo(props: PropsType) {
       },
       component: <Select>
         {
-          micList.map((mic: any) => <Select.Option value={mic.deviceId}>{mic.deviceName}</Select.Option>)
+          micList.map((mic: any) => <Select.Option value={mic.deviceId} key={mic.deviceId}>{mic.deviceName}</Select.Option>)
         }
       </Select>
     }]
@@ -186,6 +198,15 @@ function RoomInfo(props: PropsType) {
         setHeaderBtns(initialHeaderBtns.filter((btn: any) => btn.key !== 'stop'))
       },
       'setting': () => {
+        // 拿到预览窗口真实dom后开启预览摄像头
+        function rqaToGetDom() {
+          if (!mediaThumbRef.current) {
+            window.requestAnimationFrame(rqaToGetDom)
+          } else {
+            rtcClient && rtcClient.openCamera(mediaThumbRef.current)
+          }
+        }
+        rqaToGetDom()
         setMediaSetShow(!mediaSetShow)
       }
     }
@@ -569,6 +590,7 @@ function RoomInfo(props: PropsType) {
           ]}
           visible={typeSetShow}
           title={<h1 className="ofweek-modal-title">直播设置</h1>}
+          onCancel={() => setTypeSetShow(false)}
           className="ofweek-modal small"
         >
           <AForm {...typeFormOptions} />
@@ -582,7 +604,8 @@ function RoomInfo(props: PropsType) {
             <Button key={Math.random()} type="primary">确定</Button>
           ]}
           visible={mediaSetShow}
-          title={<h1 className="ofweek-modal-title">媒体设置</h1>}
+          title={<h1 className="ofweek-modal-title z2">媒体设置</h1>}
+          onCancel={() => setMediaSetShow(false)}
           className="ofweek-modal small"
         >
           <AForm {...mediaFormOptions} />

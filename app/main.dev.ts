@@ -11,12 +11,11 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import path from 'path';
-import chalk from 'chalk'
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, Menu, Tray } from 'electron';
 import { autoUpdater } from 'electron-updater';
 // @ts-ignore 
 import { MAIN_EVENT, RENDERER_EVENT, mainListen, mainHandle } from './utils/ipc';
-import { DEFAULT_WINDOW_CONFIG, DEFAULT_WINDOW_SIZE } from './constants'
+import { DEFAULT_WINDOW_CONFIG, DEFAULT_WINDOW_SIZE, APP_VERSION } from './constants'
 import log from 'electron-log';
 // import MenuBuilder from './menu';
 
@@ -67,6 +66,22 @@ const installExtensions = async () => {
   ).catch(console.log);
 };
 
+/** init app name or tray-menu after app ready */
+const initTool = () => {
+  // 应用设置
+  app.setAboutPanelOptions({
+    applicationName: 'OFweek直播',
+    applicationVersion: APP_VERSION
+  })
+  // 系统托盘
+  const tray = new Tray(getAssetPath('tray-icon.png'))
+  const contextMenu = Menu.buildFromTemplate([
+    { label: '退出', type: 'normal', role: 'quit' }
+  ])
+  tray.setToolTip('OFweek直播')
+  tray.setContextMenu(contextMenu)
+}
+
 /**
  * @desc init window once and register all event listener after electron app ready
  */
@@ -86,7 +101,6 @@ const initWindow = async () => {
   })
 
   createWindow(mainWindowKey, {
-    ...DEFAULT_WINDOW_CONFIG,
     icon: getAssetPath('icon.png'),
     show: false,
     url: `file://${__dirname}/app.html#/login`
@@ -112,8 +126,11 @@ const initWindow = async () => {
     Object.entries(totalWindow).forEach(([key, value]: any, index: number, arr: Array<any>) => {
       if (index === arr.length - 1) {
         // load login page here,or replace hashState of currentPage? @todo
-        value.setSize(DEFAULT_WINDOW_SIZE.LOGIN.width, DEFAULT_WINDOW_SIZE.LOGIN.height, true)
-        value.loadURL(`file://${__dirname}/app.html#/login`)
+        createWindow('loginWindow', {
+          url: `file://${__dirname}/app.html#/login`,
+          ...DEFAULT_WINDOW_SIZE.LOGIN
+        })
+        value.close()
       } else {
         value.close()
       }
@@ -126,7 +143,7 @@ const initWindow = async () => {
    * @param {config} config of new window
    */
   mainHandle(MAIN_EVENT.MAIN_OPEN_PAGE, async ({ sender: { history } }: any, { namespace, ...config }: any) => {
-    console.log(chalk.green(history, MAIN_EVENT.MAIN_OPEN_PAGE, '=>', JSON.stringify(config)))
+    console.log(history, MAIN_EVENT.MAIN_OPEN_PAGE, '=>', JSON.stringify(config))
     if (!namespace) {
       throw new Error("can not create new window without namespce, plaease try again with namespace key in your config")
     }
@@ -195,16 +212,23 @@ app.on('window-all-closed', () => {
 
 if (process.env.E2E_BUILD === 'true') {
   // @ts-ignore eslint-disable-next-line promise/catch-or-return
-  app.whenReady().then(initWindow);
+  app.whenReady().then(() => {
+    initTool()
+    initWindow()
+  });
 } else {
   // @ts-ignore
-  app.on('ready', initWindow);
+  app.on('ready', () => {
+    initTool()
+    initWindow()
+  });
 }
 
 app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (!Object.keys(totalWindow).length || !totalWindow) {
+    initTool()
     initWindow()
   };
 });

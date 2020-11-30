@@ -3,10 +3,12 @@
  */
 import React, { useState, ReactNode } from 'react';
 import { connect } from 'dva';
-import { Layout } from 'antd';
+import { Layout, Popover } from 'antd';
 import TitleBar from './titleBar'
 import './style.less';
 import { TitleMenusType, HeaderBtnsType } from '../../utils/type'
+// @ts-ignore
+import { rendererSend, MAIN_EVENT } from '@/utils/ipc';
 
 type PropsType = {
   auth: any, // state
@@ -23,7 +25,11 @@ const CommonHeader = (props: PropsType) => {
   const headerAvatar = headerProps.find((ele: any) => ele.key === 'avatar')
   const headerButtons: any = headerProps.find((ele: any) => ele.key === 'button')
 
-  return <>{userInfo ? <><Header id="commonHeader" className={props.className || ""}>
+  const headerMenuCtx = <ul>
+    <li className="popover-menu-item" onClick={() => rendererSend(MAIN_EVENT.MAIN_CLOSE_TOLOG)}>退出登录</li>
+  </ul>
+
+  return <ul>{userInfo ? <><Header id="commonHeader" className={props.className || ""}>
     <div className="header-l">
       <i className="logo"></i>
       <span>直播</span>
@@ -36,19 +42,21 @@ const CommonHeader = (props: PropsType) => {
         headerButtons && headerButtons.value.map((btn: ReactNode) => btn)
       }
       {
-        headerAvatar && <div className="user-bar">
-          <div className="avatar">
-            <img src={userInfo.logoUrl} alt="头像" data-img={imgError ? 'unloaded' : 'loaded'} onError={() => setImgError(true)} />
+        headerAvatar && <Popover arrowPointAtCenter placement="bottom" content={headerMenuCtx}>
+          <div className="user-bar">
+            <div className="avatar">
+              <img src={userInfo.logoUrl} alt="头像" data-img={imgError ? 'unloaded' : 'loaded'} onError={() => setImgError(true)} />
+            </div>
+            <span>
+              {userInfo.completeInfoDto.nick}
+            </span>
           </div>
-          <span>
-            {userInfo.completeInfoDto.nick}
-          </span>
-        </div>
+        </Popover>
       }
       <TitleBar titleBarProps={titleBarProps} />
     </div>
   </Header></> : null
-  }</>
+  }</ul>
 };
 export default connect(({ auth }: any) => ({ auth: auth.toJS() }))(
   CommonHeader

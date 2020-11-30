@@ -8,7 +8,7 @@ import { withRouter } from 'dva/router';
 // @ts-ignore
 import Editor from '@/components/editor'
 // @ts-ignore
-import { scrollElement, tottle, rqaToGetElePos, filterBreakWord } from '@/utils/tool'
+import { scrollElement, tottle, nextTick, filterBreakWord } from '@/utils/tool'
 // @ts-ignore
 import { FACE_URL } from '@/constants'
 
@@ -84,7 +84,7 @@ function ActiveInfo(props: PropsType) {
                     search: () => {
                         setDataLoading(false)
                         // dom元素位置更新后滚动至追加数据前第一条消息位置
-                        rqaToGetElePos(scrollRef.current, ({ scrollHeight }: any) => {
+                        nextTick(scrollRef.current, ({ scrollHeight }: any) => {
                             dispatch({
                                 type: 'chat/save',
                                 payload: {
@@ -142,7 +142,7 @@ function ActiveInfo(props: PropsType) {
         const userRowMenus = menuMap[role]
         return userRowMenus && userRowMenus.length ?
             <ul>
-                {userRowMenus.map((menu: any) => <li className="msg-menu-item" key={menu.value} onClick={() => handleMsgClick({ ...menu, ...msg })}>
+                {userRowMenus.map((menu: any) => <li className="popover-menu-item" key={menu.value} onClick={() => handleMsgClick({ ...menu, ...msg })}>
                     {menu.label}
                 </li>)}
             </ul> : null

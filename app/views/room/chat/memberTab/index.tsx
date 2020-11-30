@@ -83,7 +83,7 @@ function MemberInfo(props: PropsType) {
         return userRowMenus && userRowMenus.length ?
             <ul>
                 {
-                    userRowMenus.map((menu: any) => <li className="msg-menu-item" key={menu.value} onClick={() => handleMsgClick({ ...menu, ...item })}>
+                    userRowMenus.map((menu: any) => <li className="popover-menu-item" key={menu.value} onClick={() => handleMsgClick({ ...menu, ...item })}>
                         {menu.label}
                     </li>)
                 }
