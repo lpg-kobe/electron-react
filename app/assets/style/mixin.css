@@ -4,6 +4,11 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.break {
+  white-space: normal;
+  word-wrap: break-word;
+  word-break: break-word;
+}
 .flex {
   display: flex;
 }

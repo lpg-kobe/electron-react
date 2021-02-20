@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Windows>
+<!-- 进度 -->
+  <Font id="80" size="80" bold="true"/>
+   <VerticalLayout>
+   	<VerticalLayout width="480" height="250" roundcorner="5,5" bkcolor="#FFF2F2F2">
+	  <Label align="center" width="60" height="60" bkimage="public\bk\bk_logo.png" padding="209,78,0,0"></Label>
+	  <Label align="center" font="16" textcolor="#FF333333" text="OFweek直播客户端" padding="0,10,0,0"/>
+	</VerticalLayout>
+	<VerticalLayout bkcolor="#FFFFFFFF" >   
+	
+	<Control height="60" />
+	<Slider name="slrUnInstProgress" padding="30,0,30,0" height="3" mouse="false" foreimage="form\fg.png" bkimage="form\bg.png" thumbsize="0,0" bkcolor="#FFD8D8D8"  />
+	<HorizontalLayout height="20" padding="30,5,0,0">
+	<Label font="0" name="un_progress_tip" width="100" textcolor="#ff555555" text="正在卸载" />
+	<Control />
+	<Label font="0" name="un_progress_pos" width="60" textalign="right" textcolor="#ff555555" />
+	</HorizontalLayout>
+	<Control />
+	
+	</VerticalLayout>
+	</VerticalLayout>	
+</Windows>

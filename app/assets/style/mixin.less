@@ -6,7 +6,7 @@
 @viewportWidth: 100vw;
 @sidebarWidth: 90px;
 @menuHeight: 50px;
-@chatMenuHeight: 45px;
+@chatMenuHeight: 46px;
 @chatInputHeight: 150px;
 // 公用modal弹窗头部高度
 @modalTitleHeight: 64px;
@@ -22,6 +22,12 @@
   word-break: keep-all;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.break {
+  white-space: normal;
+  word-wrap: break-word;
+  word-break: break-word;
 }
 
 .limit(@line) {

@@ -9,13 +9,15 @@ import TitleBar from '@/components/layout/titleBar';
 import { Form, Input, Button, Row, Checkbox, message } from 'antd';
 import { shell } from 'electron'
 // @ts-ignore
-import { setStore, getStore, removeStore } from '@/utils/tool';
+import { setStore, getStore, removeStore, loopToInterval, judgeRouterUrl } from '@/utils/tool';
 import {
   saveUserSession
   // @ts-ignore
 } from '@/utils/session';
 // @ts-ignore
-import { setWindowSize } from '@/utils/ipc';
+import { rendererSend, rendererInvoke, MAIN_EVENT } from '@/utils/ipc';
+// @ts-ignore
+import { DEFAULT_WINDOW_SIZE } from '@/constants';
 import './style.less';
 
 type PropsType = {
@@ -26,10 +28,15 @@ type FormType = {
   [key: string]: any;
 };
 
+// close luanch-page after drawed this page
+window.setTimeout(() => {
+  rendererSend(MAIN_EVENT.MAIN_LOAD_READY)
+}, 2400)
+
 function Login(props: PropsType) {
+  const { dispatch } = props;
   const smsTotal: number = 60;
-  let smsInterVal: any = null;
-  const { dispatch, history } = props;
+  let smsTimer: any = null;
   const [form]: [FormType] = Form.useForm();
   const [smsText, setSmsText] = useState('获取验证码');
   const [smsBtnDisable, setSmsBtnDisable] = useState(true);
@@ -178,9 +185,31 @@ function Login(props: PropsType) {
           : values,
         onSuccess: {
           login: ({ data }: any) => {
+            if (data && data.isAuthorOrGuest === 0) {
+              message.error('您还不是主播，请点击右下方申请直播')
+              return
+            }
+
+            // 登录之后将之前上麦的房间挤下线并发送下麦广播
+            if (data && data.needOverRoomIds && data.needOverRoomIds.length) {
+              dispatch({
+                type: 'room/exitRoom',
+                payload: {
+                  params: {
+                    roomid: data.needOverRoomIds[0]
+                  },
+                  onSuccess: {
+                    offLine: () => { }
+                  },
+                  onError: {
+                    offLine: () => { }
+                  }
+                }
+              })
+            }
+
             message.success('登录成功');
             saveUserSession(data)
-            setWindowSize()
             // 账号密码登录成功后记录记住的密码，目前只记住一个账号
             if (!smsLogin) {
               if (form.getFieldValue('remember')) {
@@ -192,9 +221,15 @@ function Login(props: PropsType) {
                 removeStore('userAccount')
               }
             }
-            history.push('/')
+            rendererInvoke(MAIN_EVENT.MAIN_OPEN_PAGE, {
+              ...DEFAULT_WINDOW_SIZE.MAIN,
+              maximizable: false,
+              namespace: 'mainWindow',
+              closeNamespace: 'loginWindow',
+              url: judgeRouterUrl('')
+            }, () => { })
           },
-        },
+        }
       },
     });
   }
@@ -202,6 +237,7 @@ function Login(props: PropsType) {
   // send sms
   function handleSendSms() {
     const mobile = form.getFieldValue('phone');
+    handleSmsCount(Math.ceil(new Date().getTime() / 1000));
     dispatch({
       type: 'auth/sendSms',
       payload: {
@@ -230,12 +266,7 @@ function Login(props: PropsType) {
     if (time) {
       setStore('smsSendTime', time);
     }
-    if (smsInterVal) {
-      // 清除叠加的定时器
-      clearInterval(smsInterVal);
-      smsInterVal = null;
-    }
-    smsInterVal = setInterval(() => {
+    smsTimer = loopToInterval(() => {
       const now = Math.ceil(new Date().getTime() / 1000);
       // @ts-ignore
       const smsSendTime = getStore('smsSendTime') || now;
@@ -243,14 +274,14 @@ function Login(props: PropsType) {
       if (distance > 0) {
         setSmsText(`${distance}s后重新发送`);
         setSmsBtnDisable(true);
+        return true
       } else {
         setSmsText('获取验证码');
-        localStorage.removeItem('smsSendTime');
+        removeStore('smsSendTime');
         setSmsBtnDisable(false);
-        clearInterval(smsInterVal);
-        smsInterVal = null;
+        return false
       }
-    }, 1000);
+    }, smsTimer, 1000);
   }
 
   // handle phone change
@@ -280,7 +311,8 @@ function Login(props: PropsType) {
   );
 }
 export default withRouter(
-  connect(({ auth }: any) => ({
+  connect(({ auth, room }: any) => ({
     auth: auth.toJS(),
+    room: room.toJS()
   }))(Login)
 );

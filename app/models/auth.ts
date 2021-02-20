@@ -9,29 +9,7 @@ import { login, sendSms, smsLogin } from '@/services/auth';
 import {
   getUserSession,
   removeUserSession,
-  // @ts-ignore
-} from '@/utils/session';
-
-type ActionType = {
-  [key: string]: any;
-};
-
-type StateType = {
-  [key: string]: any;
-};
-
-type YieldType = {
-  [key: string]: any;
-};
-
-// type LocationType = {
-//     pathname: string;
-// };
-
-// type SetUpType = {
-//     history: any;
-//     dispatch: any;
-// };
+} from '../utils/session';
 
 const initialState = {
   userInfo: getUserSession(),
@@ -51,16 +29,16 @@ export default {
 
   effects: {
     // 账号密码登录
-    *login({ payload }: ActionType, { call }: YieldType) {
+    *login({ payload }: any, { call }: any) {
       yield call(login, payload);
     },
 
     // 验证码登录
-    *smsLogin({ payload }: ActionType, { call }: YieldType) {
+    *smsLogin({ payload }: any, { call }: any) {
       yield call(smsLogin, payload);
     },
 
-    *sendSms({ payload }: ActionType, { call }: YieldType) {
+    *sendSms({ payload }: any, { call }: any) {
       yield call(sendSms, payload);
     },
 
@@ -71,7 +49,7 @@ export default {
   },
 
   reducers: {
-    save(state: StateType, { payload }: ActionType) {
+    save(state: any, { payload }: any) {
       return state.merge(payload);
     },
   },

@@ -1,19 +1,22 @@
 /**
  * @desc 聊天公用输入框
  */
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { connect } from 'dva'
 import { Input } from 'antd'
 // @ts-ignore
 import { emoji } from '@/assets/js/emoji'
 // @ts-ignore
 import { FACE_URL } from '@/constants'
+import { formatInput } from '../../utils/tool'
 
 type PropsType = {
     dispatch(action: any): void,
     auth: any,
     room: any,
     chat: any,
+    editorId: string,
+    onRef?: (dom: HTMLElement) => void,
     menuList: any,
     scrollRef: any,
     placeholder: string,
@@ -30,17 +33,32 @@ const Editor = (props: PropsType) => {
 
     const {
         dispatch,
-        chat: { inputValue },
+        chat: { editorValue },
         room: {
             roomInfo: { id: roomId },
             userStatus: { imAccount, isForbit }
         },
+        onRef,
+        editorId,
         menuList,
         placeholder
     } = props
     const userIsForbit = isForbit === 1
 
+    const inputRef: any = useRef(null)
     const [faceShow, setFaceShow] = useState(false)
+    const [inputValue, setInputValue] = useState('')
+
+    useEffect(() => {
+        // 条件性接收编辑框value修改命令
+        if (editorValue[0] !== inputValue) {
+            setInputValue(editorValue[0])
+        }
+    }, [editorValue])
+
+    useEffect(() => {
+        onRef && onRef(inputRef.current)
+    }, [inputRef.current])
 
     // 表情失焦隐藏
     function handleListen({ target }: any) {
@@ -77,7 +95,7 @@ const Editor = (props: PropsType) => {
                         dispatch({
                             type: 'chat/save',
                             payload: {
-                                inputValue: ''
+                                editorValue: ['']
                             }
                         })
                     }
@@ -104,28 +122,15 @@ const Editor = (props: PropsType) => {
 
     // handle face selected
     function handleSelectFace({ face_name }: any) {
-        dispatch({
-            type: 'chat/save',
-            payload: {
-                inputValue: `${inputValue}${face_name}`
-            }
-        })
+        const inputRef = document.getElementById(editorId)
+        const inputVal = formatInput(inputRef, face_name)
+        setInputValue(inputVal)
         setFaceShow(!faceShow)
-    }
-
-    // handle input change 
-    function handleInputChange(value: any) {
-        dispatch({
-            type: 'chat/save',
-            payload: {
-                inputValue: value
-            }
-        })
     }
 
     return (
         <div className="editor-container">
-            <Input.TextArea placeholder={userIsForbit ? '您已被禁言' : placeholder || '一起聊天互动吧~~'} className="text-area" onChange={({ target: { value } }) => handleInputChange(value)} maxLength={1000} value={inputValue} disabled={userIsForbit} />
+            <Input.TextArea placeholder={userIsForbit ? '您已被禁言' : placeholder || '一起聊天互动吧~~'} className="text-area" onChange={({ target: { value } }) => setInputValue(value)} value={inputValue} maxLength={1000} disabled={userIsForbit} ref={inputRef} id={editorId} />
             <div className="operate-area flex-between">
                 <div className="tool">
                     {

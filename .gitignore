@@ -46,7 +46,10 @@ dist
 dll
 main.js
 main.js.map
-.env.*
+
+# Build tool
+nsis-build/FilesToInstall/**/*
+nsis-build/Output/**/*
 
 .idea
 npm-debug.log.*

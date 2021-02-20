@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Windows>
+<!-- 完成 -->
+ <Font id="80" size="80" bold="true"/>
+   <VerticalLayout>
+   	<VerticalLayout width="480" height="250" roundcorner="5,5" bkcolor="#FFF2F2F2">
+	  <Label align="center" width="60" height="60" bkimage="public\bk\bk_logo.png" padding="209,78,0,0"></Label>
+	  <Label align="center" font="16" textcolor="#FF333333" text="欢迎安装OFweek直播" padding="0,10,0,0"/>
+	</VerticalLayout>
+	<VerticalLayout bkcolor="#FFFFFFFF" >	
+	<Button name="btnRun" padding="160,50,0,0" text="开始使用" font="2" bkcolor="#FFAF0101" textcolor="0xFFFFFFFF"  borderround="4,4" height="50" width="160" />
+	</VerticalLayout>
+ </VerticalLayout>
+</Windows>

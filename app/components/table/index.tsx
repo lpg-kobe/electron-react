@@ -218,12 +218,12 @@ function ATable(props: PropsType) {
         tableList ? (
           <List
             grid={{ gutter: 16, column: 4 }}
-            {...filterProps(['tableList', 'searchForm', 'dispatch'], props)}
+            {...filterProps(['tableList', 'searchForm', 'dispatch', 'system'], props)}
             pagination={newPagination}
           />
         ) : (
             <Table
-              {...filterProps(['tableList', 'searchForm', 'dispatch'], props)}
+              {...filterProps(['tableList', 'searchForm', 'dispatch', 'system'], props)}
               columns={newColumns}
               dataSource={newDataSources}
               pagination={newPagination}

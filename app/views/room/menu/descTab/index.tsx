@@ -2,9 +2,11 @@
  * @desc 活动介绍描述
  */
 'use strict'
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect } from 'dva';
 import { withRouter } from 'dva/router';
+// @ts-ignore
+import BreakWord from '@/components/breakWord'
 
 type PropsType = {
     room: any,
@@ -13,42 +15,92 @@ type PropsType = {
 }
 
 const DescTab = (props: PropsType) => {
-    const { room: { roomIntroduce } } = props
+    const {
+        room: { roomIntroduce }
+    } = props
+
+    const [imgError, setImgError]: any = useState({
+        company: false,
+        avatar: [],
+        gift: []
+    })
+
+    useEffect(() => {
+        // 初始化待处理损坏图片图片数组
+        if (!roomIntroduce.showMemberList || !roomIntroduce.showMemberList.length || roomIntroduce.showMemberList.length === imgError['avatar'].length) {
+            return
+        }
+        setImgError({
+            ...imgError,
+            avatar: (() => {
+                let count = 0
+                roomIntroduce.showMemberList.forEach((ele: any) => {
+                    count += ele.memberList.length
+                })
+                return new Array(count).fill(false)
+            })(),
+            gift: new Array(roomIntroduce.roomPrizeDtoList.length).fill(false)
+        })
+    }, [roomIntroduce.showMemberList]);
+
+    /** handle error of img */
+    function handleImgError(event: any, key: string, value: any) {
+        event.target.onerror = null
+        setImgError({
+            ...imgError,
+            [key]: value
+        })
+    }
+
     return (roomIntroduce ? <div className="tab-container desc">
         <div className="wrap-item time">
             <div className="item-l">
-                <img src={roomIntroduce.companyLogoUrl} alt="logo" />
+                {
+                    imgError['company'] ? null :
+                        <img
+                            src={roomIntroduce.companyLogoUrl}
+                            onError={(event) => handleImgError(event, 'company', true)}
+                        />
+                }
             </div>
             <div className="item-r">
                 <h1>{roomIntroduce.roomName}</h1>
                 <div className="tag-box">
                     <p>举办时间：{roomIntroduce.time}</p>
-                    <p>举办单位：{roomIntroduce.companyName}</p>
+                    <p>举办单位：{roomIntroduce.companyName || '--'}</p>
                 </div>
             </div>
         </div>
         {
             roomIntroduce.description && <div className="wrap-item desc">
                 <h2>内容简介</h2>
-                <p>{roomIntroduce.description}</p>
+                <BreakWord
+                    options={{ text: roomIntroduce.description }} />
             </div>
         }
         {
             roomIntroduce.showMemberList && roomIntroduce.showMemberList.filter((member: any) => member.identity !== '主播').length ? <div className="wrap-item member">
                 <ul>
                     {
-                        roomIntroduce.showMemberList && roomIntroduce.showMemberList.map((item: any, index: number) => item.identity !== '主播' ? <li className="member-line" key={index}>
+                        roomIntroduce.showMemberList && roomIntroduce.showMemberList.map((item: any) => item.identity !== '主播' ? <li className="member-line" key={Math.random()}>
                             <h2>{item.identity}</h2>
                             {
-                                item.memberList.map((member: any) => <dl key={member.memberLogoUrl}>
+                                item.memberList.map((member: any, i: number) => <dl key={Math.random()}>
                                     <dt>
                                         {
-                                            member.memberLogoUrl ? <img src={member.memberLogoUrl} alt="用户头像" /> : <img src="assets/img/i-avatar-big.webp" alt="默认头像" />
+                                            imgError['avatar'][i] ? null :
+                                                <img src={member.memberLogoUrl} onError={(event) =>
+                                                    handleImgError(event, 'avatar', (() => {
+                                                        const errs: any = [...imgError['avatar']]
+                                                        errs[i] = true
+                                                        return errs
+                                                    })())} />
                                         }
                                     </dt>
                                     <dd>
                                         <h3>{member.memberName} - {member.memberCompany} / {member.memberJob}</h3>
-                                        <p>{member.memberSummary}</p>
+                                        <BreakWord
+                                            options={{ text: member.memberSummary }} />
                                     </dd>
                                 </dl>)
                             }
@@ -61,9 +113,21 @@ const DescTab = (props: PropsType) => {
             roomIntroduce.roomPrizeDtoList && roomIntroduce.roomPrizeDtoList.length ? <div className="wrap-item gift">
                 <h2>参与有奖</h2>
                 <div className="gift-area">
-                    {roomIntroduce.roomPrizeDtoList.map((gift: any) => <dl key={Math.random()} className="gift-item">
+                    {roomIntroduce.roomPrizeDtoList.map((gift: any, i: number) => <dl key={Math.random()} className="gift-item">
                         <dt>
-                            <img src={gift.prizeImageUrl} alt="奖品封面" />
+                            {
+                                imgError['gift'][i] ? null :
+                                    <img
+                                        src={gift.prizeImageUrl}
+                                        onError={(event) =>
+                                            handleImgError(event, 'gift', (() => {
+                                                const errs: any = [...imgError['gift']]
+                                                errs[i] = true
+                                                return errs
+                                            })())}
+                                        alt="奖品封面"
+                                    />
+                            }
                         </dt>
                         <dd>
                             <p>
@@ -72,7 +136,11 @@ const DescTab = (props: PropsType) => {
                             </p>
                             <p>
                                 <label>奖品描述：</label>
-                                <span>{gift.prizeSummary}</span>
+                                <BreakWord
+                                    options={{
+                                        text: gift.prizeSummary,
+                                        container: 'span'
+                                    }} />
                             </p>
                             <p>
                                 <label>中奖名单：</label>
@@ -87,7 +155,10 @@ const DescTab = (props: PropsType) => {
         {
             roomIntroduce.companySummary && <div className="wrap-item introduct">
                 <h2>公司介绍</h2>
-                <p>{roomIntroduce.companySummary}</p>
+                <BreakWord
+                    options={{
+                        text: roomIntroduce.companySummary
+                    }} />
             </div>
         }
     </div > : null // you can add loading here before component loaded

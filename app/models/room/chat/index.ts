@@ -24,10 +24,14 @@ type YieldType = {
 
 
 const inititalState = immutable.fromJS({
-    // 互动文本框内容
-    inputValue: '',
+    // 编辑器内容，用于动态修改编辑器内容，不会同步input.onchange事件，设定数组确保每次修改都会触发hooks useEffect
+    editorValue: [''],
     // 互动区聊天列表
     list: [],
+    // 互动区loading
+    chatLoading: true,
+    // 互动区是否拉取过数据
+    chatHavedFetch: false,
     // 互动区是否有更多数据
     hasMore: false,
     // 互动区聊天窗口滚动触发条件，触发滚动时只需改变:前后缀内容即可，值取:后缀，否则会被hooks忽略
@@ -36,6 +40,10 @@ const inititalState = immutable.fromJS({
     qaaScrollTop: 'scroll:0',
     // 问答区列表
     qaaList: [],
+    // 问答区loading
+    qaaLoading: true,
+    // 问答区是否拉取过数据
+    qaaHavedFetch: false,
     // 问答区是否有更多数据
     qaaHasMore: false,
     // 直播間成員列表
@@ -44,25 +52,34 @@ const inititalState = immutable.fromJS({
 export default {
     namespace: 'chat',
     state: inititalState,
+
     reducers: {
         save(state: StateType, { payload }: ActionType) {
             return state.merge(payload);
         }
     },
+
     effects: {
+        // get latest value of state by key
+        *getLatestState({ payload }: ActionType, { select }: YieldType) {
+            const { callback, params: { stateKey } } = payload
+            const latestState = yield select(({ chat }: any) => chat.toJS())
+            callback && callback(latestState[stateKey])
+        },
+
         // 获取互动区聊天数据
         *getChatList({ payload }: ActionType, { call, put, select }: YieldType) {
             let { status, data: { data } } = yield call(getChatList, payload)
             if (status) {
                 data = data.reverse()
-                const { list, chatScrollTop } = yield select((state: StateType) => state.chat.toJS())
+                const { list } = yield select((state: StateType) => state.chat.toJS())
                 yield put({
                     type: 'save',
                     payload: {
+                        chatLoading: false,
+                        chatHavedFetch: true,
                         list: data.concat(list),
-                        hasMore: data.length >= payload.params.size,
-                        // 初始化数据时滚动到底部
-                        chatScrollTop: typeof (payload.isInit) !== 'undefined' ? 'scroll:bottom' : chatScrollTop
+                        hasMore: data.length >= payload.params.size
                     }
                 })
             }
@@ -93,14 +110,14 @@ export default {
             let { status, data: { data } } = yield call(getQaaList, payload)
             if (status) {
                 data = data.reverse()
-                const { qaaList, qaaScrollTop } = yield select((state: StateType) => state.chat.toJS())
+                const { qaaList } = yield select((state: StateType) => state.chat.toJS())
                 yield put({
                     type: 'save',
                     payload: {
+                        qaaLoading: false,
+                        qaaHavedFetch: true,
                         qaaList: data.concat(qaaList),
-                        qaaHasMore: data.length >= payload.params.size,
-                        // 初始化数据时滚动到底部
-                        qaaScrollTop: typeof (payload.isInit) !== 'undefined' ? 'scroll:bottom' : qaaScrollTop
+                        qaaHasMore: data.length >= payload.params.size
                     }
                 })
             }
@@ -122,13 +139,25 @@ export default {
         },
 
         // 获取直播间用户列表
-        *getMemberList({ payload }: ActionType, { call, put }: YieldType) {
-            let { status, data: { data } } = yield call(getMemberList, payload)
+        *getMemberList({ payload }: ActionType, { put, call, select }: YieldType) {
+            let { status, data: { data: members } } = yield call(getMemberList, payload)
+
             if (status) {
+                const {
+                    roomInfo: { liveAnthorIds }
+                } = yield select(({ room }: any) => room.toJS())
+
+                // 根据正在上麦用户初始化上麦状态
+                members = members.map((mem: any) => ({
+                    ...mem,
+                    isLive: liveAnthorIds.some((id: any) => String(id) === String(mem.memberId))
+                }))
+
+                // 成员列表排序
                 yield put({
-                    type: 'save',
+                    type: 'room/sortMember',
                     payload: {
-                        memberList: data
+                        list: members
                     }
                 })
             }

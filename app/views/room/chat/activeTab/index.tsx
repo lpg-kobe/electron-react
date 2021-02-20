@@ -1,14 +1,13 @@
 /**
  * @desc 直播间互动区
  */
-import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'dva';
 import { Popover, Modal } from 'antd'
 import { withRouter } from 'dva/router';
-// @ts-ignore
-import Editor from '@/components/editor'
-// @ts-ignore
-import { scrollElement, tottle, nextTick, filterBreakWord } from '@/utils/tool'
+import Editor from '../../../../components/editor'
+import BreakWord from '../../../../components/breakWord'
+import { scrollElement, tottle, nextTick, filterBreakWord, formatInput } from '../../../../utils/tool'
 // @ts-ignore
 import { FACE_URL } from '@/constants'
 
@@ -20,10 +19,8 @@ type PropsType = {
 }
 
 function ActiveInfo(props: PropsType) {
-    const [dataLoading, setDataLoading] = useState(true)
-    const scrollRef: any = useRef(null)
     const {
-        chat: { list: chatList, hasMore: dataHasMore, chatScrollTop, inputValue },
+        chat: { list: chatList, chatLoading, hasMore: dataHasMore, chatScrollTop },
         dispatch,
         match: { params: { id: roomId } },
         room: { userStatus }
@@ -31,7 +28,11 @@ function ActiveInfo(props: PropsType) {
     const faceRegExp = /\[[a-zA-Z0-9\/\u4e00-\u9fa5]+\]/g
     const userIsForbit = userStatus.isForbit === 1
 
-    useLayoutEffect(() => {
+    const [editorRef, setEditorRef]: any = useState(null)
+    const scrollRef: any = useRef(null)
+
+    useEffect(() => {
+        // init data and scroll to bottom
         dispatch({
             type: 'chat/getChatList',
             payload: {
@@ -40,9 +41,17 @@ function ActiveInfo(props: PropsType) {
                     msgId: chatList[0] && chatList[0].msgId,
                     size: 50
                 },
-                isInit: true,
                 onSuccess: {
-                    search: () => setDataLoading(false)
+                    search: () => {
+                        window.requestAnimationFrame(() => {
+                            dispatch({
+                                type: 'chat/save',
+                                payload: {
+                                    chatScrollTop: 'scroll:bottom'
+                                }
+                            })
+                        })
+                    }
                 }
             }
         })
@@ -67,10 +76,15 @@ function ActiveInfo(props: PropsType) {
 
     // handle scroll top of chat area
     function handleScrollTop() {
-        if (dataLoading || !dataHasMore) {
+        if (chatLoading || !dataHasMore) {
             return
         }
-        setDataLoading(true)
+        dispatch({
+            type: 'chat/save',
+            payload: {
+                chatLoading: true
+            }
+        })
         const prevScrollHeight = scrollRef.current.scrollHeight
         dispatch({
             type: 'chat/getChatList',
@@ -82,7 +96,6 @@ function ActiveInfo(props: PropsType) {
                 },
                 onSuccess: {
                     search: () => {
-                        setDataLoading(false)
                         // dom元素位置更新后滚动至追加数据前第一条消息位置
                         nextTick(scrollRef.current, ({ scrollHeight }: any) => {
                             dispatch({
@@ -119,7 +132,7 @@ function ActiveInfo(props: PropsType) {
             value: 'forbit',
         },
         {
-            label: '取消禁言',
+            label: '解除禁言',
             value: 'cancelForbit',
         },
         {
@@ -176,10 +189,12 @@ function ActiveInfo(props: PropsType) {
 
             // 回复聊天
             'reply': () => {
+                const chatInput = document.getElementById('chatEditor')
+                const valToEditor = formatInput(chatInput, `@${nick}`)
                 dispatch({
                     type: 'chat/save',
                     payload: {
-                        inputValue: `${inputValue}@${nick}`
+                        editorValue: [valToEditor]
                     }
                 })
             },
@@ -221,7 +236,7 @@ function ActiveInfo(props: PropsType) {
             'kick': () => {
                 Modal.confirm({
                     centered: true,
-                    content: `是否把${nick}踢出房间`,
+                    content: `是否把${nick} 踢出房间`,
                     title: '提示',
                     onOk: () => {
                         dispatch({
@@ -246,14 +261,14 @@ function ActiveInfo(props: PropsType) {
     }
 
     return <div className="tab-container interactive">
-        <div className={`panel-contain chat-panel${!chatList.length ? ' empty flex-center' : ''}`} ref={scrollRef} onScroll={() => tottle(animateToScroll)}>
+        <div className={`panel-contain chat-panel${!chatList.length ? ' empty flex-center' : ''} `} ref={scrollRef} onScroll={() => tottle(animateToScroll)}>
             {chatList.length ? <>
                 {
-                    dataLoading || dataHasMore ? null : <div className="wrap-item no-more">加载完毕</div>
+                    chatLoading || dataHasMore ? null : <div className="wrap-item no-more">加载完毕</div>
                 }
                 {
                     chatList.map((msg: any, index: number) =>
-                        true ? <div className="wrap-item" key={index} id={`msg-${msg.msgId}`}>
+                        String(msg.msgCode) !== '1020' ? <div className="wrap-item" key={index} id={`msg - ${msg.msgId} `}>
                             {
                                 handleFilterMenu(msg) ? <Popover content={handleFilterMenu(msg)} arrowPointAtCenter placement="bottom">
                                     <label className={msg.role === 1 || msg.role === 2 ? 'role' : ''}>
@@ -263,8 +278,10 @@ function ActiveInfo(props: PropsType) {
                                         {msg.nick}{msg.role === 1 || msg.role === 2 ? `  [${msg.identity}]` : null}
                                     </label>
                             }
-                            <p dangerouslySetInnerHTML={{ __html: faceToHtml(msg.content) }}></p>
-                        </div> : <div className="wrap-item notice" key={index} id={`msg-${msg.msgId}`}>{msg.nick}进入直播间</div>
+                            <BreakWord options={{
+                                text: faceToHtml(msg.content)
+                            }} />
+                        </div> : <div className="wrap-item notice" key={index} id={`msg - ${msg.msgId} `}>{msg.nick}进入直播间</div>
                     )
                 }
             </>
@@ -272,10 +289,10 @@ function ActiveInfo(props: PropsType) {
                 <h3>暂时无人发言，快来抢占沙发~</h3>
             }
             {
-                dataLoading && <div className="list-loading">{'加载中...'}</div>
+                chatLoading && <div className="list-loading">{'加载中...'}</div>
             }
         </div>
-        <Editor menuList={[{ label: 'emoji' }]} />
+        <Editor menuList={[{ label: 'emoji' }]} editorId="chatEditor" />
     </div>
 }
 export default withRouter(connect(({ room, chat }: any) => ({

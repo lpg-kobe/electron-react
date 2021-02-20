@@ -11,24 +11,29 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import path from 'path';
-import { app, BrowserWindow, Menu, Tray } from 'electron';
+import { app, BrowserWindow, Menu, Tray, protocol } from 'electron';
 import { autoUpdater } from 'electron-updater';
-// @ts-ignore 
 import { MAIN_EVENT, RENDERER_EVENT, mainListen, mainHandle } from './utils/ipc';
-import { DEFAULT_WINDOW_CONFIG, DEFAULT_WINDOW_SIZE, APP_VERSION } from './constants'
-import log from 'electron-log';
+import { DEFAULT_WINDOW_CONFIG, DEFAULT_WINDOW_SIZE } from './constants'
+import { productName, version } from './package.json'
+import logger from './utils/log';
 // import MenuBuilder from './menu';
 
+// add log.info to log.log because log level default set to 'warn'
+// log.transports.console.level = 'silly'
+
+const ofweekLog: any = logger('main process')
 export default class AppUpdater {
   constructor() {
-    log.transports.file.level = 'info';
-    autoUpdater.logger = log;
+    autoUpdater.logger = ofweekLog;
     autoUpdater.checkForUpdatesAndNotify();
   }
 }
 
-// namespace of mainWindow
-let mainWindowKey = 'mainWindow';
+// tray of app
+let tray: any = null;
+// namespace of loginWindow
+let loginWindowKey = 'loginWindow';
 // namespace of launchWindow
 let launchWindowKey = 'launchWindow';
 // manage all window of opened
@@ -66,20 +71,30 @@ const installExtensions = async () => {
   ).catch(console.log);
 };
 
+/** show last active window */
+const showLastWindow = () => {
+  const windowKeys = Object.keys(totalWindow)
+  const windowLength = windowKeys.length
+  windowLength && totalWindow[windowKeys[windowLength - 1]].show()
+}
+
 /** init app name or tray-menu after app ready */
-const initTool = () => {
+const initTool = async () => {
   // 应用设置
   app.setAboutPanelOptions({
-    applicationName: 'OFweek直播',
-    applicationVersion: APP_VERSION
+    applicationName: productName,
+    applicationVersion: version
   })
   // 系统托盘
-  const tray = new Tray(getAssetPath('tray-icon.png'))
-  const contextMenu = Menu.buildFromTemplate([
+  tray = await new Tray(getAssetPath('tray-icon.png'))
+  const contextMenu = await Menu.buildFromTemplate([
+    { label: productName, type: 'normal', click: showLastWindow },
     { label: '退出', type: 'normal', role: 'quit' }
   ])
-  tray.setToolTip('OFweek直播')
-  tray.setContextMenu(contextMenu)
+  tray.on('click', showLastWindow)
+  await tray.setTitle(productName)
+  await tray.setToolTip(productName)
+  await tray.setContextMenu(contextMenu)
 }
 
 /**
@@ -97,18 +112,14 @@ const initWindow = async () => {
   createWindow(launchWindowKey, {
     ...DEFAULT_WINDOW_SIZE.LAUNCH,
     skipTaskbar: true,
-    url: `file://${__dirname}/middleware/launch/index.html`
+    maximizable: false,
+    url: `file://${__dirname}/app.html#/launch`
   })
 
-  createWindow(mainWindowKey, {
-    icon: getAssetPath('icon.png'),
+  createWindow(loginWindowKey, {
     show: false,
+    maximizable: false,
     url: `file://${__dirname}/app.html#/login`
-  })
-
-  // 监听启动页开始
-  mainListen(RENDERER_EVENT.RENDERER_LAUNCH_READY, () => {
-    totalWindow[launchWindowKey].show();
   })
 
   // 监听启动页面加载完毕
@@ -117,23 +128,14 @@ const initWindow = async () => {
       return;
     }
     totalWindow[launchWindowKey].close();
-    totalWindow[mainWindowKey].show();
+    totalWindow[loginWindowKey].show();
   })
 
-  // 监听关闭所有窗口并打开登录页面
-  mainListen(MAIN_EVENT.MAIN_CLOSE_TOLOG, () => {
-    // close all window only not mainWindow before add loginWindow to totalWindow
-    Object.entries(totalWindow).forEach(([key, value]: any, index: number, arr: Array<any>) => {
-      if (index === arr.length - 1) {
-        // load login page here,or replace hashState of currentPage? @todo
-        createWindow('loginWindow', {
-          url: `file://${__dirname}/app.html#/login`,
-          ...DEFAULT_WINDOW_SIZE.LOGIN
-        })
-        value.close()
-      } else {
-        value.close()
-      }
+  /** send operate code to all renderer witch can reply by it */
+  mainListen(RENDERER_EVENT.RENDERER_SEND_CODE, (event: any, ...args: any) => {
+    ofweekLog.info(RENDERER_EVENT.RENDERER_SEND_CODE, event)
+    Object.values(totalWindow).forEach((bWindow: any) => {
+      bWindow.webContents.send(RENDERER_EVENT.RENDERER_SEND_CODE, ...args)
     })
   })
 
@@ -143,7 +145,7 @@ const initWindow = async () => {
    * @param {config} config of new window
    */
   mainHandle(MAIN_EVENT.MAIN_OPEN_PAGE, async ({ sender: { history } }: any, { namespace, ...config }: any) => {
-    console.log(history, MAIN_EVENT.MAIN_OPEN_PAGE, '=>', JSON.stringify(config))
+    ofweekLog.info(MAIN_EVENT.MAIN_OPEN_PAGE, history)
     if (!namespace) {
       throw new Error("can not create new window without namespce, plaease try again with namespace key in your config")
     }
@@ -168,14 +170,21 @@ const initWindow = async () => {
  * @param {Object} config config of window witch you create 
  */
 const createWindow = (namespace: string, config: any) => {
-  totalWindow[namespace] = new BrowserWindow(
-    {
-      ...DEFAULT_WINDOW_CONFIG,
-      ...config
-    }
-  );
+  const { closeNamespace } = config
+  const windowConfig = {
+    icon: getAssetPath('/icons/iconX256.png'),
+    ...DEFAULT_WINDOW_CONFIG,
+    ...config
+  }
 
+  totalWindow[namespace] = new BrowserWindow(windowConfig);
+  totalWindow[namespace].config = windowConfig
   totalWindow[namespace].loadURL(config.url);
+  // open devtool in dev
+  // totalWindow[namespace].webContents.openDevTools({ mode: 'detach' })
+
+  // close window by closeNamespace which you need to close
+  closeNamespace && totalWindow[closeNamespace].close()
 
   // 监听窗口关闭
   totalWindow[namespace].on('closed', () => {
@@ -184,19 +193,27 @@ const createWindow = (namespace: string, config: any) => {
   });
 
   // @TODO: Use 'ready-to-show' event
-  //        https://github.com/electron/electron/blob/master/docs/api/browser-window.md#using-ready-to-show-event
+  // https://github.com/electron/electron/blob/master/docs/api/browser-window.md#using-ready-to-show-event
   totalWindow[namespace].webContents.on('did-finish-load', () => {
     if (!totalWindow[namespace]) {
-      throw new Error(`${namespace} is not defined`);
+      throw new Error(`error~~,can not find window of ${namespace}`);
     }
+    const { config } = totalWindow[namespace]
     if (process.env.START_MINIMIZED) {
       totalWindow[namespace].minimize();
     } else {
-      totalWindow[namespace].show();
-      totalWindow[namespace].focus();
+      if (config.show) {
+        totalWindow[namespace].show();
+        totalWindow[namespace].focus();
+      }
     }
   });
 };
+
+/** custom protocol setting*/
+protocol.registerSchemesAsPrivileged([
+  { scheme: 'file', privileges: { standard: true, secure: true } }
+])
 
 
 /**
@@ -222,6 +239,16 @@ if (process.env.E2E_BUILD === 'true') {
     initTool()
     initWindow()
   });
+}
+
+// 应用单例锁
+if (!app.requestSingleInstanceLock()) {
+  app.quit()
+} else {
+  app.on('second-instance', () => {
+    // focus window after got second instance
+    totalWindow && showLastWindow()
+  })
 }
 
 app.on('activate', () => {

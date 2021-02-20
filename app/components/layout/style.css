@@ -4,6 +4,11 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.break {
+  white-space: normal;
+  word-wrap: break-word;
+  word-break: break-word;
+}
 .flex {
   display: flex;
 }
@@ -30,7 +35,7 @@
   background: #fff;
   height: 50px;
   flex-basis: 50px;
-  box-shadow: 0px 1px 0px 0px #DDDDDD;
+  box-shadow: 8px 0 8px -8px hsla(0, 0%, 72.2%, 0.7) inset, 0 8px 8px -8px hsla(0, 0%, 72.2%, 0.7) inset, -8px 0 8px -8px hsla(0, 0%, 72.2%, 0.7) inset;
 }
 #commonHeader .header-l {
   -webkit-app-region: no-drag;
@@ -49,9 +54,14 @@
   margin: 17px 0 0 0;
 }
 #commonHeader .header-l > .title {
+  max-width: 500px;
   font-size: 16px;
   margin: 17px 0 0 19px;
   color: #1F1F1F;
+  white-space: nowrap;
+  word-break: keep-all;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 #commonHeader .header-r {
   -webkit-app-region: no-drag;
@@ -60,6 +70,7 @@
 }
 #commonHeader .header-r .header-btn {
   margin: 0 22px 0 0;
+  transition: all 0.3s ease;
 }
 #commonHeader .header-r .media-setting-btn {
   font-size: 14px;
@@ -88,12 +99,21 @@
 #commonHeader .header-r .title-bar-container .bar-r .icon {
   cursor: pointer;
   margin: 0 0 0 6px;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  vertical-align: middle;
+  color: #999999;
 }
 #commonHeader .header-r .title-bar-container .bar-r .icon:first-child {
   margin-left: 0;
 }
 #commonHeader .header-r .title-bar-container .bar-r .icon:last-child {
   margin-right: 20px;
+}
+#commonHeader .header-r .title-bar-container .bar-r .icon.icon-refresh {
+  font-size: 16px;
+  line-height: 32px;
 }
 #commonHeader .header-r .user-bar {
   display: flex;

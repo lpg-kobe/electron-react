@@ -1,19 +1,13 @@
-import { message } from 'antd';
-
 /**
  * @desc common request of fetch
  * @author pika
  */
 const fetch = require('dva/fetch');
 const { API_HOST } = require('@/constants');
-// @ts-ignore
-import { MAIN_EVENT, rendererSend } from '@/utils/ipc'
+import { RENDERER_EVENT, rendererSend, RENDERER_CODE } from './ipc'
 const { handleSuccess, handleError } = require('./reponseHandler');
 import { Modal } from 'antd'
-// const { removeUserSession } = require('./session');
-
-const expireValveDuration = 8e3; // 接口过期处理后多少秒内保持静默，默认8秒
-let expireValveOn = false; // 接口过期处理开关
+const { removeUserSession } = require('./session');
 
 type HandlerType = {
   onSuccess?: any;
@@ -55,6 +49,7 @@ export default function request(
   // 配置默认headers
   const headers = {
     'Content-Type': 'application/json;charset=UTF-8',
+    'devType': 6,
     ...options?.headers,
   };
   if (options?.body && options.body instanceof FormData) {
@@ -84,26 +79,31 @@ export default function request(
     .then(checkStatus)
     .then(parseJSON)
     .then((data: any) => {
-      if (data.code !== 0 && !expireValveOn) {
-        expireValveOn = true;
-        setTimeout(() => {
-          expireValveOn = false
-        }, expireValveDuration)
+      if (data.code !== 0) {
         // 登录过期
         if (data.code === -10 || data.code === -20 || data.code === -22) {
-          // removeUserSession();
+          const { CLOSE_PAGE } = RENDERER_CODE
           handleError(handler, data);
           Modal.warn({
             centered: true,
             content: '您的账号在其它设备登录，您已下线',
             title: '提示',
-            onOk: () => rendererSend(MAIN_EVENT.MAIN_CLOSE_TOLOG),
-            onCancel: () => rendererSend(MAIN_EVENT.MAIN_CLOSE_TOLOG)
+            onOk: () => {
+              removeUserSession()
+              rendererSend(RENDERER_EVENT.RENDERER_SEND_CODE, {
+                code: CLOSE_PAGE
+              })
+            },
+            onCancel: () => {
+              removeUserSession()
+              rendererSend(RENDERER_EVENT.RENDERER_SEND_CODE, {
+                code: CLOSE_PAGE
+              })
+            }
           })
           return { status: false, data };
         }
         handleError(handler, data);
-        message.error(data.message);
         return { status: false, data }
       }
 
@@ -113,7 +113,7 @@ export default function request(
 
       return { status: true, data };
     }, (err: any) => {
-      handleError(handler);
+      handleError(handler, { message: '网络不给力~~' });
       return {
         err,
         status: false,

@@ -49,7 +49,7 @@ export default {
                     type: 'save',
                     payload: {
                         imgTextList: [...imgTextList, ...data],
-                        imgTextHasMore: data.length >= payload.size
+                        imgTextHasMore: data.length >= payload.params.size
                     }
                 })
             }

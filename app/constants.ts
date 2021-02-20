@@ -8,26 +8,30 @@ type DefaultConfigParam = {
     show?: boolean;
     width?: number;
     height?: number;
+    backgroundColor?: string;
     webPreferences?: any;
-    maximizable?: boolean,
-    minimizable?: boolean,
-    resizable?: boolean, // 是否支持调整大小
-    titleBarStyle?: any,// 隐藏标题栏窗口
-    transparent?: boolean,// 透明窗口?
-    frame?: boolean, // 带边框窗口?
-    icon?: string, // 窗口icon
-    url?: string, // 开启的窗口url
+    maximizable?: boolean;
+    minimizable?: boolean;
+    websecurity?: boolean;// 同源策略
+    resizable?: boolean; // 是否支持调整大小
+    titleBarStyle?: any;// 隐藏标题栏窗口
+    transparent?: boolean;// 透明窗口?
+    frame?: boolean; // 带边框窗口?
+    hasShadow?: boolean; // 带阴影窗口?
+    icon?: string; // 窗口icon
+    url?: string; // 开启的窗口url
     skipTaskbar?: boolean // 窗口icon
 };
 
 export const SDK_APP_ID: any = process.env.sdkAppId;
 export const API_HOST: any = process.env.apiHost;
 export const FACE_URL: any = process.env.faceUrl;
-export const APP_VERSION: any = process.env.appVersion;
 
 // 默认打开的窗口配置
 export const DEFAULT_WINDOW_CONFIG: DefaultConfigParam = {
+    websecurity: false,
     show: true,
+    hasShadow: true,
     maximizable: true,
     minimizable: true,
     resizable: false,

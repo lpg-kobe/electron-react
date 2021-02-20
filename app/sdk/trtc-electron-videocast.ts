@@ -3,23 +3,36 @@
  * @author pika
  */
 
-const TRTCElectron = require('trtc-electron-sdk');
+import TRTCElectron from 'trtc-electron-sdk'
 const TIM = require('tim-js-sdk');
 const {
   Rect,
+  TRTCParams,
+  TRTCRoleType,
+  TRTCAppScene,
   TRTCVideoResolution,
   TRTCVideoEncParam,
+  TRTCVideoFillMode
 } = require('trtc-electron-sdk/liteav/trtc_define');
 
 interface ImLoginParam {
   sdkAppId: number;
-  userID: string; // 用户 ID
+  userId: string | number; // 用户 ID
   userSig: string; // 签名
 }
 
+interface EnterRoomParams {
+  role: string; // 角色
+  roomId: number; // 直播间id
+  userId: string | number; // 用户Id
+  userSig: string; // 用户签名
+  privateKey: string; // 房间秘钥
+}
+
 type ConfigParam = {
-  sdkAppId: number;
-  userID: string; // 用户 ID
+  sdkAppId: number; // 应用id
+  imLogin: boolean; // 是否需要登录im
+  userId: string | number; // 用户 ID
   userSig: string; // 签名
 };
 
@@ -29,14 +42,23 @@ type SourceParam = {
   sourceName: string; // 采集源名称，UTF8编码
 };
 
-const EVENT = {
-  SDK_READY: 'SDK_READY', // SDK login成功
-  ENTER_ROOM_SUCCESS: 'ENTER_ROOM_SUCCESS', // 进房成功
-  LEAVE_ROOM_SUCCESS: 'LEAVE_ROOM_SUCCESS', // 离开房间
-  ERROR: 'ERROR', // SDK ERROR
-  WARNING: 'WARNING', // SDK WARNING
-  KICKED_OUT: 'KICKED_OUT', // 被踢下线
-  MESSAGE_RECEIVED: 'MESSAGE_RECEIVED', // IM消息通知
+export const EVENT = {
+  tim: {
+    SDK_READY: TIM.EVENT.SDK_READY,// tim-sdk加载成功
+    MESSAGE_RECEIVED: TIM.EVENT.MESSAGE_RECEIVED,// tim收到消息
+    ERROR: TIM.EVENT.ERROR,// sdk-error
+    KICKED_OUT: TIM.EVENT.KICKED_OUT // 被踢下线
+  },
+  trtc: {
+    ENTER_ROOM_SUCCESS: 'onEnterRoom', // 用户进房成功
+    REMOTE_ENTER_ROOM: 'onRemoteUserEnterRoom', // 远端用户进房成功
+    LEAVE_ROOM_SUCCESS: 'onExitRoom', // 用户离开房间
+    GET_VIDEO_FRAME: 'onFirstVideoFrame', // 视频首帧采集渲染，包含本地|远程
+    SEND_AUDIO_FRAME: 'onSendFirstLocalAudioFrame', // 本地音频被送出
+    REMOTE_CLOSE_VIDEO: 'onUserVideoAvailable', // 远端用户关闭摄像头
+    ERROR: 'onError',
+    WARNING: 'onWarning',
+  }
 };
 
 export default class TrtcElectronVideocast {
@@ -50,19 +72,26 @@ export default class TrtcElectronVideocast {
 
   tim: any;
 
+  TIM: any;
+
   constructor(config: ConfigParam) {
-    this.sdkAppId = config.sdkAppId;
+    const { userId, userSig, sdkAppId, imLogin } = config
+    this.sdkAppId = sdkAppId;
     this.emmitter = new Event();
     this.EVENT = EVENT;
-    this.tim = this._initIm();
-    TRTCElectron.destroyTRTCShareInstance(); // clear prev trtc instance before init new instance
-    this.trtcInstance = TRTCElectron.getTRTCShareInstance(); // create new trtc instance
-    this._bindEvent();
-    this.loginIm({
-      sdkAppId: config.sdkAppId,
-      userID: config.userID,
-      userSig: config.userSig
-    })
+    // TRTCElectron.destroyTRTCShareInstance(); // clear prev trtc instance before init new instance,only open this if you sure to open only one trtc
+    this.trtcInstance = TRTCElectron.getTRTCShareInstance(); // trtc instance only create once 
+    // im-notice will not happend in page once not to set imLogin 
+    if (imLogin) {
+      this.tim = this._initIm();
+      this.TIM = TIM;
+      this.loginIm({
+        sdkAppId: sdkAppId,
+        userId: userId,
+        userSig: userSig
+      })
+      this._bindImEvent();
+    }
   }
 
   /**
@@ -77,7 +106,7 @@ export default class TrtcElectronVideocast {
     }
     const promise = this.tim.login({
       SDKAppID: params.sdkAppId,
-      userID: params.userID,
+      userID: params.userId,
       userSig: params.userSig
     });
     promise.then((imResponse: { data: { repeatLogin: boolean; errorInfo: any } }) => {
@@ -106,57 +135,69 @@ export default class TrtcElectronVideocast {
     return tim;
   }
 
-  // 初始化sdk监听
-  _bindEvent() {
+  // 初始化rtc-sdk监听
+  _bindRtcEvent() {
     this.trtcInstance.on('onEnterRoom', (result: number) => {
-      this.emmitter.emit(EVENT.ENTER_ROOM_SUCCESS, { result });
+      this.emmitter.emit(EVENT.trtc.ENTER_ROOM_SUCCESS, { result });
     });
     this.trtcInstance.on('onExitRoom', (result: number) => {
-      this.emmitter.emit(EVENT.LEAVE_ROOM_SUCCESS, { result });
+      this.emmitter.emit(EVENT.trtc.LEAVE_ROOM_SUCCESS, { result });
     });
     this.trtcInstance.on('onRemoteUserEnterRoom', (uid: string) => {
       console.log(uid);
     });
     this.trtcInstance.on('onError', (errcode: number, errmsg: string) => {
-      this.emmitter.emit(EVENT.ERROR, { errcode, errmsg });
+      this.emmitter.emit(EVENT.trtc.ERROR, { errcode, errmsg });
     });
     this.trtcInstance.on(
       'onWarning',
       (warningCode: number, warningMsg: string) => {
-        this.emmitter.emit(EVENT.WARNING, {
+        this.emmitter.emit(EVENT.trtc.WARNING, {
           errcode: warningCode,
           errmsg: warningMsg,
         });
       }
     );
-    this.tim.off(TIM.EVENT.ERROR, this._onError);
-    this.tim.on(TIM.EVENT.ERROR, this._onError.bind(this));
-    this.tim.off(TIM.EVENT.MESSAGE_RECEIVED, this._onIMMessageReceived);
+  }
+
+  // 初始化im-sdk监听
+  _bindImEvent() {
+    this.tim.off(EVENT.tim.SDK_READY, this._onIMSdkReady);
+    this.tim.on(EVENT.tim.SDK_READY, this._onIMSdkReady, this);
+    this.tim.off(EVENT.tim.ERROR, this._onError);
+    this.tim.on(EVENT.tim.ERROR, this._onError, this);
+    this.tim.off(EVENT.tim.MESSAGE_RECEIVED, this._onIMMessageReceived);
     this.tim.on(
-      TIM.EVENT.MESSAGE_RECEIVED,
-      this._onIMMessageReceived.bind(this)
+      EVENT.tim.MESSAGE_RECEIVED,
+      this._onIMMessageReceived,
+      this
     );
-    this.tim.off(TIM.EVENT.KICKED_OUT, this._onKickedOut);
-    this.tim.on(TIM.EVENT.KICKED_OUT, this._onKickedOut.bind(this));
+    this.tim.off(EVENT.tim.KICKED_OUT, this._onKickedOut);
+    this.tim.on(EVENT.tim.KICKED_OUT, this._onKickedOut, this);
   }
 
   // 被踢下线
-  _onKickedOut(event: any) {
-    this.emmitter.emit(EVENT.KICKED_OUT, event);
+  _onKickedOut() {
+    this.emmitter.emit(EVENT.tim.KICKED_OUT, this);
   }
 
   // tim sdk error
   _onError(event: { data: { code: any; message: any } }) {
-    this.emmitter.emit(EVENT.ERROR, {
+    this.emmitter.emit(EVENT.tim.ERROR, {
       errcode: event.data.code,
       errmsg: event.data.message,
     });
   }
 
+  // tim sdk ready 
+  _onIMSdkReady() {
+    this.emmitter.emit(EVENT.tim.SDK_READY, this);
+  }
+
   // tim sdk 消息通知
   _onIMMessageReceived(event: { data: any }) {
     const messageData = event.data;
-    this.emmitter.emit(EVENT.MESSAGE_RECEIVED, messageData);
+    this.emmitter.emit(EVENT.tim.MESSAGE_RECEIVED, messageData);
     try {
       // messageData.map((item: any) => {
       //   if (item.conversationType === TIM.TYPES.CONV_GROUP) {
@@ -174,7 +215,7 @@ export default class TrtcElectronVideocast {
   }
 
   /**
-   * @desc 本地摄像头预览并设置视频编码相关参数
+   * @desc 本地摄像头预览并设置视频编码相关参数,enterRoom之后调用该方法会自动推流
    * @param {String} videoResolution 视频编码参数
    * @param {HTMLElement} view 采集摄像头显示画面的元素
    * @param context
@@ -183,15 +224,37 @@ export default class TrtcElectronVideocast {
     const videoParam = new TRTCVideoEncParam();
     videoParam.videoResolution =
       videoResolution || TRTCVideoResolution.TRTCVideoResolution_640_360;
+    this.trtcInstance.enableSmallVideoStream(true, videoParam) // 开启大小画面双路编码模式
     this.trtcInstance.setVideoEncoderParam(videoParam);
     this.trtcInstance.startLocalPreview(view);
+    this.trtcInstance.muteLocalVideo(false);
+  }
+
+  /** 设置摄像头视频填充模式 */
+  setVideoFillMode(mode?: string) {
+    mode = mode || TRTCVideoFillMode.TRTCVideoFillMode_Fit
+    this.trtcInstance.setLocalViewFillMode(mode)
   }
 
   /**
-   * @desc 关闭摄像头
+   * @desc 关闭摄像头结束推流
    */
   closeCamera() {
     this.trtcInstance.stopLocalPreview();
+    this.trtcInstance.muteLocalVideo(true);
+  }
+
+  /**
+   * @desc 开启摄像头测试
+   * @param {HTMLElement} view 采集摄像头显示画面的元素
+   */
+  startCameraTest(view: HTMLElement) {
+    this.trtcInstance.startCameraDeviceTest(view)
+  }
+
+  // 关闭摄像头测试
+  stopCameraTest() {
+    this.trtcInstance.stopCameraDeviceTest()
   }
 
   // 获取摄像头列表
@@ -206,6 +269,28 @@ export default class TrtcElectronVideocast {
   setCurrentCamera(deviceId: string) {
     this.trtcInstance.setCurrentCameraDevice(deviceId);
   }
+
+  /**
+   * @desc 获取当前摄像头
+   * @return {Object} deviceId & deviceName
+   */
+  getCurrentCamera() {
+    return this.trtcInstance.getCurrentCameraDevice();
+  }
+
+  /**
+   * @desc 开启麦克风测试
+   * @param {Number} interval 反馈音量间隔时间
+   */
+  startMicTest(interval: number = 240) {
+    this.trtcInstance.startMicDeviceTest(interval)
+  }
+
+  // 停止麦克风测试
+  stopMicTest() {
+    this.trtcInstance.stopMicDeviceTest()
+  }
+
 
   // 开启本地音频的采集和上行
   openMic() {
@@ -228,8 +313,16 @@ export default class TrtcElectronVideocast {
    * @desc 设置麦克风
    * @params {String} micId 从 getMicDevicesList 中得到的设备 ID
    */
-  setCurrentMicDevice(micId: string) {
+  setCurrentMic(micId: string) {
     this.trtcInstance.setCurrentMicDevice(micId);
+  }
+
+  /**
+  * @desc 获取当前麦克风
+  * @return {Object} deviceId & deviceName
+  */
+  getCurrentMic() {
+    return this.trtcInstance.getCurrentMicDevice();
   }
 
   /**
@@ -270,7 +363,52 @@ export default class TrtcElectronVideocast {
     this.trtcInstance.stopScreenCapture();
   }
 
-  on(eventName: any, handler: any, context: any) {
+  /**
+   * @desc 开始直播
+   * @description 直播后要将当前用户加到trtc房间
+   */
+  enterRoom(params: EnterRoomParams) {
+    this._enterRoom(Number(params.roomId), String(params.userId), String(params.userSig), String(params.privateKey))
+    this.openMic()
+  }
+
+  /**
+   * @desc 下麦退出房间
+   */
+  exitRoom() {
+    this._clearMedia()
+    this.trtcInstance.exitRoom()
+  }
+
+  /** 关闭所有音视频采集 */
+  _clearMedia() {
+    this.trtcInstance.stopLocalPreview();
+    this.trtcInstance.stopLocalAudio();
+    this.trtcInstance.stopScreenCapture();
+    this.trtcInstance.stopAllAudioEffects();
+    this.trtcInstance.stopBGM();
+  }
+
+  /** 销毁trtc实例，销毁同时销毁所有监听事件 */
+  destroyTrtc() {
+    this.trtcInstance = null
+    TRTCElectron.destroyTRTCShareInstance()
+  }
+
+  /** trtc-sdk-enterRoom 推流 */
+  _enterRoom(roomId: number, userId: number | string, userSig: string, privateKey: string) {
+    const param = new TRTCParams();
+    param.sdkAppId = this.sdkAppId;
+    param.roomId = roomId;
+    param.userId = userId;
+    param.userSig = userSig;
+    param.privateMapKey = privateKey;
+    param.businessInfo = '';
+    param.role = TRTCRoleType.TRTCRoleAnchor; // 主播，可以上行视频和音频
+    this.trtcInstance.enterRoom(param, TRTCAppScene.TRTCAppSceneLIVE); // 视频互动直播，支持平滑上下麦，切换过程无需等待，主播延时小于300ms；支持十万级别观众同时播放，播放延时低至1000ms
+  }
+
+  on(eventName: any, handler: any, context?: any) {
     this.emmitter.on(eventName, handler, context);
   }
 
@@ -286,7 +424,7 @@ class Event {
     this.eventBus = this.eventBus || Object.create(null);
   }
 
-  on(eventName: any, handler: any, context: any) {
+  on(eventName: any, handler: any, context?: any) {
     if (typeof handler !== 'function') {
       console.error('Event handler must be a function');
       return;
@@ -331,7 +469,9 @@ class Event {
     }
 
     for (let i = 0, len = eventCollection.length; i < len; i++) {
-      if (eventCollection[i].handler === handler) {
+      const fnName = (fun: any) => fun.name || fun.toString().match(/function\s*([^(]*)\(/)[1]
+      // remove event handler if function name of it is the same as eventCollection
+      if (fnName(eventCollection[i].handler) === fnName(handler)) {
         eventCollection.splice(i, 1);
         break;
       }

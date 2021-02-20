@@ -36,6 +36,18 @@ export function handleSuccess(handler: handleType, data?: any): any {
           duration: 0.5,
         });
       },
+      onLine: () => {
+        message.success({
+          content: '上麦成功',
+          duration: 0.5,
+        });
+      },
+      offLine: () => {
+        message.success({
+          content: '下麦成功',
+          duration: 0.5,
+        });
+      },
       sms: () => {
         message.success({
           content: '验证码已发送',
@@ -82,6 +94,18 @@ export function handleError(handler: handleType, data?: any): any {
             duration: 0.5,
           });
         },
+        onLine: () => {
+          message.success({
+            content: '上麦出现异常',
+            duration: 0.5,
+          });
+        },
+        offLine: () => {
+          message.success({
+            content: '下麦出现异常',
+            duration: 0.5,
+          });
+        },
         delete: () => {
           message.error({
             content: '删除失败',
@@ -100,6 +124,6 @@ export function handleError(handler: handleType, data?: any): any {
         : keyReact[key]?.();
     });
   } else {
-    // message.error('网络开小差了~~');
+    message.error(data.message);
   }
 }

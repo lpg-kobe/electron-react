@@ -28,7 +28,12 @@ type PropsType = {
 }
 
 function MenuInfo(props: PropsType) {
-    const { room: { detailMenu }, detail: { imgTextList }, dispatch, match: { params: { id: roomId } } } = props
+    const {
+        room: { detailMenu },
+        detail: { imgTextList },
+        dispatch,
+        match: { params: { id: roomId } }
+    } = props
     const initVisible: any = {
         2: false,
         4: false,
@@ -91,11 +96,12 @@ function MenuInfo(props: PropsType) {
     return <section className="section-menu">
         <nav>
             {
-                detailMenu && detailMenu.map((menu: MenuType) => <a key={menu.menuType} onClick={() => handleOpentab(menu)} className={`${visible[menu.menuType] ? 'active' : ''}`}>
-                    {
-                        menu.name
-                    }
-                </a>)
+                detailMenu.length && (typeof detailMenu[0].sort !== 'undefined') ?
+                    detailMenu.map((menu: MenuType) => <a key={menu.menuType} onClick={() => handleOpentab(menu)} className={`${visible[menu.menuType] ? 'active' : ''}`}>
+                        {
+                            menu.name
+                        }
+                    </a>) : null
             }
         </nav>
         <AModal className="ofweek-modal introduce big draggable" draggable={true} footer={null} title={

@@ -3,36 +3,62 @@
  * @author pika
  */
 import dynamic from 'dva/dynamic';
+import { RouteConfigsType } from './utils/type'
 // set default loading before component load
 // dynamic.setDefaultLoadingComponent(Loading)
-export default [
+const RouteArrs: RouteConfigsType = [
   {
     path: '/',
-    pathname: 'Home',
+    pathname: '首页',
+    initTrtc: true,
+    heartBeat: true,
     component: (app: any) =>
       dynamic({
         // @ts-ignore
         app,
         component: () => import('./views/home/index'),
         // @ts-ignore
-        models: () => [import('./models/home')],
+        models: () => [
+          import('./models/home'),
+          import('./models/room')
+        ]
+      }),
+  }
+  ,
+  // 启动页面
+  {
+    path: '/launch',
+    pathname: '启动页',
+    initTrtc: false,
+    heartBeat: false,
+    component: (app: any) =>
+      dynamic({
+        // @ts-ignore
+        app,
+        // @ts-ignore
+        component: () => import('./middleware/launch'),
+        models: () => []
       }),
   },
   {
     path: '/login',
-    pathname: 'Login',
+    pathname: '登录',
+    initTrtc: false,
+    heartBeat: false,
     component: (app: any) =>
       dynamic({
         // @ts-ignore
         app,
         // @ts-ignore
         component: () => import('./views/auth/login'),
-        models: () => [],
+        models: () => [import('./models/room'),]
       }),
   },
   {
     path: '/room/:id',
-    pathname: 'room-info',
+    pathname: '直播间',
+    initTrtc: false,
+    heartBeat: true,
     component: (app: any) =>
       dynamic({
         // @ts-ignore
@@ -43,8 +69,12 @@ export default [
         models: () => [
           import('./models/room'),
           import('./models/room/detail'),
-          import('./models/room/chat')
+          import('./models/room/chat'),
+          import('./models/room/video'),
+          import('./models/room/speech')
         ],
       }),
   },
-];
+]
+
+export default RouteArrs;

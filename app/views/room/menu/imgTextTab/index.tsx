@@ -1,17 +1,21 @@
 /**
  * @desc 图文直播描述
+ * @feature 1、单独封装一个input图文编辑器确保onchange事件回调最小面积reRender
+ * @feature 2、拖拽modal限制只能头部拖拽
+ * @feature 3、封装一个通用的scroll component
  */
 'use strict'
 import React, { useState, useEffect } from 'react';
 import { connect } from 'dva';
 import { withRouter } from 'dva/router';
 import { Input, Button, Upload, Modal, message } from 'antd'
+import moment from 'moment'
 // @ts-ignore
 import AModal from '@/components/modal';
-import moment from 'moment'
-
 // @ts-ignore
-import { filterBreakWord, tottle } from '@/utils/tool'
+import BreakWord from '@/components/breakWord'
+// @ts-ignore
+import { tottle } from '@/utils/tool'
 // @ts-ignore
 import { API_HOST } from '@/constants'
 
@@ -23,7 +27,12 @@ type PropsType = {
 }
 
 const ImgTextTab = (props: PropsType) => {
-    const { detail: { imgTextList, imgTextHasMore, imgTextLoading }, room: { userStatus }, dispatch, match: { params: { id: roomId } } } = props
+    const {
+        detail: { imgTextList, imgTextHasMore, imgTextLoading },
+        room: { userStatus },
+        dispatch,
+        match: { params: { id: roomId } }
+    } = props
     const userIsForbit = userStatus.isForbit === 1
 
     const [inputValue, setInputValue] = useState('')
@@ -38,14 +47,23 @@ const ImgTextTab = (props: PropsType) => {
     })
 
     useEffect(() => {
+        // 图文数据更新时重新绑定监听事件确保事件触发时拿到最新的数据
         const scrollDom: any = document.querySelector('.ofweek-modal.img-text .ant-modal-body')
-        scrollDom && scrollDom.addEventListener('scroll', () => { tottle(animateToScroll) })
-        return () => {
-            scrollDom && scrollDom.removeEventListener('scroll', () => {
-                tottle(animateToScroll)
-            })
+        if (!scrollDom || !imgTextList.length) {
+            return
         }
-    }, [])
+        // clear prev listener before bind new listener
+        scrollDom.removeEventListener('scroll', handleListener)
+        scrollDom.addEventListener('scroll', handleListener)
+        return () => {
+            scrollDom && scrollDom.removeEventListener('scroll', handleListener)
+        }
+    }, [imgTextList.length])
+
+    // callback of listener
+    function handleListener() {
+        tottle(animateToScroll)
+    }
 
     // open review img
     function handleOpenReview() {
@@ -209,7 +227,7 @@ const ImgTextTab = (props: PropsType) => {
             payload: {
                 params: {
                     roomId,
-                    msgId: imgTextList[0] && imgTextList[0].msgId,
+                    msgId: imgTextList[imgTextList.length - 1].msgId,
                     size: 20
                 },
                 onSuccess: {
@@ -259,7 +277,9 @@ const ImgTextTab = (props: PropsType) => {
                             </div>
                             <div className="item-b">
                                 {
-                                    item.text.length ? <p dangerouslySetInnerHTML={{ __html: filterBreakWord(item.text) }}></p> : null
+                                    item.text.length ? <BreakWord options={{
+                                        text: item.text
+                                    }} /> : null
                                 }
                                 {
                                     item.imageVoList && item.imageVoList.length ?
@@ -337,8 +357,9 @@ const ImgTextTab = (props: PropsType) => {
             onCancel={() => setReviewShow(false)}
         >
             {
-                inputValue && <p dangerouslySetInnerHTML={{ __html: filterBreakWord(inputValue) }}>
-                </p>
+                inputValue && <BreakWord options={{
+                    text: inputValue
+                }} />
             }
 
             {

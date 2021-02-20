@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Windows>
+   <Font id="80" size="80" bold="true"/>
+   <VerticalLayout>
+   	<VerticalLayout width="480" height="250" roundcorner="5,5" bkcolor="#FFF2F2F2">
+	  <Label align="center" width="60" height="60" bkimage="public\bk\bk_logo.png" padding="209,78,0,0"></Label>
+	  <Label align="center" font="16" textcolor="#FF333333" text="OFweek直播客户端" padding="0,10,0,0"/>
+	</VerticalLayout>
+	<VerticalLayout bkcolor="#FFFFFFFF" >   
+	
+	<Label font="8" width="260" height="25" padding="30,30,0,0" textcolor="#0x4CA6FF" text="确定要卸载OFweek直播？" /> 
+	<HorizontalLayout padding="30,45,0,0" height="30" >
+      <CheckBox name="chkbox_userdata" width="130" heigh="20" padding="0,6,0,0" font="7" text="保留我的数据" textcolor="#FF333333" selected="true" valign="center" align="left" textpadding="20,-3,0,0" normalimage="file='public/CheckBox/check_no.png' dest='0,2,16,18'" normalhotimage="file='public/CheckBox/check_no.png' dest='0,2,16,18'" selectedimage="file='public/CheckBox/check_red.png' dest='0,2,16,18'" selectedhotimage="file='public/CheckBox/check_red.png' dest='0,2,16,18'"/>
+	  <Control />     
+	  <Button name="btnUnInstall" font="6" text="狠心卸载"  textcolor="#FF666666" normalimage="file='public/button/btn_global_white_80x30_normal.png' " hotimage="file='public/button/btn_global_white_80x30_hovered.png'" pushedimage="file='public/button/btn_global_white_80x30_pushed.png'" width="100" height="30"/>
+	  <Control width="10" />
+	  <Button name="btnClose" font="6" text="保留"  textcolor="#FFFFFFFF" bkcolor="#FFAF0101"  width="80" height="30"/>
+      <Control width="20" />
+     </HorizontalLayout>
+	 <Control height="10" />
+	</VerticalLayout>
+ </VerticalLayout>
+</Windows>

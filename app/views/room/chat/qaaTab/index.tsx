@@ -1,16 +1,14 @@
 /**
  * @desc 直播间问答区
  */
-import React, { useState, useRef, useLayoutEffect, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { connect } from 'dva';
 import { withRouter } from 'dva/router';
-// @ts-ignore
-import { scrollElement, tottle, nextTick, filterBreakWord } from '@/utils/tool'
-// @ts-ignore
-import Editor from '@/components/editor'
+import { scrollElement, tottle, nextTick } from '../../../../utils/tool'
+import Editor from '../../../../components/editor'
+import AModal from '../../../../components/modal'
+import BreakWord from '../../../../components/breakWord'
 import { Modal, Input, message, Button } from 'antd'
-// @ts-ignore
-import AModal from '@/components/modal'
 import moment from 'moment'
 
 type PropsType = {
@@ -22,7 +20,7 @@ type PropsType = {
 
 function QAndAInfo(props: PropsType) {
     const {
-        chat: { qaaList, qaaHasMore: dataHasMore, qaaScrollTop },
+        chat: { qaaList, qaaLoading, qaaHasMore: dataHasMore, qaaScrollTop },
         dispatch,
         match: { params: { id: roomId } },
         room: { userStatus }
@@ -30,7 +28,6 @@ function QAndAInfo(props: PropsType) {
 
     const userIsForbit = userStatus.isForbit === 1
 
-    const [dataLoading, setDataLoading] = useState(true)
     const [answerShow, setAnswerShow] = useState(false)
     const [answerValue, setAnswerValue] = useState('')
     const [curMsg, setCurMsg] = useState({
@@ -42,7 +39,9 @@ function QAndAInfo(props: PropsType) {
         type: 1
     })
     const scrollRef: any = useRef(null)
-    useLayoutEffect(() => {
+
+    useEffect(() => {
+        // init data and scroll to bottom
         dispatch({
             type: 'chat/getQaaList',
             payload: {
@@ -51,9 +50,17 @@ function QAndAInfo(props: PropsType) {
                     roomId,
                     size: 50
                 },
-                isInit: true,
                 onSuccess: {
-                    search: () => setDataLoading(false)
+                    search: () => {
+                        window.requestAnimationFrame(() => {
+                            dispatch({
+                                type: 'chat/save',
+                                payload: {
+                                    qaaScrollTop: 'scroll:bottom'
+                                }
+                            })
+                        })
+                    }
                 }
             }
         })
@@ -74,10 +81,15 @@ function QAndAInfo(props: PropsType) {
 
     // handle scroll top of chat area
     function handleScrollTop() {
-        if (dataLoading || !dataHasMore) {
+        if (qaaLoading || !dataHasMore) {
             return
         }
-        setDataLoading(true)
+        dispatch({
+            type: 'chat/save',
+            payload: {
+                qaaLoading: true
+            }
+        })
         const prevScrollHeight = scrollRef.current.scrollHeight
         dispatch({
             type: 'chat/getQaaList',
@@ -89,7 +101,6 @@ function QAndAInfo(props: PropsType) {
                 },
                 onSuccess: {
                     search: () => {
-                        setDataLoading(false)
                         // dom元素位置更新后滚动至追加数据前第一条消息位置
                         nextTick(scrollRef.current, ({ scrollHeight }: any) => {
                             dispatch({
@@ -209,7 +220,7 @@ function QAndAInfo(props: PropsType) {
                         dispatch({
                             type: 'chat/save',
                             payload: {
-                                inputValue: ''
+                                editorValue: ['']
                             }
                         })
                     }
@@ -223,7 +234,7 @@ function QAndAInfo(props: PropsType) {
             {
                 qaaList.length ? <>
                     {
-                        dataLoading || dataHasMore ? null : <div className="wrap-item no-more">加载完毕~~</div>
+                        qaaLoading || dataHasMore ? null : <div className="wrap-item no-more">加载完毕~~</div>
                     }
                     {
                         qaaList.map((item: any) => <li key={Math.random()} className="wrap-item" id={`msg-${item.msgId}`}>
@@ -239,9 +250,12 @@ function QAndAInfo(props: PropsType) {
                                         }
                                     </label>
                                 </div>
-                                <p className="contain" dangerouslySetInnerHTML={{
-                                    __html: filterBreakWord(item.content)
-                                }}></p>
+                                <BreakWord
+                                    options={{
+                                        text: item.content
+                                    }}
+                                    className="contain"
+                                />
                                 <div className="operate">
                                     {
                                         userStatus.role === 1 ? <a onClick={() => !userIsForbit && handleDelAnswer(item)} className={userIsForbit ? 'disabled' : ''} title={userIsForbit ? "您已被禁言" : ""}>删除</a> : null
@@ -256,13 +270,16 @@ function QAndAInfo(props: PropsType) {
                                             <h1>{answer.nick} [答疑{answer.identity}]</h1>
                                             <label>
                                                 {
-                                                    moment(item.createDate).format('YYYY-MM-DD HH:mm')
+                                                    moment(answer.createDate).format('YYYY-MM-DD HH:mm')
                                                 }
                                             </label>
                                         </div>
-                                        <p className="contain" dangerouslySetInnerHTML={{
-                                            __html: filterBreakWord(answer.content)
-                                        }}></p>
+                                        <BreakWord
+                                            options={{
+                                                text: answer.content
+                                            }}
+                                            className="contain"
+                                        />
                                         {
                                             String(userStatus.imAccount) === String(answer.senderId) || userStatus.role === 1 ? <div className="operate">
                                                 <a onClick={() => handleDelAnswer(answer)} className={userIsForbit ? 'disabled' : ''} title={userIsForbit ? "您已被禁言" : ""}> 删除</a>
@@ -276,15 +293,15 @@ function QAndAInfo(props: PropsType) {
                 </> : <h3>暂时无人发言，快来抢占沙发~</h3>
             }
             {
-                dataLoading && <div className="list-loading">{'加载中...'}</div>
+                qaaLoading && <div className="list-loading">{'加载中...'}</div>
             }
         </ul>
-        <Editor onSubmit={handleSendQues} placeholder='我要提问' />
+        <Editor onSubmit={handleSendQues} placeholder='我要提问' editorId="qaaEditor" />
         <AModal draggable={true}
             className="ofweek-modal draggable ofweek-answer-modal"
             width={520}
             title={
-                <h1 className="ofweek-modal-title">
+                <h1 className="ofweek-modal-title z2">
                     文字解答
             </h1>
             }
@@ -296,12 +313,22 @@ function QAndAInfo(props: PropsType) {
             onOk={handleEditAnswer}>
             <div className="modal-line">
                 <label>[问题内容]</label>
-                <span dangerouslySetInnerHTML={{ __html: filterBreakWord(curMsg.content) }}></span>
+                <BreakWord
+                    options={{
+                        text: curMsg.content,
+                        container: 'span'
+                    }}
+                />
             </div>
             {
                 curMsg.answer && <div className="modal-line anchor">
                     <label>[我的解答]</label>
-                    <span dangerouslySetInnerHTML={{ __html: filterBreakWord(curMsg.answer) }}></span>
+                    <BreakWord
+                        options={{
+                            text: curMsg.answer,
+                            container: 'span'
+                        }}
+                    />
                 </div>
             }
             <Input.TextArea className="modal-line textarea" placeholder="请输入内容" value={answerValue} onChange={({ target: { value } }: any) => setAnswerValue(value)} />

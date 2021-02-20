@@ -132,6 +132,12 @@
 .home-page-container .ant-list {
   margin-top: 20px;
 }
+.home-page-container .ant-list .ant-spin-nested-loading {
+  min-height: 58vh;
+}
+.home-page-container .ant-list .ant-list-empty-text {
+  padding-top: 30vh;
+}
 .home-page-container .ant-list .wrap-item {
   cursor: pointer;
   height: 190px;
