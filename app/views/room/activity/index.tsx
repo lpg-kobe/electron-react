@@ -5,10 +5,8 @@ import React from 'react';
 import { connect } from 'dva';
 
 function ActivityInfo() {
-    return <section className="section-activity">
-
-    </section>
+  return <section className="section-activity" />;
 }
 export default connect(({ room }: any) => ({
-    room: room.toJS(),
+  room: room.toJS(),
 }))(ActivityInfo);

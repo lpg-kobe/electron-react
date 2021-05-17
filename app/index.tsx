@@ -5,17 +5,18 @@
 
 import dva from 'dva';
 import './assets/style/global.less';
+import './utils/i18n';
 
-const routes = require('./routes').default;
-const systemModal = require('./models/system').default;
-const authModal = require('./models/auth').default;
+import routes from './routes';
+import systemModal from './models/system';
+import authModal from './models/auth';
 
-document.addEventListener('DOMContentLoaded', () => {
-  const dvaOpts = {};
-  const app = dva(dvaOpts);
-  app.router(routes);
-  // app.use()
-  app.model(systemModal);
-  app.model(authModal);
-  app.start('#root');
-});
+// document.addEventListener('DOMContentLoaded', () => {
+const dvaOpts = {};
+const app = dva(dvaOpts);
+app.router(routes);
+// app.use()
+app.model(systemModal);
+app.model(authModal);
+app.start('#root');
+// });

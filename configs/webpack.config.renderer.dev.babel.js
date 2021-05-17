@@ -284,7 +284,7 @@ export default merge(baseConfig, {
     // create main process before webpack render page
     before () {
       if (process.env.START_HOT) {
-        console.log('Starting Main Process...')
+        console.log(chalk.blue.bold('Starting Main Process...'))
         spawn('npm', ['run', 'start-main-dev'], {
           shell: true,
           env: process.env,

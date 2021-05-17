@@ -30,10 +30,14 @@ node_modules
 # OSX
 .DS_Store
 
+0.*
+
 # App packaged
 release
 app/main.prod.js
 app/main.prod.js.map
+app/main.prod.js.LICENSE.txt
+app/main.prod.js.LICENSE
 app/renderer.prod.js
 app/renderer.prod.js.map
 app/style.css
@@ -50,6 +54,15 @@ main.js.map
 # Build tool
 nsis-build/FilesToInstall/**/*
 nsis-build/Output/**/*
+nsis-build/NSIS/**/*
+nsis-build/SetupScripts/app.nsh
+nsis-build/SetupScripts/app.7z
+nsis-build/SetupScripts/nim/skin.zip
+nsis-build/7z.dll
+nsis-build/7z.exe
+nsis-build/Description_of_NiuniuSetupSkin.doc
+nsis-build/安装包报毒解决方法.txt
+nsis-build/打包配置及流程说明.doc
 
 .idea
 npm-debug.log.*

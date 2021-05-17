@@ -2,21 +2,24 @@
  * @desc common request of fetch
  * @author pika
  */
-const fetch = require('dva/fetch');
-const { API_HOST } = require('@/constants');
-import { RENDERER_EVENT, rendererSend, RENDERER_CODE } from './ipc'
-const { handleSuccess, handleError } = require('./reponseHandler');
-import { Modal } from 'antd'
-const { removeUserSession } = require('./session');
 
-type HandlerType = {
+import { RENDERER_EVENT, rendererSend, RENDERER_CODE } from './ipc';
+import { getUserSession } from './session';
+import { getStore } from './tool';
+import fetch from 'dva/fetch';
+import i18n from 'i18next'
+import { API_HOST } from '../constants';
+import { handleSuccess, handleError } from './reponseHandler';
+const fetchController = new AbortController(); // 实验性功能
+
+interface HandlerType {
   onSuccess?: any;
-};
+}
 
-type ErrorType = {
+interface ErrorType {
   response?: any;
   message?: any;
-};
+}
 
 function parseJSON(response: any): any {
   return response.json();
@@ -45,24 +48,27 @@ export default function request(
   options: any,
   handler: HandlerType
 ) {
-  const token = '';
+  // staus of request 0waiting 1success 2timeout
+  let fetchStatus = 0;
+
   // 配置默认headers
   const headers = {
     'Content-Type': 'application/json;charset=UTF-8',
-    'devType': 6,
+    devType: 6,
+    'Accept-Language': getStore('userConfig')?.language || getStore('language') || 'zh',
+    userToken: getUserSession()?.userToken,
     ...options?.headers,
   };
+
   if (options?.body && options.body instanceof FormData) {
     delete headers['Content-Type'];
-  }
-  if (token) {
-    headers['header-token'] = token;
   }
 
   // 配置默认设置
   const settings = {
     method: 'GET',
     mode: 'cors',
+    signal: fetchController.signal,
     credentials: 'include',
     ...options,
     headers,
@@ -71,53 +77,67 @@ export default function request(
   const fixUrl = (API_HOST + url)
     .replace(/\/\//g, '/')
     .replace(/:\/([^/])/, '://$1');
+
   // 非GET方式不允许缓存
   if (settings.method.toUpperCase() !== 'GET') {
     settings['Cache-Control'] = 'no-cache';
   }
+
+  // 超时设置
+  setTimeout(() => {
+    if (fetchStatus !== 1) {
+      fetchStatus = 2;
+    }
+  }, 5 * 1000);
+
   return fetch(fixUrl, settings)
     .then(checkStatus)
     .then(parseJSON)
-    .then((data: any) => {
-      if (data.code !== 0) {
-        // 登录过期
-        if (data.code === -10 || data.code === -20 || data.code === -22) {
-          const { CLOSE_PAGE } = RENDERER_CODE
+    .then(
+      (data: any) => {
+        if (fetchStatus === 2) {
+          handleError(handler, { message: `${i18n.t('网络不给力')}~~` });
+          return {
+            status: false,
+            data: new Response('timeout', {
+              status: 504,
+              statusText: 'timeout',
+            }),
+          };
+        } else {
+          fetchStatus = 1;
+        }
+
+        if (data.code !== 0) {
+          // 登录过期
+          if (data.code === -10 || data.code === -20 || data.code === -22) {
+            fetchController.abort();
+            const { KICKED_OUT } = RENDERER_CODE;
+            handleError(handler, data);
+            // send kicked out notice to all window
+            rendererSend(RENDERER_EVENT.RENDERER_SEND_CODE, {
+              code: KICKED_OUT,
+              data,
+            });
+            return { status: false, data };
+          }
           handleError(handler, data);
-          Modal.warn({
-            centered: true,
-            content: '您的账号在其它设备登录，您已下线',
-            title: '提示',
-            onOk: () => {
-              removeUserSession()
-              rendererSend(RENDERER_EVENT.RENDERER_SEND_CODE, {
-                code: CLOSE_PAGE
-              })
-            },
-            onCancel: () => {
-              removeUserSession()
-              rendererSend(RENDERER_EVENT.RENDERER_SEND_CODE, {
-                code: CLOSE_PAGE
-              })
-            }
-          })
           return { status: false, data };
         }
-        handleError(handler, data);
-        return { status: false, data }
-      }
 
-      if (handler && handler.onSuccess) {
-        handleSuccess(handler, data);
-      }
+        if (handler?.onSuccess) {
+          handleSuccess(handler, data);
+        }
 
-      return { status: true, data };
-    }, (err: any) => {
-      handleError(handler, { message: '网络不给力~~' });
-      return {
-        err,
-        status: false,
-        data: {},
-      };
-    })
+        return { status: true, data };
+      },
+      (err: any) => {
+        handleError(handler, { message: `${i18n.t('网络不给力')}~~` });
+        return {
+          err,
+          status: false,
+          data: {},
+        };
+      }
+    );
 }

@@ -3,9 +3,9 @@
  * @author pika
  */
 
-const { v4 } = require('uuid');
-// flag of requestAnimationFrame 
-let rafFlag: any = {}
+import { v4 } from 'uuid';
+// flag of requestAnimationFrame
+let rafFlag: any = {};
 
 // random guid base Number(16)
 export function createGUID() {
@@ -15,11 +15,11 @@ export function createGUID() {
 export function getStore(name: any) {
   try {
     // @ts-ignore
-    return JSON.parse(localStorage.getItem(name))
+    return JSON.parse(localStorage.getItem(name));
   } catch (error) {
     console.warn('can not parse user object witch you want to get...');
     // @ts-ignore
-    return {}
+    return {};
   }
 }
 
@@ -38,49 +38,54 @@ export function removeStore(key: any) {
 
 export function scrollElement(dom: HTMLElement, position: any) {
   if (!dom.nodeType) {
-    throw new Error(`target of ${dom} is not an HTMLElement`)
+    throw new Error(`target of ${dom} is not an HTMLElement`);
   }
   if (isNaN(position)) {
     const scrollReact: any = {
-      'bottom': () => dom.scrollTop = dom.scrollHeight,
-      'top': () => dom.scrollTop = 0
-    }
-    scrollReact[position] && scrollReact[position]()
+      bottom: () => {
+        dom.scrollTop = dom.scrollHeight
+      },
+      top: () => {
+        dom.scrollTop = 0
+      },
+    };
+    scrollReact[position]?.();
   } else {
-    dom.scrollTop = position
+    dom.scrollTop = position;
   }
 }
 
 // 跟随屏幕帧率节流
 export function tottle(fn: any, key?: string) {
-  key = key || 'default'
+  key = key || 'default';
   if (!rafFlag[key]) {
     window.requestAnimationFrame(() => {
-      fn()
-      // @ts-ignore
-      rafFlag[key] = false
-    })
+      fn();
+      rafFlag[key] = false;
+    });
   }
-  rafFlag[key] = true
+  rafFlag[key] = true;
 }
 
 // debounce防抖
-export function debounce(fn: () => void, wait?: number, immediate?: boolean, context?: any) {
-  wait = wait || 50
-  let timer: any = null
+export function debounce(
+  fn: () => void,
+  wait?: number,
+  immediate?: boolean,
+  context?: any
+) {
+  wait = wait || 250;
+  let timer: any = null;
   return function () {
     if (immediate) {
-      // @ts-ignore
-      fn.apply(this, [...arguments, context])
+      fn.apply(this, [...arguments, context]);
     }
     clearTimeout(timer);
     timer = setTimeout(() => {
-      // @ts-ignore
-      fn.apply(this, [...arguments, context])
-    }, wait)
-  }
+      fn.apply(this, [...arguments, context]);
+    }, wait);
+  };
 }
-
 
 /**
  * @desc 跟随帧率刷新获取dom最新的位置
@@ -88,44 +93,68 @@ export function debounce(fn: () => void, wait?: number, immediate?: boolean, con
  * @param {Function} callback 回调函数
  */
 export function nextTick(dom: HTMLElement | string, callback?: any) {
-  const realDom: any = typeof (dom) === 'string' ? document.querySelector(dom) : dom
+  const realDom: any =
+    typeof dom === 'string' ? document.querySelector(dom) : dom;
   if (!realDom.nodeType) {
-    throw new Error(`target of ${realDom} is not an HTMLElement`)
+    throw new Error(`target of ${realDom} is not an HTMLElement`);
   }
 
-  const rect = realDom.getBoundingClientRect()
+  const rect = realDom.getBoundingClientRect();
   // 触发首次对比
-  let prevTop = rect.top - 1
-  let prevLeft = rect.left - 1
+  let prevTop = rect.top - 1;
+  let prevLeft = rect.left - 1;
 
   function getPosition() {
-    const nextRect = realDom.getBoundingClientRect()
+    const nextRect = realDom.getBoundingClientRect();
     if (prevTop !== nextRect.top || prevLeft !== nextRect.left) {
-      prevTop = nextRect.top
-      prevLeft = nextRect.left
-      window.requestAnimationFrame(getPosition)
-      return 'not real position'
+      prevTop = nextRect.top;
+      prevLeft = nextRect.left;
+      window.requestAnimationFrame(getPosition);
+      return 'not real position';
     } else {
       const curRect = {
         offsetTop: realDom.offsetTop,
         offsetLeft: realDom.offsetLeft,
         scrollHeight: realDom.scrollHeight,
-        rect: realDom.getBoundingClientRect()
-      }
-      callback && callback(curRect);
-      return curRect
+        rect: realDom.getBoundingClientRect(),
+      };
+      callback?.(curRect);
+      return curRect;
     }
   }
-  getPosition()
+  getPosition();
 }
 
+/**
+ * @desc 屏幕帧率检测
+ */
+export function checkFps(cb?: (num: number) => void) {
+  let initTime = performance.now();
+  let prevTime = performance.now();
+  let frame = 0;
+  let fps = 60;
+  return function loop() {
+    const now = performance.now();
+    const fs = now - prevTime;
+    fps = Math.round(1000 / fs);
+    prevTime = now;
+    frame++;
+    if (now >= 1000 + initTime) {
+      fps = Math.round((frame * 1000) / (now - initTime));
+      frame = 0;
+      initTime = now;
+    }
+    cb?.(fps);
+    window.requestAnimationFrame(loop);
+  };
+}
 
 /**
  * @desc 过滤字符文本换行符
  * @param {String} text 文本内容
  */
 export function filterBreakWord(text: any) {
-  return text.replace(/\n/g, '<br/>')
+  return text.replace(/\n/g, '<br/>');
 }
 
 /**
@@ -133,13 +162,13 @@ export function filterBreakWord(text: any) {
  * @param {String} path hashRouter-path or browserRouter-path
  */
 export function judgeRouterUrl(path: string) {
-  path = path.replace(/^\//, '')
+  path = path.replace(/^\//, '');
   // hashRouter
   if (location.hash) {
-    return `${location.origin}${location.pathname}#/${path}`
+    return `${location.origin}${location.pathname}#/${path}`;
   } else {
     // browserRouter
-    return `${location.origin}${location.pathname}${path}`
+    return `${location.origin}${location.pathname}${path}`;
   }
 }
 
@@ -149,17 +178,21 @@ export function judgeRouterUrl(path: string) {
  * @param {timer} setTimeout timer result
  * @param {delay} Number 间隔时间
  */
-export function loopToInterval(fn: Function, timer: any, delay: number = 8 * 1000) {
+export function loopToInterval(
+  fn: Function,
+  timer: any,
+  delay: number = 8 * 1000
+) {
   async function loop() {
     if (timer) {
-      clearTimeout(timer)
-      timer = null
+      clearTimeout(timer);
+      timer = null;
     }
-    const isContinue = await fn()
-    isContinue && (timer = setTimeout(loop, delay))
+    const isContinue = await fn();
+    isContinue && (timer = setTimeout(loop, delay));
   }
-  loop()
-  return timer
+  loop();
+  return timer;
 }
 
 /**
@@ -169,42 +202,90 @@ export function loopToInterval(fn: Function, timer: any, delay: number = 8 * 100
  * @param {Number||null} timer setTimeout timer
  * @param {Function} fn callback after countdown
  */
-export function countdown(endTime: number, timer: number | null, delay: number = 1 * 1000, fn: Function, curTime?: number) {
-  loopToInterval(() => {
-    curTime && (curTime += delay)
-    const distance = endTime - (curTime || new Date().getTime())
-    const disDay = Math.floor(distance / 24 / 60 / 60 / 1000)
-    const disHour = Math.floor((distance / 60 / 60 / 1000)) % 24
-    const disMin = Math.floor((distance / 60 / 1000)) % 60
-    const disSec = Math.floor((distance / 1000)) % 60
-    const disMs = distance % 1000
-    if (distance > 0) {
-      fn({
-        day: disDay < 10 ? `0${disDay}` : disDay,
-        hour: disHour < 10 ? `0${disHour}` : disHour,
-        minutes: disMin < 10 ? `0${disMin}` : disMin,
-        second: disSec < 10 ? `0${disSec}` : disSec,
-        milSecond: disMs,
-      })
-      return true
-    } else {
-      fn(0)
-      return false
-    }
-  }, timer, delay)
+export function countdown(
+  endTime: number,
+  timer: number | null,
+  delay: number = 1 * 1000,
+  fn: Function,
+  curTime?: number
+) {
+  loopToInterval(
+    () => {
+      curTime && (curTime += delay);
+      const distance = endTime - (curTime || new Date().getTime());
+      const disDay = Math.floor(distance / 24 / 60 / 60 / 1000);
+      const disHour = Math.floor(distance / 60 / 60 / 1000) % 24;
+      const disMin = Math.floor(distance / 60 / 1000) % 60;
+      const disSec = Math.floor(distance / 1000) % 60;
+      const disMs = distance % 1000;
+      if (distance > 0) {
+        fn({
+          day: disDay < 10 ? `0${disDay}` : disDay,
+          hour: disHour < 10 ? `0${disHour}` : disHour,
+          minutes: disMin < 10 ? `0${disMin}` : disMin,
+          second: disSec < 10 ? `0${disSec}` : disSec,
+          milSecond: disMs,
+        });
+        return true;
+      } else {
+        fn(0);
+        return false;
+      }
+    },
+    timer,
+    delay
+  );
 }
 
 /**
  * @desc 全屏元素
  */
 export function fullScreenEle(ele: any) {
-  ele = ele || document.documentElement
+  ele = ele || document.documentElement;
   const fullFn =
     ele.requestFullscreen ||
     ele.mozRequestFullScreen ||
     ele.webkitRequestFullscreen ||
     ele.msRequestFullscreen;
-  fullFn.call(ele)
+  fullFn.call(ele);
+}
+
+/**
+ * @desc 图片加载处理
+ * @param {src} Array | String
+ */
+export function loadImage(src, onComplete?: Function) {
+  if (Array.isArray(src)) {
+    let loadCount = 0;
+    let loadArrs = [];
+    let loadLen = src.length;
+    for (let i = 0; i < loadLen; i++) {
+      loadArrs[i] = new Image();
+      loadArrs[i].src = src[i];
+      loadArrs[i].onload = () => {
+        loadCount++;
+        loadCount === loadLen && onComplete?.(true);
+      };
+      loadArrs[i].onerror = () => {
+        loadCount++;
+        loadCount === loadLen && onComplete?.(true);
+      };
+    }
+  } else {
+    if (!src) {
+      onComplete?.(false);
+      return;
+    }
+
+    const imgInstance = new Image();
+    imgInstance.src = src;
+    imgInstance.onload = () => {
+      onComplete?.(true);
+    };
+    imgInstance.onerror = () => {
+      onComplete?.(false);
+    };
+  }
 }
 
 /**
@@ -215,7 +296,7 @@ export function exitFullScreen() {
     (document as any).exitFullScreen ||
     (document as any).mozCancelFullScreen ||
     (document as any).webkitExitFullscreen ||
-    (document as any).msExitFullscreen
+    (document as any).msExitFullscreen;
   cancelFn.call(document);
 }
 
@@ -224,8 +305,11 @@ export function exitFullScreen() {
  * @return {String} value
  */
 export function formatInput(inputEle: any, value: any) {
-  const initValue = inputEle.value
-  const focusStart = ~~inputEle.selectionStart
-  const focusEnd = ~~inputEle.selectionEnd
-  return `${initValue.slice(0, focusStart)}${value}${initValue.slice(focusEnd, initValue.length)}`
+  const initValue = inputEle.value;
+  const focusStart = ~~inputEle.selectionStart;
+  const focusEnd = ~~inputEle.selectionEnd;
+  return `${initValue.slice(0, focusStart)}${value}${initValue.slice(
+    focusEnd,
+    initValue.length
+  )}`;
 }

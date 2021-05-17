@@ -4,6 +4,7 @@
  */
 
 import TRTCElectron from 'trtc-electron-sdk'
+import Event from '../utils/event'
 const TIM = require('tim-js-sdk');
 const {
   Rect,
@@ -11,7 +12,9 @@ const {
   TRTCRoleType,
   TRTCAppScene,
   TRTCVideoResolution,
+  TRTCNetworkQosParam,
   TRTCVideoEncParam,
+  TRTCVideoQosPreference,
   TRTCVideoFillMode
 } = require('trtc-electron-sdk/liteav/trtc_define');
 
@@ -29,14 +32,14 @@ interface EnterRoomParams {
   privateKey: string; // 房间秘钥
 }
 
-type ConfigParam = {
+interface ConfigParam {
   sdkAppId: number; // 应用id
   imLogin: boolean; // 是否需要登录im
   userId: string | number; // 用户 ID
   userSig: string; // 签名
 };
 
-type SourceParam = {
+interface SourceParam {
   type: number; // 采集源类型
   sourceId: string; // 采集源ID，对于窗口，该字段指示窗口句柄；对于屏幕，该字段指示屏幕ID
   sourceName: string; // 采集源名称，UTF8编码
@@ -58,13 +61,12 @@ export const EVENT = {
     REMOTE_CLOSE_VIDEO: 'onUserVideoAvailable', // 远端用户关闭摄像头
     ERROR: 'onError',
     WARNING: 'onWarning',
+    NETWORK: 'onNetworkQuality',
+    STATISTICS: 'onStatistics' // 统计指标
   }
 };
 
 export default class TrtcElectronVideocast {
-  private sdkAppId: number;
-
-  private emmitter: Event;
 
   EVENT: any;
 
@@ -74,14 +76,19 @@ export default class TrtcElectronVideocast {
 
   TIM: any;
 
+  private sdkAppId: number;
+
+  private emmitter: any;
+
   constructor(config: ConfigParam) {
     const { userId, userSig, sdkAppId, imLogin } = config
     this.sdkAppId = sdkAppId;
     this.emmitter = new Event();
     this.EVENT = EVENT;
     // TRTCElectron.destroyTRTCShareInstance(); // clear prev trtc instance before init new instance,only open this if you sure to open only one trtc
-    this.trtcInstance = TRTCElectron.getTRTCShareInstance(); // trtc instance only create once 
-    // im-notice will not happend in page once not to set imLogin 
+    this.trtcInstance = TRTCElectron.getTRTCShareInstance(); // trtc instance only create once
+    this._initTrtcSetting()
+    // im-notice will not happend in page once not to set imLogin
     if (imLogin) {
       this.tim = this._initIm();
       this.TIM = TIM;
@@ -116,7 +123,7 @@ export default class TrtcElectronVideocast {
     });
   }
 
-  //登出IM
+  // 登出IM
   logoutIm() {
     let promise = this.tim.logout();
     promise.then(() => {
@@ -189,7 +196,7 @@ export default class TrtcElectronVideocast {
     });
   }
 
-  // tim sdk ready 
+  // tim sdk ready
   _onIMSdkReady() {
     this.emmitter.emit(EVENT.tim.SDK_READY, this);
   }
@@ -214,6 +221,14 @@ export default class TrtcElectronVideocast {
     } catch (e) { }
   }
 
+  // 初始化trtc设置
+  _initTrtcSetting() {
+    // 弱网保流畅
+    // const networkQosParam = new TRTCNetworkQosParam()
+    // networkQosParam.preference = TRTCVideoQosPreference.TRTCVideoQosPreferenceSmooth
+    // this.trtcInstance.setNetworkQosParam(networkQosParam)
+  }
+
   /**
    * @desc 本地摄像头预览并设置视频编码相关参数,enterRoom之后调用该方法会自动推流
    * @param {String} videoResolution 视频编码参数
@@ -224,7 +239,9 @@ export default class TrtcElectronVideocast {
     const videoParam = new TRTCVideoEncParam();
     videoParam.videoResolution =
       videoResolution || TRTCVideoResolution.TRTCVideoResolution_640_360;
-    this.trtcInstance.enableSmallVideoStream(true, videoParam) // 开启大小画面双路编码模式
+    videoParam.videoBitrate = 550;
+    this.trtcInstance.videoEncParam = videoParam;
+    // this.trtcInstance.enableSmallVideoStream(true, videoParam) // 开启大小画面双路编码模式
     this.trtcInstance.setVideoEncoderParam(videoParam);
     this.trtcInstance.startLocalPreview(view);
     this.trtcInstance.muteLocalVideo(false);
@@ -282,7 +299,7 @@ export default class TrtcElectronVideocast {
    * @desc 开启麦克风测试
    * @param {Number} interval 反馈音量间隔时间
    */
-  startMicTest(interval: number = 240) {
+  startMicTest(interval = 240) {
     this.trtcInstance.startMicDeviceTest(interval)
   }
 
@@ -369,7 +386,7 @@ export default class TrtcElectronVideocast {
    */
   enterRoom(params: EnterRoomParams) {
     this._enterRoom(Number(params.roomId), String(params.userId), String(params.userSig), String(params.privateKey))
-    this.openMic()
+    // this.openMic()
   }
 
   /**
@@ -405,7 +422,7 @@ export default class TrtcElectronVideocast {
     param.privateMapKey = privateKey;
     param.businessInfo = '';
     param.role = TRTCRoleType.TRTCRoleAnchor; // 主播，可以上行视频和音频
-    this.trtcInstance.enterRoom(param, TRTCAppScene.TRTCAppSceneLIVE); // 视频互动直播，支持平滑上下麦，切换过程无需等待，主播延时小于300ms；支持十万级别观众同时播放，播放延时低至1000ms
+    this.trtcInstance.enterRoom(param, TRTCAppScene.TRTCAppSceneVideoCall); // 视频通话场景，支持720P、1080P高清画质，单个房间最多支持300人同时在线，最高支持50人同时发言. faq: 开启TRTCAppSceneLIVE场景直接导致wap在ios播放异常卡顿?
   }
 
   on(eventName: any, handler: any, context?: any) {
@@ -414,67 +431,5 @@ export default class TrtcElectronVideocast {
 
   off(eventName: any, handler: any) {
     this.emmitter.off(eventName, handler);
-  }
-}
-
-class Event {
-  eventBus: any;
-
-  constructor() {
-    this.eventBus = this.eventBus || Object.create(null);
-  }
-
-  on(eventName: any, handler: any, context?: any) {
-    if (typeof handler !== 'function') {
-      console.error('Event handler must be a function');
-      return;
-    }
-    this.eventBus[eventName] = this.eventBus[eventName] || []
-    this.eventBus[eventName].push({
-      handler,
-      context,
-    });
-  }
-
-  emit(eventName: any, data: any) {
-    let eventCollection = this.eventBus[eventName];
-    const args: Array<any> = [];
-    if (eventCollection) {
-      eventCollection = [].slice.call(eventCollection);
-      args[0] = {
-        eventCode: eventName,
-        data,
-      };
-      for (let i = 0, len = eventCollection.length; i < len; i++) {
-        eventCollection[i].handler.apply(eventCollection[i].context, args);
-      }
-    }
-  }
-
-  off(eventName: any, handler: any) {
-    const eventCollection = this.eventBus[eventName];
-
-    // clear all eventBus when not give the eventName
-    if (!eventName) {
-      this.eventBus = Object.create(null);
-      return;
-    }
-
-    if (!eventCollection || !eventCollection.length) {
-      return;
-    }
-
-    if (!handler) {
-      delete this.eventBus[eventName];
-    }
-
-    for (let i = 0, len = eventCollection.length; i < len; i++) {
-      const fnName = (fun: any) => fun.name || fun.toString().match(/function\s*([^(]*)\(/)[1]
-      // remove event handler if function name of it is the same as eventCollection
-      if (fnName(eventCollection[i].handler) === fnName(handler)) {
-        eventCollection.splice(i, 1);
-        break;
-      }
-    }
   }
 }

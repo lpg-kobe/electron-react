@@ -4,6 +4,11 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.break {
+  white-space: normal;
+  word-wrap: break-word;
+  word-break: break-word;
+}
 .flex {
   display: flex;
 }
@@ -15,6 +20,9 @@
 .flex-between {
   display: flex;
   justify-content: space-between;
+}
+.flex-between.align-center {
+  align-items: center;
 }
 .flex-around {
   display: flex;
@@ -162,6 +170,7 @@
 .home-page-container .ant-list .wrap-item .item-img .status {
   display: inline-block;
   position: absolute;
+  padding: 0 10px;
   top: 6px;
   left: 6px;
   height: 18px;

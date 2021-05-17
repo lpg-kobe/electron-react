@@ -4,8 +4,8 @@
  */
 
 import immutable from 'immutable';
-// @ts-ignore
-import { login, sendSms, smsLogin } from '@/services/auth';
+import { login, logout, sendSms, smsLogin } from '../services/auth';
+import { rendererSend, RENDERER_EVENT, RENDERER_CODE } from '../utils/ipc';
 import {
   getUserSession,
   removeUserSession,
@@ -42,9 +42,14 @@ export default {
       yield call(sendSms, payload);
     },
 
-    *logout() {
+    *logout({ payload }: any, { call }: any) {
+      const { CLOSE_PAGE } = RENDERER_CODE
+      yield call(logout, payload);
       removeUserSession();
-      window.location.replace('/login');
+      // send close event to all pages and handle by hooks,so you can do sth before close page
+      rendererSend(RENDERER_EVENT.RENDERER_SEND_CODE, {
+        code: CLOSE_PAGE
+      })
     },
   },
 

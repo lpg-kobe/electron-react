@@ -7,174 +7,218 @@
  * @description 视频显示规则: 房间详情streamType(1|2)为非摄像机推流时取***************************  liveAnthorIds开播列的账户跟当前账户比对，非当前账户则播放视频流，播放的视频流可通过trtc广播接收，当前账户则自动下麦退出房间，没有开播列则显示封面
  */
 import React, { useEffect, useRef, useState } from 'react';
-import VideoPlayer from '../../../components/videoPlayer'
+import { useTranslation } from 'react-i18next';
+import VideoPlayer from '../../../components/videoPlayer';
+import Img from '../../../components/img';
+import Loading from '../../../components/loading';
 import { countdown, fullScreenEle, exitFullScreen } from '../../../utils/tool';
 
-type PropsType = {
-    dispatch(action: any): void,
-    auth: any,
-    room: any,
-    chat: any,
-    video: any,
-    detail: any,
-    rtcClient: any,
-    match: any
-}
+function AnchorVideo(props: any) {
+  const {
+    dispatch,
+    room: {
+      roomInfo,
+      roomIsBegin,
+      roomOpenCamera,
+      roomIsBeginOther,
+      roomOpenCameraOther,
+    },
+    video: {
+      videoAvatar,
+      videoLoading,
+      videoReviewList,
+      videoStreamType,
+      videoStreamSrc,
+    },
+  } = props;
+  const { t } = useTranslation();
 
-function AnchorVideo(props: PropsType) {
-    const {
-        dispatch,
-        rtcClient,
-        room: { roomInfo, roomIsBegin, roomOpenMic, roomOpenCamera, roomIsBeginOther, roomOpenCameraOther },
-        video: { videoReviewList, videoStreamType, videoStreamSrc }
-    } = props
+  const [countTime, setCountTime] = useState({
+    day: 0,
+    hour: 0,
+    minutes: 0,
+    second: 0,
+  });
+  const [reviewStart, setReviewStart] = useState(false);
+  const [isFullScreen, setIsFullScreen] = useState(false);
 
-    const [countTime, setCountTime] = useState({
-        day: 0,
-        hour: 0,
-        minutes: 0,
-        second: 0
-    })
-    const anchorVideoRef: any = useRef(null)
-    const videoBoxRef: any = useRef(null)
+  const anchorVideoRef: any = useRef(null);
+  const videoBoxRef: any = useRef(null);
 
-    useEffect(() => {
-        // 房间开播初始化媒体设备
-        switch (true) {
-            case Boolean(roomIsBegin && videoStreamType === 'camera'):
-                roomOpenCamera && rtcClient.openCamera(anchorVideoRef.current)
-                roomOpenMic && rtcClient.openMic()
-                break;
-        }
-    }, [roomIsBegin])
-
-    useEffect(() => {
-        // 预告倒计时
-        if (!roomInfo.startTime || roomInfo.status !== 3) {
-            return
-        }
-        let timer = null
-        const { curTime } = roomInfo
-        // @ts-ignore
-        timer = countdown(roomInfo.startTime, timer, 1000, (lessTime: any) => {
-            if (lessTime) {
-                setCountTime(lessTime)
-            } else {
-                // 倒计时结束自动调整房间状态
-                dispatch({
-                    type: 'room/save',
-                    payload: {
-                        roomInfo: {
-                            ...roomInfo,
-                            status: 1
-                        }
-                    }
-                })
-            }
-        }, curTime)
-    }, [roomInfo.startTime])
-
-    const [reviewStart, setReviewStart] = useState(false)
-    const [isFullScreen, setIsFullScreen] = useState(false)
-
-    /** handle toggle full screen of media element */
-    function toggleFullScreen() {
-        if (isFullScreen) {
-            exitFullScreen()
-            setIsFullScreen(false)
-        } else {
-            fullScreenEle(videoBoxRef.current)
-            setIsFullScreen(true)
-        }
+  useEffect(() => {
+    // 预告倒计时
+    if (!roomInfo.startTime || roomInfo.status !== 3) {
+      return;
     }
+    let timer = null;
+    const { curTime } = roomInfo;
+    timer = countdown(
+      roomInfo.startTime,
+      timer,
+      1000,
+      (lessTime: any) => {
+        if (lessTime) {
+          setCountTime(lessTime);
+        } else {
+          // 倒计时结束自动调整房间状态
+          dispatch({
+            type: 'room/save',
+            payload: {
+              roomInfo: {
+                ...roomInfo,
+                status: 1,
+              },
+            },
+          });
+        }
+      },
+      curTime
+    );
+  }, [roomInfo.startTime]);
 
-    const isVideoOrCamera = videoStreamType === 'video' ? <>
-        <VideoPlayer className="device-video"
-            options={{
-                flv: {
-                    sources: {
-                        type: 'flv',
-                        url: videoStreamSrc
-                    }
-                }
-            }} />
-    </>
-        : <>
-            <div className="anchor-video" ref={anchorVideoRef} id="liveVideo"></div>
-            {roomOpenCamera && <i className="icon icon-full-screen" title={isFullScreen ? '取消全屏' : '全屏'} onClick={toggleFullScreen}></i>}
-        </>
+  /** handle toggle full screen of media element */
+  function toggleFullScreen() {
+    if (isFullScreen) {
+      exitFullScreen();
+      setIsFullScreen(false);
+    } else {
+      fullScreenEle(videoBoxRef.current);
+      setIsFullScreen(true);
+    }
+  }
 
-    // 远端摄像头切换画面
-    const remoteCameraToggle = roomOpenCameraOther ? <VideoPlayer className="guest-video"
+  const isVideoOrCamera =
+    videoStreamType === 'video' ? (
+      <VideoPlayer
+        id="deviceVideoPlayer"
+        className="device-video dplayer dplayer-live dplayer-no-danmaku"
         options={{
-            flv: {
-                sources: {
-                    type: 'flv',
-                    url: videoStreamSrc
-                }
-            }
-        }} /> : <div className="guest-poster"></div>
-
-    // 开播中未上麦展示封面 | 嘉宾推流画面
-    const isGuestVideoOrPoster = roomIsBeginOther ?
-        remoteCameraToggle
-        :
-        <img src={roomInfo.bgUrl} alt="video-poster" className="cover" />
-
-    return <section className="section-video">
-        {/* 开播 */}
-        {
-            roomInfo.status === 1 && <div className="video-box" ref={videoBoxRef}>
-                {
-                    roomIsBegin ? isVideoOrCamera : isGuestVideoOrPoster
-                }
-            </div>
-        }
-        {/* 直播结束 | 预告 */}
-        {
-            !reviewStart && roomInfo.status !== 1 && <div className="video-poster flex-center">
-                <img src={roomInfo.bgUrl} alt="video-poster" className="cover" />
-                <div className="video-mask flex-center">
-                    <div className={`status-desc${roomInfo.status === 3 ? " will" : " end"}`}>
-                        {
-                            roomInfo.status === 3 ?
-                                <>
-                                    <h1>开播倒计时</h1>
-                                    <p className="countdown">
-                                        <label>{countTime.day}</label>
-                                        <span>天</span>
-                                        <label>{countTime.hour}</label>
-                                        <span>时</span>
-                                        <label>{countTime.minutes}</label>
-                                        <span>分</span>
-                                        <label>{countTime.second}</label>
-                                        <span>秒</span>
-                                    </p>
-                                </>
-                                :
-                                <>
-                                    {
-                                        // 结束状态展示回放||直播已结束
-                                        roomInfo.isViewVideo && videoReviewList && videoReviewList.length ?
-                                            <a onClick={() => setReviewStart(true)} className="review-btn">直播回顾</a>
-                                            : <p>
-                                                直播已结束
-                                        </p>
-                                    }
-                                </>
-                        }
-                    </div>
-                </div>
-            </div>
-        }
-        {/* 视频回顾 */}
-        {
-            reviewStart && <VideoPlayer
-                className="review-video"
-                options={{}}
-                videoList={videoReviewList}
+          flv: {
+            sources: {
+              type: 'flv',
+              url: videoStreamSrc,
+            },
+          },
+        }}
+      />
+    ) : (
+      <>
+        <Loading options={{ visible: videoLoading }} />
+        {roomOpenCamera ? (
+          <>
+            <div className="anchor-video" ref={anchorVideoRef} id="liveVideo" />
+            <i
+              className="icon icon-full-screen"
+              title={isFullScreen ? t('取消全屏') : t('全屏')}
+              onClick={toggleFullScreen}
             />
-        }
+          </>
+        ) : (
+          <Img
+            options={{
+              src: videoAvatar,
+              alt: 'anchor-default-avatar',
+            }}
+            placeImg={<div className="anchor-poster" />}
+          />
+        )}
+      </>
+    );
+
+  // 远端摄像头切换画面
+  const remoteCameraToggle = roomOpenCameraOther ? (
+    <VideoPlayer
+      id="remoteVideoPlayer"
+      className="guest-video dplayer dplayer-live dplayer-no-danmaku"
+      options={{
+        flv: {
+          sources: {
+            type: 'flv',
+            url: videoStreamSrc,
+          },
+        },
+      }}
+    />
+  ) : (
+    <Img
+      options={{
+        src: videoAvatar,
+        alt: 'guest-default-avatar',
+      }}
+      placeImg={<div className="guest-poster" />}
+    />
+  );
+
+  // 开播中未上麦展示封面 | 嘉宾推流画面
+  const isGuestVideoOrPoster = roomIsBeginOther ? (
+    remoteCameraToggle
+  ) : (
+    <img src={roomInfo.bgUrl} alt="video-poster" className="cover" />
+  );
+
+  return (
+    <section className="section-video">
+      {/* 开播 */}
+      {roomInfo.status === 1 && (
+        <div className="video-box" ref={videoBoxRef}>
+          {roomIsBegin ? isVideoOrCamera : isGuestVideoOrPoster}
+        </div>
+      )}
+      {/* 直播结束 | 预告 */}
+      {!reviewStart && roomInfo.status !== 1 && (
+        <div className="video-poster flex-center">
+          <img src={roomInfo.bgUrl} alt="video-poster" className="cover" />
+          <div className="video-mask flex-center">
+            <div
+              className={`status-desc${
+                roomInfo.status === 3 ? ' will' : ' end'
+              }`}
+            >
+              {roomInfo.status === 3 ? (
+                <>
+                  <h1>{t('开播倒计时')}</h1>
+                  <p className="countdown">
+                    <label>{countTime.day}</label>
+                    <span>{t('天')}</span>
+                    <label>{countTime.hour}</label>
+                    <span>{t('时')}</span>
+                    <label>{countTime.minutes}</label>
+                    <span>{t('分')}</span>
+                    <label>{countTime.second}</label>
+                    <span>{t('秒')}</span>
+                  </p>
+                </>
+              ) : (
+                <>
+                  {
+                    // 结束状态展示回放||直播已结束
+                    roomInfo.isViewVideo && videoReviewList?.length ? (
+                      <a
+                        onClick={() => setReviewStart(true)}
+                        className="review-btn"
+                      >
+                        {t('直播回顾')}
+                      </a>
+                    ) : (
+                      <p>{t('直播已结束')}</p>
+                    )
+                  }
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+      {/* 视频回顾 */}
+      {reviewStart && (
+        <VideoPlayer
+          className="review-video"
+          id="reviewVideoPlayer"
+          options={{}}
+          videoList={videoReviewList}
+        />
+      )}
     </section>
+  );
 }
-export default AnchorVideo
+export default AnchorVideo;

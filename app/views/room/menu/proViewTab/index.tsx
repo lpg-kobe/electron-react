@@ -1,7 +1,7 @@
 /**
  * @desc 直播间产品展示，暂不开发
  */
-'use strict'
+
 import React from 'react';
 import { connect } from 'dva';
 
@@ -12,10 +12,8 @@ import { connect } from 'dva';
 // }
 
 const ProViewTab = () => {
-    return (<div className="tab-container product-view">
-
-    </div>)
-}
+  return <div className="tab-container product-view" />;
+};
 export default connect(({ room }: any) => ({
-    room: room.toJS(),
+  room: room.toJS(),
 }))(ProViewTab);

@@ -14,11 +14,11 @@ import CheckNodeEnv from '../internals/scripts/CheckNodeEnv'
 import DeleteSourceMaps from '../internals/scripts/DeleteSourceMaps'
 
 CheckNodeEnv('production')
-// DeleteSourceMaps()
+DeleteSourceMaps()
 
 export default merge(baseConfig, {
-  devtool: 'inline-source-map',
-  // devtool: process.env.DEBUG_PROD === 'true' ? 'source-map' : 'none',
+  // devtool: 'inline-source-map',
+  devtool: process.env.DEBUG_PROD === 'true' ? 'source-map' : 'none',
 
   mode: 'production',
 
@@ -51,7 +51,7 @@ export default merge(baseConfig, {
           {
             loader: 'css-loader',
             options: {
-              sourceMap: true
+              sourceMap: false
             }
           }
         ]
@@ -69,7 +69,7 @@ export default merge(baseConfig, {
               // modules: {
               //   localIdentName: '[name]__[local]__[hash:base64:5]'
               // },
-              sourceMap: true,
+              sourceMap: false,
               importLoaders: 1
             }
           },
@@ -88,7 +88,7 @@ export default merge(baseConfig, {
           {
             loader: require.resolve('css-loader'),
             options: {
-              sourceMap: true,
+              sourceMap: false,
               importLoaders: 1
             }
           },
@@ -115,7 +115,7 @@ export default merge(baseConfig, {
               //   localIdentName: '[name]__[local]__[hash:base64:5]',
               // },
               importLoaders: 1,
-              sourceMap: true
+              sourceMap: false
             }
           },
           {
@@ -190,7 +190,7 @@ export default merge(baseConfig, {
       : [
           new TerserPlugin({
             parallel: true,
-            sourceMap: true,
+            sourceMap: false,
             cache: true
           }),
           new OptimizeCSSAssetsPlugin({

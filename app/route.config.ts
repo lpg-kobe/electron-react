@@ -4,8 +4,9 @@
  */
 import dynamic from 'dva/dynamic';
 import { RouteConfigsType } from './utils/type'
+import Loading from './components/loading'
 // set default loading before component load
-// dynamic.setDefaultLoadingComponent(Loading)
+dynamic.setDefaultLoadingComponent(Loading)
 const RouteArrs: RouteConfigsType = [
   {
     path: '/',
@@ -23,8 +24,7 @@ const RouteArrs: RouteConfigsType = [
           import('./models/room')
         ]
       }),
-  }
-  ,
+  },
   // 启动页面
   {
     path: '/launch',
@@ -51,14 +51,14 @@ const RouteArrs: RouteConfigsType = [
         app,
         // @ts-ignore
         component: () => import('./views/auth/login'),
-        models: () => [import('./models/room'),]
+        models: () => [import('./models/room')]
       }),
   },
   {
     path: '/room/:id',
     pathname: '直播间',
     initTrtc: false,
-    heartBeat: true,
+    heartBeat: false,
     component: (app: any) =>
       dynamic({
         // @ts-ignore
@@ -73,6 +73,19 @@ const RouteArrs: RouteConfigsType = [
           import('./models/room/video'),
           import('./models/room/speech')
         ],
+      }),
+  },
+  // demo
+  {
+    path: '/demo',
+    pathname: 'Demo',
+    initTrtc: false,
+    heartBeat: false,
+    component: (app: any) =>
+      dynamic({
+        app,
+        component: () => import('./views/demo'),
+        models: () => [import('./models/room')]
       }),
   },
 ]

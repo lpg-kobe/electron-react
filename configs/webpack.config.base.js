@@ -3,6 +3,9 @@
  */
 
 import path from 'path'
+import util from 'util'
+import chalk from 'chalk'
+import yargs from 'yargs'
 import webpack from 'webpack'
 import { dependencies as externals } from '../app/package.json'
 import { readFile2Json } from './tool'
@@ -10,8 +13,10 @@ import { readFile2Json } from './tool'
 const appRoot = path.join(__dirname, '..', 'app')
 const { defineKey } =
   process.env.NODE_ENV === 'production'
-    ? readFile2Json(path.join(appRoot, './.env.prod'))
+    ? yargs.argv?.env === 'dev' ? readFile2Json(path.join(appRoot, './.env.dev')) : readFile2Json(path.join(appRoot, './.env.prod'))
     : readFile2Json(path.join(appRoot, './.env.dev'))
+
+console.log(chalk.green.bold(`base config =======> ${util.format(defineKey)}`))
 
 export default {
   externals: [...Object.keys(externals || {})],
@@ -71,7 +76,10 @@ export default {
       NODE_ENV: 'production'
     }),
 
-    new webpack.DefinePlugin(defineKey),
+    new webpack.DefinePlugin({
+      ...defineKey,
+      __PACKAGE_DATE__: JSON.stringify(`${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate()} ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}`)
+    }),
 
     new webpack.NamedModulesPlugin()
   ]

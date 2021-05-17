@@ -5,10 +5,10 @@
 import React from 'react';
 import { Form, Col, Row } from 'antd';
 
-type PropsType = {
+interface PropsType {
   options: any;
   items?: any[];
-};
+}
 
 function AForm(props: PropsType) {
   const { options, items } = props;
@@ -16,24 +16,24 @@ function AForm(props: PropsType) {
 
   return (
     <Form {...options}>
-      {items &&
-        items.map((item: any, num: number) =>
-          item.items ?
-            <Row key={num}>
-              {item.items.map((ele: any, index: number, arr: []) => (
-                <Col key={index} span={24 / arr.length}>
-                  <FormItem {...ele.options}>{ele.component}</FormItem>
-                </Col>
-              ))}
-            </Row> : item.component ?
-              <Row key={num}>
-                <Col span={24}>
-                  <FormItem {...item.options}>{item.component}</FormItem>
-                </Col>
-              </Row>
-              : null
-        )
-      }
-    </Form>)
+      {items?.map((item: any, num: number) =>
+        item.items ? (
+          <Row key={num}>
+            {item.items.map((ele: any, index: number, arr: []) => (
+              <Col key={index} span={24 / arr.length}>
+                <FormItem {...ele.options}>{ele.component}</FormItem>
+              </Col>
+            ))}
+          </Row>
+        ) : item.component ? (
+          <Row key={num}>
+            <Col span={24}>
+              <FormItem {...item.options}>{item.component}</FormItem>
+            </Col>
+          </Row>
+        ) : null
+      )}
+    </Form>
+  );
 }
 export default AForm;

@@ -44,6 +44,12 @@
   -webkit-app-region: no-drag;
   flex: 1;
 }
+.login-page-container .panel-r .login-btn > span {
+  line-height: normal;
+}
+.login-page-container .panel-r .ofweek-link {
+  line-height: normal;
+}
 .login-page-container .panel-r .ant-form {
   padding: 0 40px;
 }

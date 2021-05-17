@@ -1,7 +1,7 @@
 {
   "name": "live-of-ofweek",
   "productName": "OFweek直播",
-  "version": "v1.0.0",
+  "version": "v1.0.4",
   "description": "OFweek直播",
   "main": "./main.prod.js",
   "author": {

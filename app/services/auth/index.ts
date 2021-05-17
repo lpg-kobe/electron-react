@@ -20,6 +20,15 @@ export function login({ params, ...handler }: ParamType): any {
   );
 }
 
+// 用户退出登录
+export function logout({ params, ...handler }: ParamType): any {
+  return request(
+    `/web/logout`,
+    { method: 'post' },
+    handler
+  );
+}
+
 // 验证码登录
 export function smsLogin({ params, ...handler }: ParamType): any {
   return request(

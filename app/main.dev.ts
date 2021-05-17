@@ -1,4 +1,4 @@
-/* eslint global-require: off, no-console: off */
+/* eslint global-require: 0, no-console: off */
 
 /**
  * This module executes inside of electron's main process. You can start
@@ -12,23 +12,18 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import path from 'path';
 import { app, BrowserWindow, Menu, Tray, protocol } from 'electron';
-import { autoUpdater } from 'electron-updater';
-import { MAIN_EVENT, RENDERER_EVENT, mainListen, mainHandle } from './utils/ipc';
-import { DEFAULT_WINDOW_CONFIG, DEFAULT_WINDOW_SIZE } from './constants'
-import { productName, version } from './package.json'
+import {
+  MAIN_EVENT,
+  RENDERER_EVENT,
+  mainListen,
+  mainHandle,
+} from './utils/ipc';
+import { DEFAULT_WINDOW_CONFIG, DEFAULT_WINDOW_SIZE } from './constants';
+import { productName, version } from './package.json';
 import logger from './utils/log';
 // import MenuBuilder from './menu';
 
-// add log.info to log.log because log level default set to 'warn'
-// log.transports.console.level = 'silly'
-
-const ofweekLog: any = logger('main process')
-export default class AppUpdater {
-  constructor() {
-    autoUpdater.logger = ofweekLog;
-    autoUpdater.checkForUpdatesAndNotify();
-  }
-}
+const ofweekLog: any = logger('______Main Process______');
 
 // tray of app
 let tray: any = null;
@@ -64,63 +59,65 @@ if (
 const installExtensions = async () => {
   const installer = require('electron-devtools-installer');
   const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
-  const extensions = ['REACT_DEVELOPER_TOOLS', 'REDUX_DEVTOOLS'];
+  const extensions = ['REACT_DEVELOPER_TOOLS'];
 
-  return Promise.all(
-    extensions.map((name) => installer.default(installer[name], forceDownload))
-  ).catch(console.log);
+  return installer
+    .default(
+      extensions.map((name) => installer[name]),
+      forceDownload
+    )
+    .catch(console.log);
 };
 
 /** show last active window */
 const showLastWindow = () => {
-  const windowKeys = Object.keys(totalWindow)
-  const windowLength = windowKeys.length
-  windowLength && totalWindow[windowKeys[windowLength - 1]].show()
-}
+  const windowKeys = Object.keys(totalWindow);
+  const windowLength = windowKeys.length;
+  windowLength && totalWindow[windowKeys[windowLength - 1]].show();
+};
 
 /** init app name or tray-menu after app ready */
 const initTool = async () => {
   // 应用设置
   app.setAboutPanelOptions({
     applicationName: productName,
-    applicationVersion: version
-  })
+    applicationVersion: version,
+  });
   // 系统托盘
-  tray = await new Tray(getAssetPath('tray-icon.png'))
+  tray = await new Tray(getAssetPath('tray-icon.png'));
   const contextMenu = await Menu.buildFromTemplate([
     { label: productName, type: 'normal', click: showLastWindow },
-    { label: '退出', type: 'normal', role: 'quit' }
-  ])
-  tray.on('click', showLastWindow)
-  await tray.setTitle(productName)
-  await tray.setToolTip(productName)
-  await tray.setContextMenu(contextMenu)
-}
+    { label: '退出', type: 'normal', role: 'quit' },
+  ]);
+  tray.on('click', showLastWindow);
+  await tray.setTitle(productName);
+  await tray.setToolTip(productName);
+  await tray.setContextMenu(contextMenu);
+};
 
 /**
  * @desc init window once and register all event listener after electron app ready
  */
 const initWindow = async () => {
-
   if (
     process.env.NODE_ENV === 'development' ||
     process.env.DEBUG_PROD === 'true'
   ) {
-    await installExtensions();
+    // await installExtensions();
   }
 
   createWindow(launchWindowKey, {
     ...DEFAULT_WINDOW_SIZE.LAUNCH,
     skipTaskbar: true,
     maximizable: false,
-    url: `file://${__dirname}/app.html#/launch`
-  })
+    url: `file://${__dirname}/app.html#/launch`,
+  });
 
   createWindow(loginWindowKey, {
     show: false,
     maximizable: false,
-    url: `file://${__dirname}/app.html#/login`
-  })
+    url: `file://${__dirname}/app.html#/login`,
+  });
 
   // 监听启动页面加载完毕
   mainListen(MAIN_EVENT.MAIN_LOAD_READY, () => {
@@ -129,67 +126,69 @@ const initWindow = async () => {
     }
     totalWindow[launchWindowKey].close();
     totalWindow[loginWindowKey].show();
-  })
+  });
 
   /** send operate code to all renderer witch can reply by it */
   mainListen(RENDERER_EVENT.RENDERER_SEND_CODE, (event: any, ...args: any) => {
-    ofweekLog.info(RENDERER_EVENT.RENDERER_SEND_CODE, event)
+    ofweekLog.info(`${RENDERER_EVENT.RENDERER_SEND_CODE}:`, ...args);
     Object.values(totalWindow).forEach((bWindow: any) => {
-      bWindow.webContents.send(RENDERER_EVENT.RENDERER_SEND_CODE, ...args)
-    })
-  })
+      bWindow.webContents.send(RENDERER_EVENT.RENDERER_SEND_CODE, ...args);
+    });
+  });
 
   /**
    * @desc handle open new page
    * @param {namespace} window namespace you want to create
    * @param {config} config of new window
    */
-  mainHandle(MAIN_EVENT.MAIN_OPEN_PAGE, async ({ sender: { history } }: any, { namespace, ...config }: any) => {
-    ofweekLog.info(MAIN_EVENT.MAIN_OPEN_PAGE, history)
-    if (!namespace) {
-      throw new Error("can not create new window without namespce, plaease try again with namespace key in your config")
+  mainHandle(
+    MAIN_EVENT.MAIN_OPEN_PAGE,
+    async ({ sender: { history } }: any, { namespace, ...config }: any) => {
+      ofweekLog.info(`${MAIN_EVENT.MAIN_OPEN_PAGE}:`, history);
+      if (!namespace) {
+        throw new Error(
+          'can not create new window without namespce, plaease try again with namespace key in your config'
+        );
+      }
+      if (totalWindow[namespace]) {
+        totalWindow[namespace].loadURL(config.url);
+      } else {
+        createWindow(namespace, config);
+      }
     }
-    if (totalWindow[namespace]) {
-      totalWindow[namespace].loadURL(config.url)
-    } else {
-      createWindow(namespace, config)
-    }
-  })
+  );
 
   // const menuBuilder = new MenuBuilder(mainWindow);
   // menuBuilder.buildMenu();
-
-  // Remove this if your app does not use auto updates
-  // eslint-disable-next-line
-  new AppUpdater();
-}
+};
 
 /**
  * @desc main function to create Window
- * @param {String} namespace name of window witch you create 
- * @param {Object} config config of window witch you create 
+ * @param {String} namespace name of window witch you create
+ * @param {Object} config config of window witch you create
  */
 const createWindow = (namespace: string, config: any) => {
-  const { closeNamespace } = config
+  ofweekLog.info('create new window:', namespace, config);
+  const { closeNamespace } = config;
   const windowConfig = {
-    icon: getAssetPath('/icons/iconX256.png'),
+    icon: getAssetPath('/icons/iconX64.png'),
     ...DEFAULT_WINDOW_CONFIG,
-    ...config
-  }
+    ...config,
+  };
 
   totalWindow[namespace] = new BrowserWindow(windowConfig);
-  totalWindow[namespace].config = windowConfig
+  totalWindow[namespace].config = windowConfig;
   totalWindow[namespace].loadURL(config.url);
   // open devtool in dev
   // totalWindow[namespace].webContents.openDevTools({ mode: 'detach' })
 
   // close window by closeNamespace which you need to close
-  closeNamespace && totalWindow[closeNamespace].close()
+  closeNamespace && totalWindow[closeNamespace].close();
 
   // 监听窗口关闭
   totalWindow[namespace].on('closed', () => {
     totalWindow[namespace] = null;
-    delete totalWindow[namespace]
+    delete totalWindow[namespace];
   });
 
   // @TODO: Use 'ready-to-show' event
@@ -198,7 +197,7 @@ const createWindow = (namespace: string, config: any) => {
     if (!totalWindow[namespace]) {
       throw new Error(`error~~,can not find window of ${namespace}`);
     }
-    const { config } = totalWindow[namespace]
+    const { config } = totalWindow[namespace];
     if (process.env.START_MINIMIZED) {
       totalWindow[namespace].minimize();
     } else {
@@ -210,11 +209,10 @@ const createWindow = (namespace: string, config: any) => {
   });
 };
 
-/** custom protocol setting*/
+// custom protocol setting
 protocol.registerSchemesAsPrivileged([
-  { scheme: 'file', privileges: { standard: true, secure: true } }
-])
-
+  { scheme: 'file', privileges: { standard: true, secure: true } },
+]);
 
 /**
  * Add event listeners of app...
@@ -230,32 +228,42 @@ app.on('window-all-closed', () => {
 if (process.env.E2E_BUILD === 'true') {
   // @ts-ignore eslint-disable-next-line promise/catch-or-return
   app.whenReady().then(() => {
-    initTool()
-    initWindow()
+    initTool();
+    initWindow();
   });
 } else {
   // @ts-ignore
   app.on('ready', () => {
-    initTool()
-    initWindow()
+    initTool();
+    initWindow();
   });
 }
 
 // 应用单例锁
 if (!app.requestSingleInstanceLock()) {
-  app.quit()
+  app.quit();
 } else {
   app.on('second-instance', () => {
     // focus window after got second instance
-    totalWindow && showLastWindow()
-  })
+    totalWindow && showLastWindow();
+  });
 }
 
 app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (!Object.keys(totalWindow).length || !totalWindow) {
-    initTool()
-    initWindow()
-  };
+    initTool();
+    initWindow();
+  }
+});
+
+// renderer process was gone
+app.on('render-process-gone', (event, webContents, details) => {
+  ofweekLog.info('______render-process-gone______', webContents, details);
+});
+
+// gpu process was gone
+app.on('child-process-gone', (event: any, details: any) => {
+  ofweekLog.info('______child-process-gone______', details);
 });

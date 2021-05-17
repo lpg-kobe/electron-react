@@ -3,12 +3,12 @@ import { Router, Route, Switch } from 'dva/router';
 import CommonLayout from './components/layout';
 import routes from './route.config';
 
-type RouteType = {
+interface RouteType {
   component: any;
   children: string[];
   path: string;
   exact: boolean;
-};
+}
 
 /**
  * @desc main function to create router
@@ -25,10 +25,9 @@ const createRoute = (route: RouteType, app: any) => {
       exact={typeof exact === 'undefined' ? true : exact}
       component={Component}
     >
-      {children &&
-        children.map((ele: any) => {
-          return createRoute(ele, app);
-        })}
+      {children?.map((ele: any) => {
+        return createRoute(ele, app);
+      })}
     </Route>
   );
 };

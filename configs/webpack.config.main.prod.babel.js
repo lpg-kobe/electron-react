@@ -34,7 +34,7 @@ export default merge(baseConfig, {
       : [
           new TerserPlugin({
             parallel: true,
-            sourceMap: true,
+            sourceMap: false,
             cache: true,
           }),
         ],

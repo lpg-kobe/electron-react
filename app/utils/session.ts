@@ -3,7 +3,7 @@
  * @author pika
  */
 
-type StorageType = {
+interface StorageType {
   [key: string]: any;
 };
 
